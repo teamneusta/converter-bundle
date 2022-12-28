@@ -59,12 +59,10 @@
     }
   },
   "scripts": {
-    "cs": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --diff --dry-run",
-    "cs-fix": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --diff",
+    "cs:check": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --diff --dry-run",
+    "cs:fix": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --diff",
     "phpstan": "phpstan analyse --level=${PHPSTAN_LEVEL:-8} -c phpstan.neon",
-    "phpstan:gitlab": "phpstan analyse -c phpstan.neon --memory-limit=1G --no-progress --level=${PHPSTAN_LEVEL:-8} --error-format=gitlab > .reports/phpstan.json",
     "tests": "phpunit",
-    "tests:gitlab": "phpunit --colors=never --coverage-text --coverage-cobertura=.reports/cobertura_${PHP_VERSION}.xml --coverage-clover=.reports/clover_${PHP_VERSION}.xml --log-junit=.reports/junit_${PHP_VERSION}.xml",
     "deptrac:analyse": "deptrac --config-file=depfile.yaml",
     "deptrac:analyse:visual": "deptrac --formatter=graphviz-html --output=deptrac.analyse-result.html --config-file=depfile.yaml",
     "deptrac:analyse:gitlab": "deptrac --formatter=codeclimate --output=.reports/deptrac.json --config-file=depfile.yaml"
