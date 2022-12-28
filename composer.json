@@ -1,0 +1,83 @@
+{
+  "name": "neusta/converter-bundle",
+  "type": "symfony-bundle",
+  "description": "Allows to easily use the Converter & Populator design pattern for transformations from one universe to another",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "team neusta GmbH",
+      "email": "info@team-neusta.de",
+      "homepage": "https://www.team-neusta.de/",
+      "role": "Developer"
+    },
+    {
+      "name": "Michael Albrecht",
+      "email": "m.albrecht@neusta.de",
+      "homepage": "https://www.michael-albrecht.de/",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "symfony/config": "^5.3",
+    "symfony/console": "^5.3",
+    "symfony/dependency-injection": "^5.3",
+    "symfony/event-dispatcher": "^5.3",
+    "symfony/http-kernel": "^5.3",
+    "symfony/framework-bundle": "^5.3",
+    "symfony/yaml": "^5.3"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.18",
+    "jangregor/phpstan-prophecy": "^1.0",
+    "jetbrains/phpstorm-attributes": "^1.0",
+    "phpspec/prophecy-phpunit": "^2.0",
+    "phpstan/extension-installer": "^1.1",
+    "phpstan/phpstan": "^1.9",
+    "phpunit/phpunit": "^9.5",
+    "qossmic/deptrac-shim": "^1.0.2",
+    "symfony/test-pack": "^1.0"
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Neusta\\ConverterBundle\\": "src/"
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Neusta\\ConverterBundle\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "cs": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --diff --dry-run",
+    "cs-fix": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --diff",
+    "phpstan": "phpstan analyse --level=${PHPSTAN_LEVEL:-8} -c phpstan.neon",
+    "phpstan:gitlab": "phpstan analyse -c phpstan.neon --memory-limit=1G --no-progress --level=${PHPSTAN_LEVEL:-8} --error-format=gitlab > .reports/phpstan.json",
+    "tests": "phpunit",
+    "tests:gitlab": "phpunit --colors=never --coverage-text --coverage-cobertura=.reports/cobertura_${PHP_VERSION}.xml --coverage-clover=.reports/clover_${PHP_VERSION}.xml --log-junit=.reports/junit_${PHP_VERSION}.xml",
+    "deptrac:analyse": "deptrac --config-file=depfile.yaml",
+    "deptrac:analyse:visual": "deptrac --formatter=graphviz-html --output=deptrac.analyse-result.html --config-file=depfile.yaml",
+    "deptrac:analyse:gitlab": "deptrac --formatter=codeclimate --output=.reports/deptrac.json --config-file=depfile.yaml"
+  },
+  "scripts-descriptions": {
+    "cs": "Checks code style (but doesn't fix anything)",
+    "cs-fix": "Fixes code style",
+    "phpstan": "PHPstan - find bugs and lacks in your type safety",
+    "phpstan:gitlab": "PHPstan on gitlab",
+    "tests": "Phpunit - write tests before you implement. That helps.",
+    "tests:gitlab": "Phpunit on gitlab",
+    "deptrac:analyse": "Analyse your dependencies and follow the pre-defined rules and layers",
+    "deptrac:analyse:visual": "Visualize your dependencies and follow the pre-defined rules and layers",
+    "deptrac:analyse:gitlab": "deptrac on gitlab"
+  }
+}

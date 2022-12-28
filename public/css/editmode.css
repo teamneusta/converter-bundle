@@ -1,0 +1,16 @@
+div.reveal section header,
+div.reveal section main,
+div.reveal section .slide-footer,
+div.reveal section .slide-settings {
+    margin: 2rem;
+    padding: 1rem;
+    border: 1px dotted deepskyblue;
+}
+
+header .slideTitle {
+    margin: 2rem 0;
+}
+
+div.flex-container div.flex-child {
+    border: 1px dotted palevioletred;
+}

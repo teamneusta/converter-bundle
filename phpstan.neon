@@ -1,0 +1,10 @@
+parameters:
+	paths:
+		- src
+		- tests
+
+	excludePaths:
+		- vendor
+		- tests
+
+	checkGenericClassInNonGenericObjectType: false
