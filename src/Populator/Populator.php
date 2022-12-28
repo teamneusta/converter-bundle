@@ -16,5 +16,5 @@ interface Populator
      * @param T $target
      * @param S $source
      */
-    public function populate(object $target, object $source, ?ConverterContext $ctx): void;
+    public function populate(object $target, object $source, ?ConverterContext $ctx = null): void;
 }

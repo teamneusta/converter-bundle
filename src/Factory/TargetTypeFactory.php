@@ -14,5 +14,5 @@ interface TargetTypeFactory
     /**
      * @return T
      */
-    public function create(?ConverterContext $ctx): object;
+    public function create(?ConverterContext $ctx = null): object;
 }
