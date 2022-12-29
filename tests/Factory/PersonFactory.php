@@ -13,7 +13,7 @@ use Neusta\ConverterBundle\Tests\Model\Person;
  */
 class PersonFactory implements TargetTypeFactory
 {
-    public function create(?ConverterContext $ctx): Person
+    public function create(?ConverterContext $ctx = null): Person
     {
         return new Person();
     }

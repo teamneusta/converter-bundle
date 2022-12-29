@@ -1,7 +1,7 @@
 version: '3.4'
 services:
     php:
-        image: "docker-repository.intern.neusta.de/php/kata:8.1"
+        image: "docker-repository.intern.neusta.de/php/kata:8.0"
         build:
             context: .
             args:
