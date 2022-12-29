@@ -18,24 +18,24 @@
     }
   ],
   "require": {
-    "php": "^8.1",
-    "symfony/config": "^5.3",
-    "symfony/console": "^5.3",
-    "symfony/dependency-injection": "^5.3",
-    "symfony/event-dispatcher": "^5.3",
-    "symfony/http-kernel": "^5.3",
-    "symfony/framework-bundle": "^5.3",
-    "symfony/yaml": "^5.3"
+    "php": "^8.0",
+    "symfony/config": "^5.4",
+    "symfony/console": "^5.4",
+    "symfony/dependency-injection": "^5.4",
+    "symfony/event-dispatcher": "^5.4",
+    "symfony/http-kernel": "^5.4",
+    "symfony/framework-bundle": "^5.4",
+    "symfony/yaml": "^5.4"
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^2.18",
+    "friendsofphp/php-cs-fixer": "^v3.11",
     "jangregor/phpstan-prophecy": "^1.0",
     "jetbrains/phpstorm-attributes": "^1.0",
     "phpspec/prophecy-phpunit": "^2.0",
     "phpstan/extension-installer": "^1.1",
     "phpstan/phpstan": "^1.9",
     "phpunit/phpunit": "^9.5",
-    "qossmic/deptrac-shim": "^1.0.2",
+    "qossmic/deptrac-shim": "^0.24",
     "symfony/test-pack": "^1.0"
   },
   "config": {
@@ -59,23 +59,19 @@
     }
   },
   "scripts": {
-    "cs:check": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --diff --dry-run",
-    "cs:fix": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -v --diff",
+    "cs:check": "php-cs-fixer fix -v --diff --dry-run",
+    "cs:fix": "php-cs-fixer fix -v --diff",
     "phpstan": "phpstan analyse --level=${PHPSTAN_LEVEL:-8} -c phpstan.neon",
     "tests": "phpunit",
     "deptrac:analyse": "deptrac --config-file=depfile.yaml",
-    "deptrac:analyse:visual": "deptrac --formatter=graphviz-html --output=deptrac.analyse-result.html --config-file=depfile.yaml",
-    "deptrac:analyse:gitlab": "deptrac --formatter=codeclimate --output=.reports/deptrac.json --config-file=depfile.yaml"
+    "deptrac:analyse:visual": "deptrac --formatter=graphviz-html --output=deptrac.analyse-result.html --config-file=depfile.yaml"
   },
   "scripts-descriptions": {
-    "cs": "Checks code style (but doesn't fix anything)",
-    "cs-fix": "Fixes code style",
+    "cs:check": "Checks code style (but doesn't fix anything)",
+    "cs:fix": "Fixes code style",
     "phpstan": "PHPstan - find bugs and lacks in your type safety",
-    "phpstan:gitlab": "PHPstan on gitlab",
     "tests": "Phpunit - write tests before you implement. That helps.",
-    "tests:gitlab": "Phpunit on gitlab",
     "deptrac:analyse": "Analyse your dependencies and follow the pre-defined rules and layers",
-    "deptrac:analyse:visual": "Visualize your dependencies and follow the pre-defined rules and layers",
-    "deptrac:analyse:gitlab": "deptrac on gitlab"
+    "deptrac:analyse:visual": "Visualize your dependencies and follow the pre-defined rules and layers"
   }
 }

@@ -14,7 +14,7 @@ use Neusta\ConverterBundle\Tests\Model\User;
  */
 class PersonNamePopulator implements Populator
 {
-    public function populate(object $target, object $source, ?ConverterContext $ctx): void
+    public function populate(object $target, object $source, ?ConverterContext $ctx = null): void
     {
         $separationString = ' ';
         if ($ctx && $ctx->hasKey('separation char')) {

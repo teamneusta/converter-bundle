@@ -18,7 +18,7 @@ class DefaultCacheManagement implements CacheManagement
      * @param CacheKeyFactory<T> $keyFactory
      */
     public function __construct(
-        private readonly CacheKeyFactory $keyFactory,
+        private CacheKeyFactory $keyFactory,
     )
     {
         $this->targets = [];
