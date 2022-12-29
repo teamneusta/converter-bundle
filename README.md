@@ -68,7 +68,7 @@ use Neusta\ConverterBundle\Factory\TargetTypeFactory;
  */
 class PersonFactory implements TargetTypeFactory
 {
-    public function create(?DefaultConverterContext $ctx): Person
+    public function create(?ConverterContext $ctx = null): Person
     {
         return new Person();
     }
@@ -91,7 +91,7 @@ use Neusta\ConverterBundle\Populator\Populator;
  */
 class PersonNamePopulator implements Populator
 {
-    public function populate(object $target, object $source, ?DefaultConverterContext $ctx): void
+    public function populate(object $target, object $source, ?ConverterContext $ctx = null): void
     {
         $separationString = ' ';
         $target->setFullName($source->getFirstname() . $separationString . $source->getLastname());
@@ -106,7 +106,7 @@ separated Populator or in several of them.
 To put things together declare the following converter in your Symfony config:
 ```yaml
 person.converter:
-    class: Neusta\ConverterBundle\Converter\DefaultConverter
+    parent: 'default.converter'
     public: true
     arguments:
         $factory: '@YourNameSpace\PersonFactory'
@@ -181,7 +181,7 @@ class UserKeyFactory implements CacheKeyFactory
 To put things together declare the following cached converter in your Symfony config:
 ```yaml
 person.converter:
-    class: Neusta\ConverterBundle\Converter\DefaultCachedConverter
+    parent: 'default.converter.with.cache'
     public: true
     arguments:
         $factory: '@YourNameSpace\PersonFactory'

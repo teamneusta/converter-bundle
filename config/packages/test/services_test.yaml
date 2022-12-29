@@ -10,7 +10,7 @@ services:
         public: true
 
     test.person.converter:
-        class: Neusta\ConverterBundle\Converter\DefaultConverter
+        parent: 'default.converter'
         public: true
         arguments:
             $factory: '@Neusta\ConverterBundle\Tests\Factory\PersonFactory'
@@ -18,7 +18,7 @@ services:
                 - '@Neusta\ConverterBundle\Tests\Populator\PersonNamePopulator'
 
     test.person.converter.with.cache:
-        class: Neusta\ConverterBundle\Converter\DefaultCachedConverter
+        parent: 'default.converter.with.cache'
         public: true
         arguments:
             $factory: '@Neusta\ConverterBundle\Tests\Factory\PersonFactory'

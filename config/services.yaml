@@ -2,3 +2,18 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+
+    ############################################################
+    # Default Converter
+    ############################################################
+    default.converter:
+        abstract: true
+        class: Neusta\ConverterBundle\Converter\DefaultConverter
+
+    ############################################################
+    # Default Converter with Cache
+    ############################################################
+    default.converter.with.cache:
+        abstract: true
+        class: Neusta\ConverterBundle\Converter\DefaultCachedConverter
+
