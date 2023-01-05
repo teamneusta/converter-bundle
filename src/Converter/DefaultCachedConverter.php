@@ -17,7 +17,7 @@ class DefaultCachedConverter implements CachedConverter
 {
     /**
      * @param TargetTypeFactory $factory
-     * @param Populator $populators
+     * @param array<Populator<S, T>> $populators
      * @param CacheManagement<S,T> $cacheManagement
      */
     public function __construct(
