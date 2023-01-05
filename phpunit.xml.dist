@@ -12,7 +12,7 @@
 <!--    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"-->
     <php>
         <ini name="error_reporting" value="-1"/>
-        <env name="KERNEL_CLASS" value="Neusta\ConverterBundle\Tests\AppKernel"/>
+        <env name="KERNEL_CLASS" value="TestKernel"/>
     </php>
     <!--<php>-->
     <!--    <ini name="error_reporting" value="-1" />-->
