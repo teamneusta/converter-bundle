@@ -10,7 +10,7 @@ use Neusta\ConverterBundle\Populator\Populator;
 /**
  * @template S of object
  * @template T of object
- * @implements Converter<S,T>
+ * @implements Converter<S, T>
  */
 class DefaultConverter implements Converter
 {

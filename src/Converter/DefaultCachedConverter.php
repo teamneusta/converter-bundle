@@ -11,14 +11,14 @@ use Neusta\ConverterBundle\Populator\Populator;
 /**
  * @template S of object
  * @template T of object
- * @implements CachedConverter<S,T>
+ * @implements CachedConverter<S, T>
  */
 class DefaultCachedConverter implements CachedConverter
 {
     /**
      * @param TargetTypeFactory $factory
      * @param array<Populator<S, T>> $populators
-     * @param CacheManagement<S,T> $cacheManagement
+     * @param CacheManagement<S, T> $cacheManagement
      */
     public function __construct(
         private TargetTypeFactory $factory,
