@@ -19,7 +19,10 @@ class DefaultConverterContext implements ConverterContext
         return $this->values[$key];
     }
 
-    public function setValue(string $key, mixed $value): DefaultConverterContext
+    /**
+     * @return $this
+     */
+    public function setValue(string $key, mixed $value): static
     {
         $this->values[$key] = $value;
 
