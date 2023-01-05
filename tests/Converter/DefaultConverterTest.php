@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Converter\DefaultConverter;
-use Neusta\ConverterBundle\Tests\Factory\PersonFactory;
-use Neusta\ConverterBundle\Tests\Model\Person;
-use Neusta\ConverterBundle\Tests\Model\User;
-use Neusta\ConverterBundle\Tests\Populator\PersonNamePopulator;
+use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
 
 class DefaultConverterTest extends TestCase

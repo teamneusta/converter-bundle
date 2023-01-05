@@ -7,11 +7,11 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Converter\DefaultCachedConverter;
-use Neusta\ConverterBundle\Tests\CacheManagement\UserKeyFactory;
-use Neusta\ConverterBundle\Tests\Factory\PersonFactory;
-use Neusta\ConverterBundle\Tests\Model\Person;
-use Neusta\ConverterBundle\Tests\Model\User;
-use Neusta\ConverterBundle\Tests\Populator\PersonNamePopulator;
+use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
 
 class DefaultCachedConverterTest extends TestCase

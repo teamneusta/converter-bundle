@@ -7,8 +7,8 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Tests\BundleKernelTestCase;
-use Neusta\ConverterBundle\Tests\Model\Person;
-use Neusta\ConverterBundle\Tests\Model\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 
 class DefaultConverterIntegrationTest extends BundleKernelTestCase
 {

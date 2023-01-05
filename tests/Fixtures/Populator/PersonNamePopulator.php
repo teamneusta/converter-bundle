@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Tests\Populator;
+namespace Neusta\ConverterBundle\Tests\Fixtures\Populator;
 
 use Neusta\ConverterBundle\Converter\ConverterContext;
 use Neusta\ConverterBundle\Populator\Populator;
-use Neusta\ConverterBundle\Tests\Model\Person;
-use Neusta\ConverterBundle\Tests\Model\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 
 /**
  * @implements Populator<User, Person>
