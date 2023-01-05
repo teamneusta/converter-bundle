@@ -12,16 +12,14 @@ class DefaultCacheManagement implements CacheManagement
     /**
      * @var array<T>
      */
-    private array $targets;
+    private array $targets = [];
 
     /**
      * @param CacheKeyFactory<T> $keyFactory
      */
     public function __construct(
         private CacheKeyFactory $keyFactory,
-    )
-    {
-        $this->targets = [];
+    ) {
     }
 
     public function isInCache(object $cacheKey): bool
@@ -38,5 +36,4 @@ class DefaultCacheManagement implements CacheManagement
     {
         $this->targets[$this->keyFactory->createCacheKey($cacheKey)] = $cacheEntry;
     }
-
 }
