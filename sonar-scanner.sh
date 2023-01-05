@@ -119,7 +119,7 @@ BRANCHNAME=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
 ##echo 'changing Project-Name to: DSV-Website-Relaunch 2020, Branch:' $BRANCHNAME
 ##sed -i 's|sonar.projectName=.*|sonar.projectName=DSV-Website-Relaunch 2020, Branch: '$BRANCHNAME'|g' sonar-project.properties
 #
-BRANCHNAMEREPL=pimcore-designsystem-bundle
+BRANCHNAMEREPL=neusta-converter-bundle
 ##echo 'changing Project-Key to: gvr_'$BRANCHNAMEREPL
 ##sed -i 's|sonar.projectKey=.*|sonar.projectKey=gvr_'$BRANCHNAMEREPL'|g' sonar-project.properties
 #echo 'Changing Branch-Name to: '$BRANCHNAMEREPL
@@ -135,11 +135,11 @@ if [ "$(docker ps -aq -f status=exited -f name=sonarscanner)" ]; then
     docker rm sonarscanner
 fi
 
-docker run -ti -v $(pwd):/usr/src -u root --link sonarqube --name sonarscanner sonarsource/sonar-scanner-cli -Dsonar.projectKey=pimcore-designsystem-bundle
+docker run -ti -v $(pwd):/usr/src -u root --link sonarqube --name sonarscanner sonarsource/sonar-scanner-cli -Dsonar.projectKey=neusta-converter-bundle
 
 docker rm sonarscanner
 
-URL=http://localhost:$SONARQUBE_PORT/dashboard?id=pimcore-designsystem-bundle
+URL=http://localhost:$SONARQUBE_PORT/dashboard?id=neusta-converter-bundle
 
 if [ "${BROWSER,,}" == "chrome" ]; then
   google-chrome $URL
