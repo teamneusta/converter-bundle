@@ -24,7 +24,7 @@ class DefaultCacheManagement implements CacheManagement
 
     public function isInCache(object $cacheKey): bool
     {
-        return array_key_exists($this->keyFactory->createCacheKey($cacheKey), $this->targets);
+        return isset($this->targets[$this->keyFactory->createCacheKey($cacheKey)]);
     }
 
     public function get(object $cacheKey): object
