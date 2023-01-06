@@ -8,11 +8,9 @@ use Symfony\Component\HttpKernel\Kernel;
 
 class TestKernel extends Kernel
 {
-    public function registerBundles(): array
+    public function registerBundles(): iterable
     {
-        return [
-            new NeustaConverterBundle(),
-        ];
+        yield new NeustaConverterBundle();
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader): void
