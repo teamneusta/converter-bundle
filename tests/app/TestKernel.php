@@ -20,13 +20,8 @@ class TestKernel extends Kernel
         $loader->load(__DIR__ . '/config/services.yaml');
     }
 
-    public function getCacheDir(): string
+    public function getProjectDir(): string
     {
-        return \sys_get_temp_dir() . '/NeustaConverterBundle/cache';
-    }
-
-    public function getLogDir(): string
-    {
-        return \sys_get_temp_dir() . '/NeustaConverterBundle/logs';
+        return __DIR__;
     }
 }
