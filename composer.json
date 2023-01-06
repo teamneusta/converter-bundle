@@ -2,7 +2,7 @@
   "name": "neusta/converter-bundle",
   "type": "symfony-bundle",
   "description": "Allows to easily use the Converter & Populator design pattern for transformations from one universe to another",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "authors": [
     {
       "name": "team neusta GmbH",
