@@ -35,7 +35,7 @@ class DefaultConverterIntegrationTest extends BundleKernelTestCase
     {
         // Test Fixture
         $source = (new User())->setFirstname('Max')->setLastname('Mustermann');
-        $ctx = (new DefaultConverterContext())->setValue('separation char', ', ');
+        $ctx = (new DefaultConverterContext())->setValue('separator', ', ');
         // Test Execution
         $target = $this->converter->convert($source, $ctx);
         // Test Assertion

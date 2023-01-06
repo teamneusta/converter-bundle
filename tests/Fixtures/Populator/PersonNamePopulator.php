@@ -16,10 +16,8 @@ class PersonNamePopulator implements Populator
 {
     public function populate(object $target, object $source, ?ConverterContext $ctx = null): void
     {
-        $separationString = ' ';
-        if ($ctx && $ctx->hasKey('separation char')) {
-            $separationString = $ctx->getValue('separation char');
-        }
-        $target->setFullName($source->getFirstname() . $separationString . $source->getLastname());
+        $separator = $ctx?->getValue('separator') ?? ' ';
+
+        $target->setFullName(implode($separator, [$source->getFirstname(), $source->getLastname()]));
     }
 }
