@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Fixtures\Factory;
 
-use Neusta\ConverterBundle\Converter\ConverterContext;
+use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Factory\TargetTypeFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 
 /**
- * @implements  TargetTypeFactory<Person>
+ * @implements TargetTypeFactory<Person, DefaultConverterContext>
  */
 class PersonFactory implements TargetTypeFactory
 {
-    public function create(?ConverterContext $ctx = null): Person
+    public function create(?object $ctx = null): Person
     {
         return new Person();
     }

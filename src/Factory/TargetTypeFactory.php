@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Factory;
 
-use Neusta\ConverterBundle\Converter\ConverterContext;
-
 /**
  * @template T of object
+ * @template C of object
  */
 interface TargetTypeFactory
 {
     /**
+     * @param C|null $ctx
+     *
      * @return T
      */
-    public function create(?ConverterContext $ctx = null): object;
+    public function create(?object $ctx = null): object;
 }

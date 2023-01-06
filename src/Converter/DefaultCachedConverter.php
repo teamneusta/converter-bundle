@@ -9,12 +9,13 @@ use Neusta\ConverterBundle\CacheManagement\CacheManagement;
 /**
  * @template S of object
  * @template T of object
- * @implements CachedConverter<S, T>
+ * @template C of object
+ * @implements CachedConverter<S, T, C>
  */
 class DefaultCachedConverter implements CachedConverter
 {
     /**
-     * @param Converter<S, T> $inner
+     * @param Converter<S, T, C> $inner
      * @param CacheManagement<S, T> $cacheManagement
      */
     public function __construct(
@@ -25,10 +26,11 @@ class DefaultCachedConverter implements CachedConverter
 
     /**
      * @param S $source
+     * @param C|null $ctx
      *
      * @return T
      */
-    public function convert(object $source, ?ConverterContext $ctx = null): object
+    public function convert(object $source, ?object $ctx = null): object
     {
         if ($this->cacheManagement->isInCache($source)) {
             return $this->cacheManagement->get($source);
