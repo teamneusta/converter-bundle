@@ -16,7 +16,7 @@ class DefaultConverterContext implements ConverterContext
 
     public function getValue(string $key): mixed
     {
-        return $this->values[$key];
+        return $this->values[$key] ?? null;
     }
 
     /**
