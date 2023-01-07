@@ -21,7 +21,7 @@ services:
         parent: 'default.converter.with.cache'
         public: true
         arguments:
-            $inner: '@default.converter'
+            $inner: '@.inner'
             $cacheManagement: '@Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement'
 
     Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~
