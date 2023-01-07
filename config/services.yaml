@@ -18,5 +18,5 @@ services:
         class: Neusta\ConverterBundle\Converter\DefaultCachedConverter
         decorates: default.converter
         arguments:
-            $inner: '@default.converter'
+            $inner: '@.inner'
 
