@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Converter;
 
 class DefaultConverterContext implements ConverterContext
 {
-    /** @var array<string ,mixed> */
+    /** @var array<string, mixed> */
     protected array $values;
 
     public function hasKey(string $key): bool
@@ -16,10 +16,13 @@ class DefaultConverterContext implements ConverterContext
 
     public function getValue(string $key): mixed
     {
-        return $this->values[$key];
+        return $this->values[$key] ?? null;
     }
 
-    public function setValue(string $key, mixed $value): DefaultConverterContext
+    /**
+     * @return $this
+     */
+    public function setValue(string $key, mixed $value): static
     {
         $this->values[$key] = $value;
 

@@ -11,7 +11,7 @@ namespace Neusta\ConverterBundle\Converter;
 interface Converter
 {
     /**
-     * @param S $source can be Pimcore object (instance of ElementInterface) or any other object
+     * @param S $source
      *
      * @return T target type of your conversion
      */

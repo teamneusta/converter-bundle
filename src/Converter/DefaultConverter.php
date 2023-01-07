@@ -10,13 +10,13 @@ use Neusta\ConverterBundle\Populator\Populator;
 /**
  * @template S of object
  * @template T of object
- * @implements Converter<S,T>
+ * @implements Converter<S, T>
  */
 class DefaultConverter implements Converter
 {
     /**
      * @param TargetTypeFactory<T> $factory
-     * @param Populator<S,T>[]     $populators
+     * @param array<Populator<S, T>> $populators
      */
     public function __construct(
         private TargetTypeFactory $factory,

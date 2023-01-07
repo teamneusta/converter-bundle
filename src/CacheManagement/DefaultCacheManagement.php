@@ -5,28 +5,26 @@ namespace Neusta\ConverterBundle\CacheManagement;
 /**
  * @template S of object
  * @template T of object
- * @implements CacheManagement<S,T>
+ * @implements CacheManagement<S, T>
  */
 class DefaultCacheManagement implements CacheManagement
 {
     /**
      * @var array<T>
      */
-    private array $targets;
+    private array $targets = [];
 
     /**
-     * @param CacheKeyFactory<T> $keyFactory
+     * @param CacheKeyFactory<S> $keyFactory
      */
     public function __construct(
         private CacheKeyFactory $keyFactory,
-    )
-    {
-        $this->targets = [];
+    ) {
     }
 
     public function isInCache(object $cacheKey): bool
     {
-        return array_key_exists($this->keyFactory->createCacheKey($cacheKey), $this->targets);
+        return isset($this->targets[$this->keyFactory->createCacheKey($cacheKey)]);
     }
 
     public function get(object $cacheKey): object
@@ -38,5 +36,4 @@ class DefaultCacheManagement implements CacheManagement
     {
         $this->targets[$this->keyFactory->createCacheKey($cacheKey)] = $cacheEntry;
     }
-
 }
