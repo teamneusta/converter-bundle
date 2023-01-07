@@ -20,23 +20,20 @@
   "require": {
     "php": "^8.0",
     "symfony/config": "^5.4",
-    "symfony/console": "^5.4",
     "symfony/dependency-injection": "^5.4",
-    "symfony/event-dispatcher": "^5.4",
     "symfony/http-kernel": "^5.4",
-    "symfony/framework-bundle": "^5.4",
-    "symfony/yaml": "^5.4"
+    "symfony/framework-bundle": "^5.4"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^v3.11",
     "jangregor/phpstan-prophecy": "^1.0",
-    "jetbrains/phpstorm-attributes": "^1.0",
     "phpspec/prophecy-phpunit": "^2.0",
     "phpstan/extension-installer": "^1.1",
     "phpstan/phpstan": "^1.9",
     "phpunit/phpunit": "^9.5",
     "qossmic/deptrac-shim": "^0.24",
-    "symfony/test-pack": "^1.0"
+    "symfony/test-pack": "^1.0",
+    "symfony/yaml": "5.4"
   },
   "config": {
     "preferred-install": "dist",
@@ -48,10 +45,7 @@
   "autoload": {
     "psr-4": {
       "Neusta\\ConverterBundle\\": "src/"
-    },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
+    }
   },
   "autoload-dev": {
     "psr-4": {

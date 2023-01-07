@@ -1,12 +1,6 @@
 <?php
 
 /*
- * This document has been initially generated with
- * https://mlocati.github.io/php-cs-fixer-configurator/#version:3.5.0|configurator
- * and then adapted be our needs
- */
-
-/*
  * This document has been generated with
  * https://mlocati.github.io/php-cs-fixer-configurator/#version:3.13.1|configurator
  * you can change this configuration by importing this file.
