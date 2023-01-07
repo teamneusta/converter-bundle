@@ -34,7 +34,7 @@ class DefaultCachedConverter implements CachedConverter
             return $this->cacheManagement->get($source);
         }
 
-        $target = $this->inner->convert($source);
+        $target = $this->inner->convert($source, $ctx);
 
         $this->cacheManagement->writeInCache($target, $source);
 
