@@ -4,9 +4,9 @@ A default implementation of the Converter & Populator design pattern.
 
 ## Installation
 
-Run `composer require neusta/converter-bundle:^1.0@dev` to activate the bundle
+Run `composer require neusta/converter-bundle` to install the bundle.
 
-Add the following line into your `bundles.php` file:
+Add the following line into your `bundles.php` file to activate it:
 
 ```php
 ...
@@ -17,7 +17,7 @@ return [
 ];
 ```
 
-This is important for pre-loading the default configuration of provided converter implementations which can be reused
+This is important for preloading the default configuration of provided converter implementations which can be reused
 and simplify your code and further updates.
 
 ## [Usage](docs/usage.md)
