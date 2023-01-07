@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\CacheManagement\CacheManagement;
-use Neusta\ConverterBundle\Factory\TargetTypeFactory;
-use Neusta\ConverterBundle\Populator\Populator;
 
 /**
  * @template S of object
@@ -16,13 +14,11 @@ use Neusta\ConverterBundle\Populator\Populator;
 class DefaultCachedConverter implements CachedConverter
 {
     /**
-     * @param TargetTypeFactory<T> $factory
-     * @param array<Populator<S, T>> $populators
+     * @param Converter<S, T> $inner
      * @param CacheManagement<S, T> $cacheManagement
      */
     public function __construct(
-        private TargetTypeFactory $factory,
-        private array $populators,
+        private Converter $inner,
         private CacheManagement $cacheManagement,
     ) {
     }
@@ -38,11 +34,7 @@ class DefaultCachedConverter implements CachedConverter
             return $this->cacheManagement->get($source);
         }
 
-        $target = $this->factory->create($ctx);
-
-        foreach ($this->populators as $populator) {
-            $populator->populate($target, $source, $ctx);
-        }
+        $target = $this->inner->convert($source);
 
         $this->cacheManagement->writeInCache($target, $source);
 
