@@ -9,7 +9,7 @@ services:
         alias: service_container
         public: true
 
-    test.person.converter:
+    test.person.converter: &test-person-converter
         parent: 'default.converter'
         public: true
         arguments:
@@ -18,11 +18,14 @@ services:
                 - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator'
 
     test.person.converter.with.cache:
-        parent: 'default.converter.with.cache'
-        public: true
+        <<: *test-person-converter
+
+    test.person.converter.with.cache.decorator:
+        class: Neusta\ConverterBundle\Converter\CachedConverter
+        decorates: test.person.converter.with.cache
         arguments:
             $inner: '@.inner'
-            $cacheManagement: '@Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement'
+            $cacheManagement: '@user.cache_management'
 
     Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~
 
@@ -30,6 +33,7 @@ services:
 
     Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory: ~
 
-    Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement:
+    user.cache_management:
+        class: Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement
         arguments:
             $keyFactory: '@Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory'
