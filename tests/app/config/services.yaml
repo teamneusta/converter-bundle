@@ -21,7 +21,7 @@ services:
         <<: *test-person-converter
 
     test.person.converter.with.cache.decorator:
-        class: Neusta\ConverterBundle\Converter\DefaultCachedConverter
+        class: Neusta\ConverterBundle\Converter\CachedConverter
         decorates: test.person.converter.with.cache
         arguments:
             $inner: '@.inner'

@@ -3,7 +3,7 @@
 In some situations - especially if you are transforming objects with relation to objects - it may be helpful
 to use caching to avoid conversion of same object instances again and again.
 
-Therefore we offer a simple version of `DefaultCachedConverter`.
+Therefore, we offer a `CachedConverter`.
 
 Before you can directly use it you have to implement a cache key strategy of your source objects;
 i.e. you have to determine how one can differentiate the source objects.
@@ -45,7 +45,7 @@ person.converter:
     $cacheManagement: '@user.cache_management'
 
 person.converter.cached:
-  class: Neusta\ConverterBundle\Converter\DefaultCachedConverter
+  class: Neusta\ConverterBundle\Converter\CachedConverter
   decorates: person.converter
   arguments:
     $inner: '@.inner'
@@ -60,7 +60,7 @@ user.cache_management:
 The `DefaultCacheManagement` is offering a simple array-based cache of converted objects which is using the `$keyFactory`
 to determine the cache key. This allows you to implement very domain-specific identifications of your object conversions.
 
-The `DefaulCachedConverter` is using the `DefaultCacheManagement` component and always reads first from cache and if the
+The `CachedConverter` is using the `CacheManagement` and always reads first from cache and if the
 target object can not be found it will be written into the cache before returning.
 
 ## Why?!
