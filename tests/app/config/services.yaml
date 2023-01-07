@@ -1,0 +1,37 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        # for tests only
+        public: true
+
+    test.service_container:
+        alias: service_container
+        public: true
+
+    test.person.converter:
+        parent: 'default.converter'
+        public: true
+        arguments:
+            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory'
+            $populators:
+                - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator'
+
+    test.person.converter.with.cache:
+        parent: 'default.converter.with.cache'
+        public: true
+        arguments:
+            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory'
+            $populators:
+                - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator'
+            $cacheManagement: '@Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement'
+
+    Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~
+
+    Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory: ~
+
+    Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory: ~
+
+    Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement:
+        arguments:
+            $keyFactory: '@Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory'
