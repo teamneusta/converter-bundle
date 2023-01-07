@@ -16,7 +16,7 @@ use Neusta\ConverterBundle\Populator\Populator;
 class DefaultCachedConverter implements CachedConverter
 {
     /**
-     * @param TargetTypeFactory $factory
+     * @param TargetTypeFactory<T> $factory
      * @param array<Populator<S, T>> $populators
      * @param CacheManagement<S, T> $cacheManagement
      */
