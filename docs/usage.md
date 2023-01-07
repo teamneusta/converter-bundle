@@ -85,8 +85,8 @@ class PersonNamePopulator implements Populator
 {
     public function populate(object $target, object $source, ?ConverterContext $ctx = null): void
     {
-        $separationString = ' ';
-        $target->setFullName($source->getFirstname() . $separationString . $source->getLastname());
+        $separator = ' ';
+        $target->setFullName($source->getFirstname() . $separator . $source->getLastname());
     }
 }
 ```
@@ -104,15 +104,15 @@ person.converter:
   parent: 'default.converter'
   public: true
   arguments:
-    $factory: '@YourNameSpace\PersonFactory'
+    $factory: '@YourNamespace\PersonFactory'
     $populators:
-      - '@YourNameSpace\PersonNamePopulator'
+      - '@YourNamespace\PersonNamePopulator'
       # additional populators may follow 
 ```
 
 ### Conversion
 
-And now if you want to convert Users into Persons just type in your code:
+And now if you want to convert `Users` into `Persons` just type in your code:
 
 ```php
 /** @var Converter<User,Person> */
@@ -142,7 +142,7 @@ use it:
 ```php
 // inside the Populator implementation
 if ($ctx && $ctx->hasKey('locale')) {
-    $ocale = $ctx->getValue('locale');
+    $locale = $ctx->getValue('locale');
 }
 ```
 
