@@ -6,6 +6,6 @@ services:
     ############################################################
     # Default Converter
     ############################################################
-    default.converter:
+    neusta_converter.default_converter:
         abstract: true
         class: Neusta\ConverterBundle\Converter\DefaultConverter

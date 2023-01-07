@@ -10,7 +10,7 @@ services:
         public: true
 
     test.person.converter: &test-person-converter
-        parent: 'default.converter'
+        parent: 'neusta_converter.default_converter'
         public: true
         arguments:
             $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory'

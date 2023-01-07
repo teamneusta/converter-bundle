@@ -101,7 +101,7 @@ To put things together declare the following converter in your Symfony config:
 
 ```yaml
 person.converter:
-  parent: 'default.converter'
+  parent: 'neusta_converter.default_converter'
   public: true
   arguments:
     $factory: '@YourNamespace\PersonFactory'
