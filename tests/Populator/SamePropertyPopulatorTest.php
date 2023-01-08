@@ -17,10 +17,6 @@ class SamePropertyPopulatorTest extends TestCase
     /** @var SamePropertyPopulator<User, Person, DefaultConverterContext> */
     private SamePropertyPopulator $populator;
 
-    protected function setUp(): void
-    {
-    }
-
     public function testPopulate_regular_case(): void
     {
         $this->populator = new SamePropertyPopulator('fullName');
