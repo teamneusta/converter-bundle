@@ -36,12 +36,19 @@ To put things together declare the following cached converter in your Symfony co
 
 ```yaml
 person.converter:
-  parent: 'default.converter.with.cache'
+  parent: 'neusta_converter.default_converter'
   public: true
   arguments:
     $factory: '@YourNamespace\PersonFactory'
     $populators:
       - '@YourNamespace\PersonNamePopulator'
+    $cacheManagement: '@user.cache_management'
+
+person.converter.cached:
+  class: Neusta\ConverterBundle\Converter\DefaultCachedConverter
+  decorates: person.converter
+  arguments:
+    $inner: '@.inner'
     $cacheManagement: '@user.cache_management'
 
 user.cache_management:
