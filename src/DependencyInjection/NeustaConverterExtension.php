@@ -4,24 +4,39 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
+use Neusta\ConverterBundle\Converter\Converter;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
-class NeustaConverterExtension extends Extension
+class NeustaConverterExtension extends ConfigurableExtension
 {
     /**
-     * @param array<mixed> $configs
-     *
-     * @throws \Exception
+     * @param array<mixed> $config
      */
-    public function load(array $configs, ContainerBuilder $container): void
+    public function loadInternal(array $config, ContainerBuilder $container): void
     {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
+        $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__, 2) . '/config'));
         $loader->load('services.yaml');
+
+        $this->registerConverterConfiguration($config['converter'], $container);
+    }
+
+    private function registerConverterConfiguration(array $config, ContainerBuilder $container): void
+    {
+        foreach ($config as $converterId => $converter) {
+            $container->registerAliasForArgument($converterId, Converter::class);
+            $container->register($converterId, $converter['converter'])
+                ->setPublic(true)
+                ->setArguments([
+                    '$factory' => new Reference($converter['target_factory']),
+                    '$populators' => array_map(
+                        static fn (string $populator) => new Reference($populator),
+                        $converter['populators'],
+                    ),
+                ]);
+        }
     }
 }

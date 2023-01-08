@@ -5,16 +5,13 @@ services:
         # for tests only
         public: true
 
-    test.person.converter: &test-person-converter
+    test.person.converter.with.cache:
         parent: 'neusta_converter.default_converter'
         public: true
         arguments:
             $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory'
             $populators:
                 - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator'
-
-    test.person.converter.with.cache:
-        <<: *test-person-converter
 
     test.person.converter.with.cache.decorator:
         class: Neusta\ConverterBundle\Converter\CachedConverter
