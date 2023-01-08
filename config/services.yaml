@@ -9,3 +9,8 @@ services:
     neusta_converter.default_converter:
         abstract: true
         class: Neusta\ConverterBundle\Converter\DefaultConverter
+
+    neusta_converter.same_property_populator:
+        abstract: true
+        public: true
+        class: Neusta\ConverterBundle\Populator\SamePropertyPopulator

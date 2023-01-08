@@ -28,6 +28,11 @@ services:
             $cacheManagement: '@user.cache_management'
 
     Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~
+    
+    test.person.fullName.populator:
+        parent: 'neusta_converter.same_property_populator'
+        arguments:
+            $propertyName: 'fullName'
 
     Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory: ~
 
