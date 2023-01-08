@@ -5,3 +5,12 @@ neusta_converter:
       target_factory: Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory
       populators:
         - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
+
+    test.person.converter.with.cache:
+      converter: Neusta\ConverterBundle\Converter\DefaultConverter
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory
+      populators:
+        - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
+      cached:
+#        service: user.cache_management
+        key_factory: Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
+use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
+use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter\Converter;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -37,6 +39,25 @@ class NeustaConverterExtension extends ConfigurableExtension
                         $converter['populators'],
                     ),
                 ]);
+
+            if (isset($config['cached'])) {
+                $cacheManagementId = "{$converterId}.cache_management";
+                if ($config['cached']['service']) {
+                    $container->setAlias($cacheManagementId, $config['cached']['service']);
+                } else {
+                    $container->register($cacheManagementId, DefaultCacheManagement::class)
+                        ->setArguments([
+                            '$keyFactory' => new Reference($config['cached']['key_factory']),
+                        ]);
+                }
+
+                $container->register("{$converterId}.cached", CachedConverter::class)
+                    ->setDecoratedService($converterId)
+                    ->setArguments([
+                        '$inner' => new Reference('.inner'),
+                        '$cacheManagement' => new Reference($cacheManagementId),
+                    ]);
+            }
         }
     }
 }
