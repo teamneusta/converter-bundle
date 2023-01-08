@@ -11,6 +11,9 @@ $finder = PhpCsFixer\Finder::create()
     ->in([
         __DIR__ . '/src',
         __DIR__ . '/tests',
+    ])
+    ->exclude([
+        __DIR__ . 'tests/app/var',
     ]);
 
 return $config
