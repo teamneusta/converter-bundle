@@ -12,7 +12,7 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 
 class DefaultConverterIntegrationTest extends BundleKernelTestCase
 {
-    /** @var Converter<User,Person> */
+    /** @var Converter<User, Person, DefaultConverterContext> */
     private Converter $converter;
 
     protected function setUp(): void

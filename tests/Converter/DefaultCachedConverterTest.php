@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 class DefaultCachedConverterTest extends TestCase
 {
-    /** @var Converter<User,Person> */
+    /** @var Converter<User, Person> */
     private Converter $converter;
 
     protected function setUp(): void

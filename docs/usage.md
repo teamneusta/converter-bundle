@@ -36,7 +36,7 @@ class Person
 ```
 
 and your task is to transform a given User instance into a Person instance.
-Of course you can do it by instantiating a new Person and calling associated getters and setters in your code.
+Of course, you can do it by instantiating a new Person and calling associated getters and setters in your code.
 But - you shouldn't...why?
 
 There are a lot of reasons but at least the most important is:
@@ -56,11 +56,11 @@ use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Factory\TargetTypeFactory;
 
 /**
- * @implements TargetTypeFactory<Person>
+ * @implements TargetTypeFactory<Person, DefaultConverterContext>
  */
 class PersonFactory implements TargetTypeFactory
 {
-    public function create(?ConverterContext $ctx = null): Person
+    public function create(?object $ctx = null): Person
     {
         return new Person();
     }
@@ -79,11 +79,11 @@ use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Populator\Populator;
 
 /**
- * @implements Populator<User, Person>
+ * @implements Populator<User, Person, DefaultConverterContext>
  */
 class PersonNamePopulator implements Populator
 {
-    public function populate(object $target, object $source, ?ConverterContext $ctx = null): void
+    public function populate(object $target, object $source, ?object $ctx = null): void
     {
         $separator = ' ';
         $target->setFullName($source->getFirstname() . $separator . $source->getLastname());
@@ -92,7 +92,7 @@ class PersonNamePopulator implements Populator
 ```
 
 As you can see implementation here is quite simple - just concatenation of two attributes.
-But however transformation will become more and more complexe it should be done in a testable,
+But however transformation will become more and more complex it should be done in a testable,
 separated Populator or in several of them.
 
 ### Symfony configuration
@@ -115,7 +115,7 @@ person.converter:
 And now if you want to convert `Users` into `Persons` just type in your code:
 
 ```php
-/** @var Converter<User,Person> */
+/** @var Converter<User, Person, DefaultConverterContext> */
 $converter = $this->getContainer()->get('person.converter');
 ...
 $person = $this->converter->convert($user);
@@ -123,14 +123,14 @@ $person = $this->converter->convert($user);
 
 Conversion done.
 
-## ConverterContext
+## Context
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.
 Think about environment parameters, localization or other specifications of your app.
-This information can be put inside a simple `ConverterContext` object and called with your conversion:
+This information can be put inside a simple `DefaultConverterContext` object and called with your conversion:
 
 ```php
-$ctx = new Neusta\ConverterBundle\Converter\DefaultConverterContext();
+$ctx = new \Neusta\ConverterBundle\Converter\DefaultConverterContext();
 $ctx->setValue('locale', 'de');
 ...
 $target = $this->converter->convert($source, $ctx);
@@ -146,7 +146,7 @@ if ($ctx && $ctx->hasKey('locale')) {
 }
 ```
 
-Internally the DefaultConverterContext is only an associative array but the interface allows you to adapt your own
+Internally the `DefaultConverterContext` is only an associative array but the interface allows you to adapt your own
 implementation of a domain-oriented context and use it in your populators as you like.
 
 ## [Conversion with Caching](cached-converter.md)

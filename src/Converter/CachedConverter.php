@@ -5,7 +5,8 @@ namespace Neusta\ConverterBundle\Converter;
 /**
  * @template S of object
  * @template T of object
- * @extends Converter<S, T>
+ * @template C of object
+ * @extends Converter<S, T, C>
  */
 interface CachedConverter extends Converter
 {

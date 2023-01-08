@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter;
 
-class DefaultConverterContext implements ConverterContext
+class DefaultConverterContext
 {
     /** @var array<string, mixed> */
     protected array $values;
