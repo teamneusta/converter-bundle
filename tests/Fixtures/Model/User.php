@@ -10,6 +10,8 @@ class User
     private string $lastname;
     private int $uuid;
 
+    private string $fullName;
+
     public function getUuid(): int
     {
         return $this->uuid;
@@ -43,6 +45,20 @@ class User
     {
         $this->lastname = $lastname;
 
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return $this->fullName;
+    }
+
+    public function setFullName(string $fullName): User
+    {
+        $this->fullName = $fullName;
         return $this;
     }
 
