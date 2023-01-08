@@ -5,10 +5,6 @@ services:
         # for tests only
         public: true
 
-    test.service_container:
-        alias: service_container
-        public: true
-
     test.person.converter: &test-person-converter
         parent: 'neusta_converter.default_converter'
         public: true
