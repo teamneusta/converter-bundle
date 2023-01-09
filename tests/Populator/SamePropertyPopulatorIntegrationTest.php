@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Converter\DefaultConverterContext;
