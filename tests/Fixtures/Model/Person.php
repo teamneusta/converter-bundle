@@ -10,6 +10,8 @@ class Person
 
     private int $age;
 
+    private PersonAddress $address;
+
     public function getFullName(): string
     {
         return $this->fullName;
@@ -20,19 +22,24 @@ class Person
         $this->fullName = $fullName;
     }
 
-    /**
-     * @return int
-     */
     public function getAge(): int
     {
         return $this->age;
     }
 
-    /**
-     * @param int $age
-     */
     public function setAge(int $age): void
     {
         $this->age = $age;
+    }
+
+    public function getAddress(): PersonAddress
+    {
+        return $this->address;
+    }
+
+    public function setAddress(PersonAddress $address): Person
+    {
+        $this->address = $address;
+        return $this;
     }
 }

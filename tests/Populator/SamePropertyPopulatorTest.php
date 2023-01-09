@@ -4,7 +4,9 @@ namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Populator\SamePropertyPopulator;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Address;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -29,14 +31,14 @@ class SamePropertyPopulatorTest extends TestCase
         self::assertEquals('Max Mustermann', $person->getFullName());
     }
 
-    public function testPopulate_sourceGetter_does_not_exist_case(): void
+    public function testPopulate_different_type(): void
     {
-        $this->populator = new SamePropertyPopulator('age');
-        $user = new User();
-        $person = $this->prophesize(Person::class);
+        $this->populator = new SamePropertyPopulator('address');
+        $user = (new User())->setAddress(new Address());
+        $person = (new Person())->setAddress(new PersonAddress());
 
-        $this->populator->populate($person->reveal(), $user);
+        $this->populator->populate($person, $user);
 
-        $person->setAge(Argument::any())->shouldNotHaveBeenCalled();
+        self::assertNotEquals($user->getAddress(), $person->getAddress());
     }
 }

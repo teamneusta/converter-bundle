@@ -12,5 +12,4 @@ services:
 
     neusta_converter.same_property_populator:
         abstract: true
-        public: true
         class: Neusta\ConverterBundle\Populator\SamePropertyPopulator

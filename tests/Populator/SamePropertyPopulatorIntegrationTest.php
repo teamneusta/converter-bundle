@@ -13,14 +13,15 @@ use Prophecy\PhpUnit\ProphecyTrait;
 
 class SamePropertyPopulatorIntegrationTest extends BundleKernelTestCase
 {
+    /** @var SamePropertyPopulator<User, Person, DefaultConverterContext> $populator */
     private SamePropertyPopulator $populator;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->populator = $this->getContainer()->get('test.person.fullName.populator');
     }
 
-    /** @var SamePropertyPopulator<User, Person, DefaultConverterContext> */
 
     public function testPopulate(): void
     {

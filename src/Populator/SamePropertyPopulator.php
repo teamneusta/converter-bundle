@@ -18,13 +18,11 @@ class SamePropertyPopulator implements Populator
     {
     }
 
-    /**
-     * @inheritDoc
-     */
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
         $valueToSet = null;
         $valueHasBeenSet = false;
+
 
         foreach (['get', 'is', 'has'] as $prefix) {
             if (method_exists($source, $prefix . ucfirst($this->propertyName))) {
@@ -34,8 +32,19 @@ class SamePropertyPopulator implements Populator
             }
         }
 
-        if ($valueHasBeenSet && method_exists($target, 'set' . ucfirst($this->propertyName))) {
+
+        if ($valueHasBeenSet
+            && method_exists($target, 'set' . ucfirst($this->propertyName))
+            && $this->isSameType($target, $source)
+        ) {
             $target->{'set' . ucfirst($this->propertyName)}($valueToSet);
         }
+    }
+
+    private function isSameType(object $target, object $source): bool
+    {
+        $sourcePropertyType = (new \ReflectionProperty($source, $this->propertyName))->getType();
+        $targetPropertyType = (new \ReflectionProperty($target, $this->propertyName))->getType();
+        return $sourcePropertyType->getName() === $targetPropertyType->getName();
     }
 }
