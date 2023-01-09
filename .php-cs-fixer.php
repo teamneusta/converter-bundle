@@ -13,7 +13,7 @@ $finder = PhpCsFixer\Finder::create()
         __DIR__ . '/tests',
     ])
     ->exclude([
-        __DIR__ . 'tests/app/var',
+        'app/var',
     ]);
 
 return $config
