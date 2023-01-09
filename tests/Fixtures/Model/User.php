@@ -9,6 +9,7 @@ class User
     private string $firstname;
     private string $lastname;
     private int $uuid;
+    private Address $address;
 
     public function getUuid(): int
     {
@@ -43,6 +44,24 @@ class User
     {
         $this->lastname = $lastname;
 
+        return $this;
+    }
+
+    /**
+     * @return Address
+     */
+    public function getAddress(): Address
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param Address $address
+     * @return User
+     */
+    public function setAddress(Address $address): User
+    {
+        $this->address = $address;
         return $this;
     }
 }
