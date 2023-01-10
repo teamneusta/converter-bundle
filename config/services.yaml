@@ -10,6 +10,16 @@ services:
         abstract: true
         class: Neusta\ConverterBundle\Converter\DefaultConverter
 
+    ############################################################
+    # Strategy Handler Converter
+    ############################################################
+    neusta_converter.converter_strategy_handler:
+        abstract: true
+        class: Neusta\ConverterBundle\Converter\ConverterStrategyHandler
+
+    ############################################################
+    # Populators
+    ############################################################
     neusta_converter.same_property_populator:
         abstract: true
         class: Neusta\ConverterBundle\Populator\SamePropertyPopulator

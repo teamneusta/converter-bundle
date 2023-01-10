@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter;
 
+use Neusta\ConverterBundle\Exception\ConverterException;
+
 /**
  * @template S of object
  * @template T of object
@@ -16,6 +18,7 @@ interface Converter
      * @param C|null $ctx
      *
      * @return T target type of your conversion
+     * @throws ConverterException
      */
     public function convert(object $source, ?object $ctx = null): object;
 }
