@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator;
 
+use Neusta\ConverterBundle\Property\PropertyValueExtractor;
+
 /**
  * @template S of object
  * @template T of object
@@ -19,18 +21,10 @@ class SamePropertyPopulator implements Populator
 
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
-        $valueToSet = null;
-        $valueHasBeenSet = false;
+        $valueToSet = PropertyValueExtractor::extractValue($source, $this->propertyName);
 
-        foreach (['get', 'is', 'has'] as $prefix) {
-            if (method_exists($source, $prefix . ucfirst($this->propertyName))) {
-                $valueToSet = $source->{$prefix . ucfirst($this->propertyName)}();
-                $valueHasBeenSet = true;
-                break;
-            }
-        }
 
-        if ($valueHasBeenSet
+        if ($valueToSet
             && method_exists($target, 'set' . ucfirst($this->propertyName))
             && $this->isSameType($target, $source)
         ) {

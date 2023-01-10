@@ -6,6 +6,8 @@ namespace Neusta\ConverterBundle\Populator;
 
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Exception\PopulationException;
+use Neusta\ConverterBundle\Property\PropertyValueExtractor;
+use ReflectionProperty;
 
 /**
  * @template S of object
@@ -33,14 +35,8 @@ class ConverterPopulator implements Populator
      */
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
-        $sourceValue = null;
         try {
-            foreach (['get', 'is', 'has'] as $prefix) {
-                if (method_exists($source, $prefix . ucfirst($this->sourcePropertyName))) {
-                    $sourceValue = $source->{$prefix . ucfirst($this->sourcePropertyName)}();
-                    break;
-                }
-            }
+            $sourceValue = PropertyValueExtractor::extractValue($source, $this->sourcePropertyName);
             $target->{'set' . ucfirst($this->targetPropertyName)}($this->converter->convert($sourceValue));
         } catch (\Throwable $exception) {
             throw new PopulationException($this->sourcePropertyName, $this->targetPropertyName, $exception->getMessage());
