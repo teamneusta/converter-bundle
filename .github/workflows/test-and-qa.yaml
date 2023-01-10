@@ -2,9 +2,9 @@ name: test-and-qa
 
 on:
   push:
-    branches: [ "v1" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "v1" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
