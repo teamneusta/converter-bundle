@@ -45,6 +45,8 @@ class SamePropertyPopulator implements Populator
     {
         $sourcePropertyType = (new \ReflectionProperty($source, $this->propertyName))->getType();
         $targetPropertyType = (new \ReflectionProperty($target, $this->propertyName))->getType();
-        return $sourcePropertyType->getName() === $targetPropertyType->getName();
+        return ($sourcePropertyType instanceof \ReflectionNamedType)
+            && ($targetPropertyType instanceof \ReflectionNamedType)
+            && $sourcePropertyType->getName() === $targetPropertyType->getName();
     }
 }
