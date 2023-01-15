@@ -48,9 +48,6 @@ class User
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getFullName(): string
     {
         return $this->fullName;
@@ -62,18 +59,11 @@ class User
         return $this;
     }
 
-    /**
-     * @return Address
-     */
     public function getAddress(): Address
     {
         return $this->address;
     }
 
-    /**
-     * @param Address $address
-     * @return User
-     */
     public function setAddress(Address $address): User
     {
         $this->address = $address;

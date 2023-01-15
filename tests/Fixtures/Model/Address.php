@@ -54,5 +54,4 @@ class Address
         $this->streetNo = $streetNo;
         return $this;
     }
-
 }

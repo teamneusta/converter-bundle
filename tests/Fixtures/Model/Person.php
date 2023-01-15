@@ -17,9 +17,10 @@ class Person
         return $this->fullName;
     }
 
-    public function setFullName(string $fullName): void
+    public function setFullName(string $fullName): Person
     {
         $this->fullName = $fullName;
+        return $this;
     }
 
     public function getAge(): int
@@ -27,9 +28,10 @@ class Person
         return $this->age;
     }
 
-    public function setAge(int $age): void
+    public function setAge(int $age): Person
     {
         $this->age = $age;
+        return $this;
     }
 
     public function getAddress(): PersonAddress

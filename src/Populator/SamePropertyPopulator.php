@@ -13,16 +13,14 @@ namespace Neusta\ConverterBundle\Populator;
 class SamePropertyPopulator implements Populator
 {
     public function __construct(
-        private string $propertyName
-    )
-    {
+        private string $propertyName,
+    ) {
     }
 
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
         $valueToSet = null;
         $valueHasBeenSet = false;
-
 
         foreach (['get', 'is', 'has'] as $prefix) {
             if (method_exists($source, $prefix . ucfirst($this->propertyName))) {
@@ -31,7 +29,6 @@ class SamePropertyPopulator implements Populator
                 break;
             }
         }
-
 
         if ($valueHasBeenSet
             && method_exists($target, 'set' . ucfirst($this->propertyName))

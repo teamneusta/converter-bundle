@@ -24,7 +24,6 @@ class SamePropertyPopulatorIntegrationTest extends BundleKernelTestCase
         $this->populator = $this->getContainer()->get('test.person.fullName.populator');
     }
 
-
     public function testPopulate(): void
     {
         $user = (new User())->setFullName('Max Mustermann');
