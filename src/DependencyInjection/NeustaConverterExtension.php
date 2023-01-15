@@ -23,41 +23,41 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__, 2) . '/config'));
         $loader->load('services.yaml');
 
-        $this->registerConverterConfiguration($config['converter'], $container);
+        foreach ($config['converter'] as $converterId => $converter) {
+            $this->registerConverterConfiguration($converterId, $converter, $container);
+        }
     }
 
-    private function registerConverterConfiguration(array $config, ContainerBuilder $container): void
+    private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
-        foreach ($config as $converterId => $converter) {
-            $container->registerAliasForArgument($converterId, Converter::class);
-            $container->register($converterId, $converter['converter'])
-                ->setPublic(true)
-                ->setArguments([
-                    '$factory' => new Reference($converter['target_factory']),
-                    '$populators' => array_map(
-                        static fn (string $populator) => new Reference($populator),
-                        $converter['populators'],
-                    ),
-                ]);
+        $container->registerAliasForArgument($id, Converter::class);
+        $container->register($id, $config['converter'])
+            ->setPublic(true)
+            ->setArguments([
+                '$factory' => new Reference($config['target_factory']),
+                '$populators' => array_map(
+                    static fn (string $populator) => new Reference($populator),
+                    $config['populators'],
+                ),
+            ]);
 
-            if (isset($converter['cached'])) {
-                $cacheManagementId = "{$converterId}.cache_management";
-                if ($converter['cached']['service']) {
-                    $container->setAlias($cacheManagementId, $converter['cached']['service']);
-                } else {
-                    $container->register($cacheManagementId, DefaultCacheManagement::class)
-                        ->setArguments([
-                            '$keyFactory' => new Reference($converter['cached']['key_factory']),
-                        ]);
-                }
-
-                $container->register("{$converterId}.cached", CachedConverter::class)
-                    ->setDecoratedService($converterId)
+        if (isset($config['cached'])) {
+            $cacheManagementId = "{$id}.cache_management";
+            if ($config['cached']['service']) {
+                $container->setAlias($cacheManagementId, $config['cached']['service']);
+            } else {
+                $container->register($cacheManagementId, DefaultCacheManagement::class)
                     ->setArguments([
-                        '$inner' => new Reference('.inner'),
-                        '$cacheManagement' => new Reference($cacheManagementId),
+                        '$keyFactory' => new Reference($config['cached']['key_factory']),
                     ]);
             }
+
+            $container->register("{$id}.cached", CachedConverter::class)
+                ->setDecoratedService($id)
+                ->setArguments([
+                    '$inner' => new Reference('.inner'),
+                    '$cacheManagement' => new Reference($cacheManagementId),
+                ]);
         }
     }
 }
