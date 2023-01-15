@@ -4,6 +4,8 @@ parameters:
 		- tests
 
 	excludePaths:
+		- src/DependencyInjection/Configuration.php
+		- src/DependencyInjection/NeustaConverterExtension.php
 		- vendor
 		- tests
 
