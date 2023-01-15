@@ -7,6 +7,7 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
 use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter\Converter;
+use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -33,6 +34,16 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
+        foreach ($config['properties'] ?? [] as $targetProperty => $sourceProperty) {
+            $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
+            $container->register($propertyPopulatorId, MappedPropertyPopulator::class)
+                ->setArguments([
+                    '$targetProperty' => $targetProperty,
+                    '$sourceProperty' => $sourceProperty ?? $targetProperty,
+                    '$accessor' => new Reference('property_accessor'),
+                ]);
+        }
+
         $container->registerAliasForArgument($id, Converter::class, $this->appendSuffix($id, 'Converter'));
         $container->register($id, $config['converter'])
             ->setPublic(true)
