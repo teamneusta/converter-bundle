@@ -30,7 +30,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
     private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
-        $container->registerAliasForArgument($id, Converter::class);
+        $container->registerAliasForArgument($id, Converter::class, $this->appendSuffix($id, 'Converter'));
         $container->register($id, $config['converter'])
             ->setPublic(true)
             ->setArguments([
@@ -59,5 +59,10 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     '$cacheManagement' => new Reference($cacheManagementId),
                 ]);
         }
+    }
+
+    private function appendSuffix(string $value, string $suffix): string
+    {
+        return str_ends_with($value, $suffix) ? $value : $value . $suffix;
     }
 }

@@ -38,7 +38,7 @@ class NeustaConverterExtensionTest extends TestCase
         $converter = $container->getDefinition('foobar');
         self::assertSame(DefaultConverter::class, $converter->getClass());
         self::assertTrue($converter->isPublic());
-        self::assertTrue($container->hasAlias(Converter::class . ' $foobar'));
+        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
         self::assertIsArray($converter->getArgument('$populators'));
         self::assertCount(1, $converter->getArgument('$populators'));
@@ -65,7 +65,7 @@ class NeustaConverterExtensionTest extends TestCase
         $converter = $container->getDefinition('foobar');
         self::assertSame(DefaultConverter::class, $converter->getClass());
         self::assertTrue($converter->isPublic());
-        self::assertTrue($container->hasAlias(Converter::class . ' $foobar'));
+        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
         self::assertIsArray($converter->getArgument('$populators'));
         self::assertCount(1, $converter->getArgument('$populators'));
