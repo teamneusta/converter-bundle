@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
-class NeustaConverterExtension extends ConfigurableExtension
+final class NeustaConverterExtension extends ConfigurableExtension
 {
     /**
      * @param array<mixed> $config
