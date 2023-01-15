@@ -7,7 +7,6 @@
  */
 $config = new PhpCsFixer\Config();
 $finder = PhpCsFixer\Finder::create()
-    // ->exclude('folder-to-exclude') // if you want to exclude some folders, you can do it like this!
     ->in([
         __DIR__ . '/src',
         __DIR__ . '/tests',
