@@ -27,10 +27,9 @@ class ConverterPopulator implements Populator
      */
     public function __construct(
         private Converter $converter,
-        private string    $sourcePropertyName,
-        private string    $targetPropertyName,
-    )
-    {
+        private string $sourcePropertyName,
+        private string $targetPropertyName,
+    ) {
     }
 
     /**
@@ -42,7 +41,7 @@ class ConverterPopulator implements Populator
             $sourceValue = PropertyValueExtractor::extractValue($source, $this->sourcePropertyName);
             $target->{'set' . ucfirst($this->targetPropertyName)}($this->converter->convert($sourceValue));
         } catch (\Throwable $exception) {
-            throw new PopulationException($this->sourcePropertyName, $this->targetPropertyName, $exception->getMessage());
+            throw new PopulationException($this->sourcePropertyName, $this->targetPropertyName, $exception);
         }
     }
 

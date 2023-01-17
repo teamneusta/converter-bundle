@@ -20,7 +20,7 @@ class PropertyValueExtractor
                 }
             }
         } catch (\Throwable $exception) {
-            throw new PropertyException($propertyName, $exception->getMessage(), $exception->getCode(), $exception);
+            throw new PropertyException($propertyName, $exception);
         }
         return null;
     }

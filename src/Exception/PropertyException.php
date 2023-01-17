@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Exception;
 
-use Exception;
-use Throwable;
-
-class PropertyException extends Exception
+class PropertyException extends \Exception
 {
-    public function __construct(
-        ?string    $propertyName = null,
-        string     $message = "",
-        int        $code = 0,
-        ?Throwable $previous = null
-    )
+    public function __construct(string $propertyName, \Throwable $previous)
     {
-        parent::__construct($message, $code, $previous);
-        $this->message = sprintf("Property Exception <%s>: %s", $propertyName, $this->message);
+        parent::__construct(
+            sprintf("Property Exception <%s>: %s", $propertyName, $previous->getMessage()),
+            0,
+            $previous,
+        );
     }
 }
