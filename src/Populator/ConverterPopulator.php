@@ -7,7 +7,6 @@ namespace Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Property\PropertyValueExtractor;
-use ReflectionProperty;
 
 /**
  * A populator which uses a converter for an object of type S with a certain field
@@ -44,5 +43,4 @@ class ConverterPopulator implements Populator
             throw new PopulationException($this->sourcePropertyName, $this->targetPropertyName, $exception);
         }
     }
-
 }

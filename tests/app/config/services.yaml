@@ -17,14 +17,6 @@ services:
             $populators:
                 - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator'
 
-    test.address.converter: &test-address-converter
-        parent: 'neusta_converter.default_converter'
-        public: true
-        arguments:
-            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\AddressFactory'
-            $populators:
-                - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator'
-
     test.person.converter.with.cache:
         <<: *test-person-converter
 
@@ -34,6 +26,14 @@ services:
         arguments:
             $inner: '@.inner'
             $cacheManagement: '@user.cache_management'
+
+    test.address.converter:
+        parent: 'neusta_converter.default_converter'
+        public: true
+        arguments:
+            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\AddressFactory'
+            $populators:
+                - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator'
 
     Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~
     Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator: ~
