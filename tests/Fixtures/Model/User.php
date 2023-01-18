@@ -12,6 +12,8 @@ class User
     private string $fullName;
     private Address $address;
 
+    private UnknownType $fieldWithUnknownType;
+
     public function getUuid(): int
     {
         return $this->uuid;
@@ -67,6 +69,17 @@ class User
     public function setAddress(Address $address): User
     {
         $this->address = $address;
+        return $this;
+    }
+
+    public function getFieldWithUnknownType(): UnknownType
+    {
+        return $this->fieldWithUnknownType;
+    }
+
+    public function setFieldWithUnknownType(UnknownType $fieldWithUnknownType): User
+    {
+        $this->fieldWithUnknownType = $fieldWithUnknownType;
         return $this;
     }
 }

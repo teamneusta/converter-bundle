@@ -27,8 +27,42 @@ services:
             $inner: '@.inner'
             $cacheManagement: '@user.cache_management'
 
+    test.address.converter:
+        parent: 'neusta_converter.default_converter'
+        public: true
+        arguments:
+            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\AddressFactory'
+            $populators:
+                - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator'
+
     Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~
-    
+    Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator: ~
+
+    test.person.address.populator:
+        parent: 'neusta_converter.converter_populator'
+        public: true
+        arguments:
+            $converter: '@test.address.converter'
+            $sourcePropertyName: 'address'
+            $targetPropertyName: 'address'
+
+    test.person.wrong.source.type.populator:
+        parent: 'neusta_converter.converter_populator'
+        public: true
+        arguments:
+            $converter: '@test.address.converter'
+            $sourcePropertyName: 'fieldWithUnknownType'
+            $targetPropertyName: 'address'
+
+    test.person.wrong.converter.populator:
+        parent: 'neusta_converter.converter_populator'
+        public: true
+        arguments:
+            $converter: '@test.person.converter' # wrong converter for testing
+            $sourcePropertyName: 'address'
+            $targetPropertyName: 'address'
+
+
     test.person.fullName.populator:
         parent: 'neusta_converter.same_property_populator'
         public: true
@@ -36,6 +70,7 @@ services:
             $propertyName: 'fullName'
 
     Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory: ~
+    Neusta\ConverterBundle\Tests\Fixtures\Factory\AddressFactory: ~
 
     Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory: ~
 
