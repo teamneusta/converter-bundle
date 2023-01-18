@@ -20,8 +20,9 @@ class PropertyValueExtractor
                 }
             }
         } catch (\Throwable $exception) {
-            throw new PropertyException($propertyName, $exception);
+            throw new PropertyException($propertyName, previous: $exception);
         }
-        return null;
+
+        throw new PropertyException($propertyName, 'no accessor found');
     }
 }
