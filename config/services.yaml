@@ -20,9 +20,9 @@ services:
     ############################################################
     # Populators
     ############################################################
-    neusta_converter.same_property_populator:
+    neusta_converter.mapped_property_populator:
         abstract: true
-        class: Neusta\ConverterBundle\Populator\SamePropertyPopulator
+        class: Neusta\ConverterBundle\Populator\MappedPropertyPopulator
 
     neusta_converter.converter_populator:
         abstract: true

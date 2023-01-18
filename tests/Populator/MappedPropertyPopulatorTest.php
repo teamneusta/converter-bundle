@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
-use Neusta\ConverterBundle\Populator\SamePropertyPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use PHPUnit\Framework\TestCase;
