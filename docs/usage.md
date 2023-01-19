@@ -12,7 +12,7 @@ class User
     private string $lastname;
     private int $uuid;
     
-    // with getters and fluent setters
+    // with getters and setters
 }
 ```
 
@@ -35,8 +35,8 @@ class Person
 }
 ```
 
-and your task is to transform a given User instance into a Person instance.
-Of course, you can do it by instantiating a new Person and calling associated getters and setters in your code.
+and your task is to transform a given `User` instance into a `Person` instance.
+Of course, you can do it by instantiating a new `Person` and calling associated getters and setters in your code.
 But - you shouldn't...why?
 
 There are a lot of reasons but at least the most important is:
@@ -68,7 +68,7 @@ class PersonFactory implements TargetTypeFactory
 ```
 
 Skip thinking about the converter context at the moment. It will help you...
-may be not now but in a few weeks. You will see.
+maybe not now but in a few weeks. You will see.
 
 ### Populators
 
@@ -95,24 +95,36 @@ As you can see implementation here is quite simple - just concatenation of two a
 But however transformation will become more and more complex it should be done in a testable,
 separated Populator or in several of them.
 
-### Symfony configuration
+### Configuration
 
-To put things together declare the following converter in your Symfony config:
+To put things together register the factory and populator as services:
 
 ```yaml
-person.converter:
-  parent: 'neusta_converter.default_converter'
-  public: true
-  arguments:
-    $factory: '@YourNamespace\PersonFactory'
-    $populators:
-      - '@YourNamespace\PersonNamePopulator'
-      # additional populators may follow 
+# config/services.yaml
+services:
+  YourNamespace\PersonFactory: ~
+  YourNamespace\PersonNamePopulator: ~
 ```
+
+And then declare the following converter in your package config:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  converter:
+    person.converter:
+      target_factory: YourNamespace\PersonFactory
+      populators:
+        - YourNamespace\PersonNamePopulator
+        # additional populators may follow
+```
+
+> Note: You can use a custom implementation of the `Converter` interface via the `converter` keyword.
+> Its constructor must contain the two parameters `TargetTypeFactory $factory` and `array $populators`.
 
 ### Conversion
 
-And now if you want to convert `Users` into `Persons` just type in your code:
+And now if you want to convert `Users` into `Person`s just type in your code:
 
 ```php
 /** @var Converter<User, Person, DefaultConverterContext> */

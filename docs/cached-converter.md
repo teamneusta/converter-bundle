@@ -5,14 +5,14 @@ to use caching to avoid conversion of same object instances again and again.
 
 Therefore, we offer a `CachedConverter`.
 
-Before you can directly use it you have to implement a cache key strategy of your source objects;
+Before you can directly use it you have to implement a cache key strategy for your source objects;
 i.e. you have to determine how one can differentiate the source objects.
 
 This is the task of the `CacheKeyFactory`.
 
 ### CacheKeyFactory
 
-May be in our `User` example there will be a unique user ID (uuid) then your `CacheKeyFactory`
+Maybe in our `User` example there will be a unique user ID (uuid) then your `CacheKeyFactory`
 should be the following:
 
 ```php
@@ -30,42 +30,39 @@ class UserKeyFactory implements CacheKeyFactory
 }
 ```
 
-### Symfony Configuration of cached conversion
+### Configuration of cached conversion
 
-To put things together declare the following cached converter in your Symfony config:
+To put things together register the cache key factory as a service:
 
 ```yaml
-person.converter:
-  parent: 'neusta_converter.default_converter'
-  public: true
-  arguments:
-    $factory: '@YourNamespace\PersonFactory'
-    $populators:
-      - '@YourNamespace\PersonNamePopulator'
-    $cacheManagement: '@user.cache_management'
-
-person.converter.cached:
-  class: Neusta\ConverterBundle\Converter\CachedConverter
-  decorates: person.converter
-  arguments:
-    $inner: '@.inner'
-    $cacheManagement: '@user.cache_management'
-
-user.cache_management:
-  class: 'Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement'
-  arguments:
-    $keyFactory: '@YourNamespace\UserKeyFactory'
+# config/services.yaml
+services:
+  ...
+  YourNamespace\UserKeyFactory: ~
 ```
 
-The `DefaultCacheManagement` is offering a simple array-based cache of converted objects which is using the `$keyFactory`
-to determine the cache key. This allows you to implement very domain-specific identifications of your object conversions.
+And then add it to the converter in your package config via the `cached` keyword:
 
-The `CachedConverter` is using the `CacheManagement` and always reads first from cache and if the
-target object can not be found it will be written into the cache before returning.
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  converter:
+    person.converter:
+      ...
+      cached:
+        key_factory: YourNamespace\UserKeyFactory
+```
+
+This will use the  `DefaultCacheManagement`, which is offering a simple array-based cache of converted objects
+using the `key_factory` to determine the cache key. This allows you to implement very domain-specific identifications
+of your object conversions.
+
+> Note: You can also use a custom implementation of the `CacheManagement` interface by using the `service` 
+> instead of the `key_factory` keyword.
 
 ## Why?!
 
-May be you will ask yourself why not implement the Converter-and-Populator-pattern by yourself and use this extension
+Maybe you will ask yourself why not implement the Converter-and-Populator-pattern by yourself and use this extension
 instead. The answer is quite simple:
 
 It's a pattern, and it should be done always in the same manner so that other developers will recognize the structure
