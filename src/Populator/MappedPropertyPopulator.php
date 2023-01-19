@@ -16,11 +16,11 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 final class MappedPropertyPopulator implements Populator
 {
-    private PropertyAccessorInterface $accessor;
     private \Closure $mapper;
+    private PropertyAccessorInterface $accessor;
 
     /**
-     * @param \Closure(mixed, C):mixed|null $mapper
+     * @param \Closure(mixed, C|null=):mixed $mapper
      */
     public function __construct(
         private string $targetProperty,

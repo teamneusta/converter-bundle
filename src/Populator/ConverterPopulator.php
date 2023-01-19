@@ -6,7 +6,6 @@ namespace Neusta\ConverterBundle\Populator;
 
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Exception\PopulationException;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
@@ -18,9 +17,9 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  * @template C of object
  * @implements Populator<S, T, C>
  */
-class ConverterPopulator implements Populator
+final class ConverterPopulator implements Populator
 {
-    private PropertyAccessorInterface $accessor;
+    private MappedPropertyPopulator $populator;
 
     /**
      * @template U of object
@@ -28,12 +27,17 @@ class ConverterPopulator implements Populator
      * @param Converter<U, V, C> $converter
      */
     public function __construct(
-        private Converter $converter,
-        private string $sourcePropertyName,
-        private string $targetPropertyName,
+        Converter $converter,
+        string $sourcePropertyName,
+        string $targetPropertyName,
         PropertyAccessorInterface $accessor = null,
     ) {
-        $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();
+        $this->populator = new MappedPropertyPopulator(
+            $targetPropertyName,
+            $sourcePropertyName,
+            \Closure::fromCallable([$converter, 'convert']),
+            $accessor,
+        );
     }
 
     /**
@@ -41,12 +45,6 @@ class ConverterPopulator implements Populator
      */
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
-        try {
-            $this->accessor->setValue($target, $this->targetPropertyName,
-                $this->converter->convert($this->accessor->getValue($source, $this->sourcePropertyName), $ctx),
-            );
-        } catch (\Throwable $exception) {
-            throw new PopulationException($this->sourcePropertyName, $this->targetPropertyName, $exception);
-        }
+        $this->populator->populate($target, $source, $ctx);
     }
 }
