@@ -3,19 +3,18 @@
 declare(strict_types=1);
 
 use Neusta\ConverterBundle\NeustaConverterBundle;
-use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\HttpKernel\Kernel;
 
 class TestKernel extends Kernel
 {
+    use MicroKernelTrait;
+
     public function registerBundles(): iterable
     {
+        yield new FrameworkBundle();
         yield new NeustaConverterBundle();
-    }
-
-    public function registerContainerConfiguration(LoaderInterface $loader): void
-    {
-        $loader->load(__DIR__ . '/config/services.yaml');
     }
 
     public function getProjectDir(): string
