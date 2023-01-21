@@ -1,12 +1,13 @@
 parameters:
 	paths:
 		- src
-		- tests
+#		- tests
 
 	excludePaths:
-		- src/DependencyInjection/Configuration.php
-		- src/DependencyInjection/NeustaConverterExtension.php
 		- vendor
-		- tests
+		- tests/app
+
+	symfony:
+		containerXmlPath: tests/app/var/cache/test/TestKernelTestDebugContainer.xml
 
 	checkGenericClassInNonGenericObjectType: false
