@@ -9,6 +9,7 @@ use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\TargetFactory\GenericTargetFactory;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -41,6 +42,13 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
+        if (!$targetFactoryId = $config['target_factory'] ?? null) {
+            $container->register($targetFactoryId = "{$id}.target_factory", GenericTargetFactory::class)
+                ->setArguments([
+                    '$type' => new Reference($config['target']),
+                ]);
+        }
+
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
             $skipNull = false;
             if (str_ends_with($targetProperty, '?')) {
@@ -74,7 +82,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $container->register($id, $config['converter'])
             ->setPublic(true)
             ->setArguments([
-                '$factory' => new Reference($config['target_factory']),
+                '$factory' => new Reference($targetFactoryId),
                 '$populators' => array_map(
                     static fn (string $populator) => new Reference($populator),
                     $config['populators'],

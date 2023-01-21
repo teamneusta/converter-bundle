@@ -12,7 +12,9 @@ use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\TargetFactory\GenericTargetFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\TypedReference;
@@ -43,6 +45,29 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [new Reference(PersonNamePopulator::class)]);
+    }
+
+    public function test_with_generic_target_factory(): void
+    {
+        $container = $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'target' => Person::class,
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
+
+        // converter
+        $converter = $container->getDefinition('foobar');
+        self::assertIsReference('foobar.target_factory', $converter->getArgument('$factory'));
+
+        // target type factory
+        $factory = $container->getDefinition('foobar.target_factory');
+        self::assertSame(GenericTargetFactory::class, $factory->getClass());
+        self::assertIsReference(Person::class, $factory->getArgument('$type'));
     }
 
     public function test_with_mapped_properties(): void
