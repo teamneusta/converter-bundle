@@ -6,11 +6,11 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Converter\DefaultConverterContext;
-use Neusta\ConverterBundle\Tests\BundleKernelTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class DefaultConverterIntegrationTest extends BundleKernelTestCase
+class DefaultConverterIntegrationTest extends KernelTestCase
 {
     /** @var Converter<User, Person, DefaultConverterContext> */
     private Converter $converter;
@@ -18,7 +18,7 @@ class DefaultConverterIntegrationTest extends BundleKernelTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->converter = $this->getContainer()->get('test.person.converter');
+        $this->converter = self::getContainer()->get('test.person.converter');
     }
 
     public function testConvert(): void

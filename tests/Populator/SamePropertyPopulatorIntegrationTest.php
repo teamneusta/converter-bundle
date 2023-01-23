@@ -6,14 +6,11 @@ namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Populator\SamePropertyPopulator;
-use Neusta\ConverterBundle\Tests\BundleKernelTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Prophecy\PhpUnit\ProphecyTrait;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SamePropertyPopulatorIntegrationTest extends BundleKernelTestCase
+class SamePropertyPopulatorIntegrationTest extends KernelTestCase
 {
     /** @var SamePropertyPopulator<User, Person, DefaultConverterContext> $populator */
     private SamePropertyPopulator $populator;
@@ -21,7 +18,7 @@ class SamePropertyPopulatorIntegrationTest extends BundleKernelTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->populator = $this->getContainer()->get('test.person.fullName.populator');
+        $this->populator = self::getContainer()->get('test.person.fullName.populator');
     }
 
     public function testPopulate(): void
