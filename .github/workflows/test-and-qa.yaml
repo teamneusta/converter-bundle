@@ -41,7 +41,7 @@ jobs:
 
       - name: Check PHPStan
         run: |
-          ./tests/app/bin/console cache:clear
+          php tests/app/bin/console cache:clear
           composer phpstan
 
       - name: Execute tests (Unit and Feature tests) via PHPUnit
