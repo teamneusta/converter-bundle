@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 final class NeustaConverterExtension extends ConfigurableExtension
 {
     /**
-     * @param array<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function loadInternal(array $config, ContainerBuilder $container): void
     {
@@ -28,6 +28,9 @@ final class NeustaConverterExtension extends ConfigurableExtension
         }
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
         $container->registerAliasForArgument($id, Converter::class, $this->appendSuffix($id, 'Converter'));
