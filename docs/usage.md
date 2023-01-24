@@ -137,8 +137,17 @@ neusta_converter:
         phoneNumber: phone
 ```
 
-Which will populate the `email` property of the target object with the `email` property of the source object and the
-`phoneNumber` property of the target object with the `phone` property of the source object.
+Which will populate 
+
+`email` (property of the target object) 
+
+with `email` (property of the source object)
+
+and
+
+`phoneNumber` (property of the target object) 
+
+with `phone` (property of the source object).
 
 > Note: the source and the target property must be of the same type for this to work.
 
