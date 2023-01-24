@@ -21,8 +21,9 @@
     "php": "^8.0",
     "symfony/config": "^5.4",
     "symfony/dependency-injection": "^5.4",
+    "symfony/framework-bundle": "^5.4",
     "symfony/http-kernel": "^5.4",
-    "symfony/framework-bundle": "^5.4"
+    "symfony/property-access": "^5.4"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^v3.11",
@@ -33,9 +34,9 @@
     "phpstan/phpstan-symfony": "^1.2",
     "phpunit/phpunit": "^9.5",
     "qossmic/deptrac-shim": "^0.24",
-    "symfony/filesystem": "5.4",
+    "symfony/filesystem": "^5.4",
     "symfony/test-pack": "^1.0",
-    "symfony/yaml": "5.4"
+    "symfony/yaml": "^5.4"
   },
   "config": {
     "preferred-install": "dist",

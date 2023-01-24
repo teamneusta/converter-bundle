@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator;
 
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
-use Neusta\ConverterBundle\Populator\SamePropertyPopulator;
+use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SamePropertyPopulatorIntegrationTest extends KernelTestCase
+class MappedPropertyPopulatorIntegrationTest extends KernelTestCase
 {
-    /** @var SamePropertyPopulator<User, Person, DefaultConverterContext> $populator */
-    private SamePropertyPopulator $populator;
+    private MappedPropertyPopulator $populator;
 
     protected function setUp(): void
     {
@@ -24,8 +22,7 @@ class SamePropertyPopulatorIntegrationTest extends KernelTestCase
     public function testPopulate(): void
     {
         $user = (new User())->setFullName('Max Mustermann');
-        $person = (new Person());
-        $person->setFullName('');
+        $person = new Person();
 
         $this->populator->populate($person, $user);
 

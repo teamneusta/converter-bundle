@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Populator;
 
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Exception\PopulationException;
-use Neusta\ConverterBundle\Property\PropertyValueExtractor;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
  * A populator which uses a converter for an object of type S with a certain field
@@ -14,21 +14,30 @@ use Neusta\ConverterBundle\Property\PropertyValueExtractor;
  *
  * @template S of object
  * @template T of object
- * @template U of object
- * @template V of object
  * @template C of object
  * @implements Populator<S, T, C>
  */
-class ConverterPopulator implements Populator
+final class ConverterPopulator implements Populator
 {
+    private MappedPropertyPopulator $populator;
+
     /**
+     * @template U of object
+     * @template V of object
      * @param Converter<U, V, C> $converter
      */
     public function __construct(
-        private Converter $converter,
-        private string $sourcePropertyName,
-        private string $targetPropertyName,
+        Converter $converter,
+        string $sourcePropertyName,
+        string $targetPropertyName,
+        PropertyAccessorInterface $accessor = null,
     ) {
+        $this->populator = new MappedPropertyPopulator(
+            $targetPropertyName,
+            $sourcePropertyName,
+            \Closure::fromCallable([$converter, 'convert']),
+            $accessor,
+        );
     }
 
     /**
@@ -36,11 +45,6 @@ class ConverterPopulator implements Populator
      */
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
-        try {
-            $sourceValue = PropertyValueExtractor::extractValue($source, $this->sourcePropertyName);
-            $target->{'set' . ucfirst($this->targetPropertyName)}($this->converter->convert($sourceValue));
-        } catch (\Throwable $exception) {
-            throw new PopulationException($this->sourcePropertyName, $this->targetPropertyName, $exception);
-        }
+        $this->populator->populate($target, $source, $ctx);
     }
 }

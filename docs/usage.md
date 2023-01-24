@@ -8,9 +8,11 @@ Imagine your source type is `User`:
 ```php
 class User
 {
+    private int $uuid;
     private string $firstname;
     private string $lastname;
-    private int $uuid;
+    private string $email;
+    private string $phone;
     
     // with getters and setters
 }
@@ -22,16 +24,10 @@ and your target type is `Person`:
 class Person
 {
     private string $fullName;
+    private string $email;
+    private string $phoneNumber;
 
-    public function getFullName(): string
-    {
-        return $this->fullName;
-    }
-
-    public function setFullName(string $fullName): void
-    {
-        $this->fullName = $fullName;
-    }
+    // with getters and setters
 }
 ```
 
@@ -122,9 +118,33 @@ neusta_converter:
 > Note: You can use a custom implementation of the `Converter` interface via the `converter` keyword.
 > Its constructor must contain the two parameters `TargetTypeFactory $factory` and `array $populators`.
 
+#### Mapping properties
+
+If you just want to map a single property from the source to the target without transforming it in between, you don't
+need to write a custom populator for this, as this bundle already contains the `MappedPropertyPopulator` for this use
+case.
+
+You can use it in your converter config via the `properties` keyword:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  converter:
+    person.converter:
+      ...
+      populators:
+        email: ~
+        phoneNumber: phone
+```
+
+Which will populate the `email` property of the target object with the `email` property of the source object and the
+`phoneNumber` property of the target object with the `phone` property of the source object.
+
+> Note: the source and the target property must be of the same type for this to work.
+
 ### Conversion
 
-And now if you want to convert `Users` into `Person`s just type in your code:
+And now if you want to convert `User`s into `Person`s just type in your code:
 
 ```php
 /** @var Converter<User, Person, DefaultConverterContext> */

@@ -6,10 +6,11 @@ namespace Neusta\ConverterBundle\Tests\Fixtures\Model;
 
 class User
 {
+    private int $uuid;
     private string $firstname;
     private string $lastname;
-    private int $uuid;
     private string $fullName;
+    private int $ageInYears;
     private Address $address;
 
     private UnknownType $fieldWithUnknownType;
@@ -58,6 +59,17 @@ class User
     public function setFullName(string $fullName): User
     {
         $this->fullName = $fullName;
+        return $this;
+    }
+
+    public function getAgeInYears(): int
+    {
+        return $this->ageInYears;
+    }
+
+    public function setAgeInYears($ageInYears): User
+    {
+        $this->ageInYears = $ageInYears;
         return $this;
     }
 
