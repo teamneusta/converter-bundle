@@ -1,5 +1,5 @@
 {
-  "name": "neusta/converter-bundle",
+  "name": "teamneusta/converter-bundle",
   "type": "symfony-bundle",
   "description": "Allows to easily use the Converter & Populator design pattern for transformations from one universe to another",
   "license": "MIT",
