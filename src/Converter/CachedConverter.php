@@ -18,7 +18,7 @@ class CachedConverter implements Converter
 {
     /**
      * @param Converter<TSource, TTarget, TContext> $inner
-     * @param Cache<TSource, TTarget> $cache
+     * @param Cache<TSource, TTarget, TContext> $cache
      */
     public function __construct(
         private Converter $inner,
@@ -34,13 +34,13 @@ class CachedConverter implements Converter
      */
     public function convert(object $source, ?object $ctx = null): object
     {
-        if ($target = $this->cache->get($source)) {
+        if ($target = $this->cache->get($source, $ctx)) {
             return $target;
         }
 
         $target = $this->inner->convert($source, $ctx);
 
-        $this->cache->set($source, $target);
+        $this->cache->set($source, $target, $ctx);
 
         return $target;
     }

@@ -28,4 +28,32 @@ class GenericContext
 
         return $this;
     }
+
+    /**
+     * Returns a hash of the values that can be used for building a cache key.
+     */
+    public function getHash(): string
+    {
+        return md5(serialize($this->replaceObjectsWithHashes($this->values)));
+    }
+
+    /**
+     * @param array<string, mixed> $array
+     *
+     * @return array<string, mixed>
+     */
+    private function replaceObjectsWithHashes(array $array): array
+    {
+        foreach ($array as $key => $value) {
+            $array[$key] = match (true) {
+                is_array($value) => $this->replaceObjectsWithHashes($value),
+                is_object($value) => spl_object_hash($value),
+                default => $value,
+            };
+        }
+
+        ksort($array);
+
+        return $array;
+    }
 }
