@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
-use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
+use Neusta\ConverterBundle\Converter\Cache\InMemoryCache;
 use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache\UserKeyFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
@@ -117,12 +117,12 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame(CachedConverter::class, $cachedConverter->getClass());
         self::assertSame('foobar', $cachedConverter->getDecoratedService()[0]);
         self::assertIsReference('.inner', $cachedConverter->getArgument('$inner'));
-        self::assertIsReference('foobar.cache_management', $cachedConverter->getArgument('$cacheManagement'));
+        self::assertIsReference('foobar.cache', $cachedConverter->getArgument('$cache'));
 
-        // cache management
-        $cacheManagement = $container->getDefinition('foobar.cache_management');
-        self::assertSame(DefaultCacheManagement::class, $cacheManagement->getClass());
-        self::assertIsReference(UserKeyFactory::class, $cacheManagement->getArgument('$keyFactory'));
+        // cache
+        $cache = $container->getDefinition('foobar.cache');
+        self::assertSame(InMemoryCache::class, $cache->getClass());
+        self::assertIsReference(UserKeyFactory::class, $cache->getArgument('$keyFactory'));
     }
 
     public function test_with_cache_with_service_and_key_factory_defined(): void
@@ -138,7 +138,7 @@ class NeustaConverterExtensionTest extends TestCase
                         PersonNamePopulator::class,
                     ],
                     'cached' => [
-                        'service' => DefaultCacheManagement::class,
+                        'service' => InMemoryCache::class,
                         'key_factory' => UserKeyFactory::class,
                     ],
                 ],

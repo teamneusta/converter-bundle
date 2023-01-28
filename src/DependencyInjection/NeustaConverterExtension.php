@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
-use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
+use Neusta\ConverterBundle\Converter\Cache\InMemoryCache;
 use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
@@ -56,8 +56,8 @@ final class NeustaConverterExtension extends ConfigurableExtension
             ]);
 
         if (isset($config['cached'])) {
-            if (!$cacheManagementId = $config['cached']['service'] ?? null) {
-                $container->register($cacheManagementId = "{$id}.cache_management", DefaultCacheManagement::class)
+            if (!$cacheId = $config['cached']['service'] ?? null) {
+                $container->register($cacheId = "{$id}.cache", InMemoryCache::class)
                     ->setArguments([
                         '$keyFactory' => new Reference($config['cached']['key_factory']),
                     ]);
@@ -67,7 +67,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ->setDecoratedService($id)
                 ->setArguments([
                     '$inner' => new Reference('.inner'),
-                    '$cacheManagement' => new Reference($cacheManagementId),
+                    '$cache' => new Reference($cacheId),
                 ]);
         }
     }

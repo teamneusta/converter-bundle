@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Converter;
 
-use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
+use Neusta\ConverterBundle\Converter\Cache\InMemoryCache;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
-use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache\UserKeyFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
@@ -29,7 +29,7 @@ class CachedConverterTest extends TestCase
                     new PersonNamePopulator()
                 ]
             ),
-            new DefaultCacheManagement(new UserKeyFactory())
+            new InMemoryCache(new UserKeyFactory())
         );
     }
 

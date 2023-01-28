@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Neusta\ConverterBundle\CacheManagement;
+namespace Neusta\ConverterBundle\Converter\Cache;
 
 /**
  * @template TSource of object
@@ -13,5 +13,5 @@ interface CacheKeyFactory
     /**
      * @param TSource $source
      */
-    public function createCacheKey(object $source): string;
+    public function createFor(object $source): string;
 }

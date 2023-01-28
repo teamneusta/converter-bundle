@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter;
 
-use Neusta\ConverterBundle\CacheManagement\CacheManagement;
+use Neusta\ConverterBundle\Converter\Cache\Cache;
 use Neusta\ConverterBundle\Converter;
 
 /**
@@ -18,11 +18,11 @@ class CachedConverter implements Converter
 {
     /**
      * @param Converter<TSource, TTarget, TContext> $inner
-     * @param CacheManagement<TSource, TTarget> $cacheManagement
+     * @param Cache<TSource, TTarget> $cache
      */
     public function __construct(
         private Converter $inner,
-        private CacheManagement $cacheManagement,
+        private Cache $cache,
     ) {
     }
 
@@ -34,13 +34,13 @@ class CachedConverter implements Converter
      */
     public function convert(object $source, ?object $ctx = null): object
     {
-        if ($this->cacheManagement->isInCache($source)) {
-            return $this->cacheManagement->get($source);
+        if ($target = $this->cache->get($source)) {
+            return $target;
         }
 
         $target = $this->inner->convert($source, $ctx);
 
-        $this->cacheManagement->writeInCache($target, $source);
+        $this->cache->set($source, $target);
 
         return $target;
     }

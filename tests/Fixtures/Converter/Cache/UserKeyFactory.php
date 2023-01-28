@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Tests\Fixtures\CacheManagement;
+namespace Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache;
 
-use Neusta\ConverterBundle\CacheManagement\CacheKeyFactory;
+use Neusta\ConverterBundle\Converter\Cache\CacheKeyFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 
 /**
@@ -12,7 +12,7 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
  */
 class UserKeyFactory implements CacheKeyFactory
 {
-    public function createCacheKey(object $source): string
+    public function createFor(object $source): string
     {
         return (string) $source->getUuid();
     }

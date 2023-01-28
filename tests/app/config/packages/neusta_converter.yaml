@@ -15,5 +15,5 @@ neusta_converter:
       populators:
         - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
       cached:
-#        service: user.cache_management
-        key_factory: Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory
+#        service: user.cache
+        key_factory: Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache\UserKeyFactory

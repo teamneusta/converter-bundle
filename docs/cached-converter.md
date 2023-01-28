@@ -16,7 +16,7 @@ Maybe in our `User` example there will be a unique user ID (uuid) then your `Cac
 should be the following:
 
 ```php
-use Neusta\ConverterBundle\CacheManagement\CacheKeyFactory;
+use Neusta\ConverterBundle\Converter\Cache\CacheKeyFactory;
 
 /**
  * @implements CacheKeyFactory<User>
@@ -53,11 +53,11 @@ neusta_converter:
         key_factory: YourNamespace\UserKeyFactory
 ```
 
-This will use the  `DefaultCacheManagement`, which is offering a simple array-based cache of converted objects
+This will use the  `InMemoryCache`, which is offering a simple array-based cache of converted objects
 using the `key_factory` to determine the cache key. This allows you to implement very domain-specific identifications
 of your object conversions.
 
-> Note: You can also use a custom implementation of the `CacheManagement` interface by using the `service` 
+> Note: You can also use a custom implementation of the `Cache` interface by using the `service`
 > instead of the `key_factory` keyword.
 
 ## Why?!

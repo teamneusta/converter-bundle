@@ -56,7 +56,7 @@ final class Configuration implements ConfigurationInterface
                                 ->info('Whether the result should be cached')
                                 ->children()
                                     ->scalarNode('service')
-                                        ->info('Service id to override the cache management entirely')
+                                        ->info('Service id to override the cache entirely')
                                         ->defaultNull()
                                     ->end()
                                     ->scalarNode('key_factory')
