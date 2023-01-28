@@ -56,11 +56,8 @@ final class NeustaConverterExtension extends ConfigurableExtension
             ]);
 
         if (isset($config['cached'])) {
-            $cacheManagementId = "{$id}.cache_management";
-            if ($config['cached']['service']) {
-                $container->setAlias($cacheManagementId, $config['cached']['service']);
-            } else {
-                $container->register($cacheManagementId, DefaultCacheManagement::class)
+            if (!$cacheManagementId = $config['cached']['service'] ?? null) {
+                $container->register($cacheManagementId = "{$id}.cache_management", DefaultCacheManagement::class)
                     ->setArguments([
                         '$keyFactory' => new Reference($config['cached']['key_factory']),
                     ]);
