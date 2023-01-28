@@ -8,16 +8,17 @@ use Neusta\ConverterBundle\Exception\ConverterException;
 use Neusta\ConverterBundle\Strategy\ConverterSelector;
 
 /**
- * @template S of object
- * @template T of object
- * @template C of object
- * @implements Converter<S, T, C>
+ * @template TSource of object
+ * @template TTarget of object
+ * @template TContext of object|null
+ *
+ * @implements Converter<TSource, TTarget, TContext>
  */
 class ConverterStrategyHandler implements Converter
 {
     /**
-     * @param array<string, Converter<S, T, C>> $converters
-     * @param ConverterSelector<S, C> $selector
+     * @param array<string, Converter<TSource, TTarget, TContext>> $converters
+     * @param ConverterSelector<TSource, TContext> $selector
      */
     public function __construct(
         private array $converters,
@@ -26,10 +27,10 @@ class ConverterStrategyHandler implements Converter
     }
 
     /**
-     * @param S $source
-     * @param C|null $ctx
+     * @param TSource $source
+     * @param TContext $ctx
      *
-     * @return T
+     * @return TTarget
      */
     public function convert(object $source, ?object $ctx = null): object
     {

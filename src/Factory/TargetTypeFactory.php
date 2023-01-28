@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Factory;
 
 /**
- * @template T of object
- * @template C of object
+ * @template TTarget of object
+ * @template TContext of object|null
  */
 interface TargetTypeFactory
 {
     /**
-     * @param C|null $ctx
+     * @param TContext $ctx
      *
-     * @return T
+     * @return TTarget
      */
     public function create(?object $ctx = null): object;
 }

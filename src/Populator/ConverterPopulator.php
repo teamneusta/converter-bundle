@@ -9,22 +9,24 @@ use Neusta\ConverterBundle\Exception\PopulationException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
- * A populator which uses a converter for an object of type S with a certain field
- * containing an object of type U which should be converted into V and populated into a field of T object.
+ * A populator that uses a converter to convert a specific field of type TInnerSource from TSource
+ * into an object of type TInnerTarget for a field of TTarget.
  *
- * @template S of object
- * @template T of object
- * @template C of object
- * @implements Populator<S, T, C>
+ * @template TSource of object
+ * @template TTarget of object
+ * @template TContext of object|null
+ *
+ * @implements Populator<TSource, TTarget, TContext>
  */
 final class ConverterPopulator implements Populator
 {
     private MappedPropertyPopulator $populator;
 
     /**
-     * @template U of object
-     * @template V of object
-     * @param Converter<U, V, C> $converter
+     * @template TInnerSource of object
+     * @template TInnerTarget of object
+     *
+     * @param Converter<TInnerSource, TInnerTarget, TContext> $converter
      */
     public function __construct(
         Converter $converter,

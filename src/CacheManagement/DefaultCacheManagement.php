@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\CacheManagement;
 
 /**
- * @template S of object
- * @template T of object
- * @implements CacheManagement<S, T>
+ * @template TSource of object
+ * @template TTarget of object
+ *
+ * @implements CacheManagement<TSource, TTarget>
  */
 class DefaultCacheManagement implements CacheManagement
 {
     /**
-     * @var array<T>
+     * @var array<TTarget>
      */
     private array $targets = [];
 
     /**
-     * @param CacheKeyFactory<S> $keyFactory
+     * @param CacheKeyFactory<TSource> $keyFactory
      */
     public function __construct(
         private CacheKeyFactory $keyFactory,

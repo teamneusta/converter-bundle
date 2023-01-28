@@ -9,19 +9,20 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
- * @template S of object
- * @template T of object
- * @template C of object
- * @implements Populator<S, T, C>
+ * @template TSource of object
+ * @template TTarget of object
+ * @template TContext of object|null
+ *
+ * @implements Populator<TSource, TTarget, TContext>
  */
 final class MappedPropertyPopulator implements Populator
 {
-    /** @var \Closure(mixed, C|null=):mixed */
+    /** @var \Closure(mixed, TContext=):mixed */
     private \Closure $mapper;
     private PropertyAccessorInterface $accessor;
 
     /**
-     * @param \Closure(mixed, C|null=):mixed|null $mapper
+     * @param \Closure(mixed, TContext=):mixed|null $mapper
      */
     public function __construct(
         private string $targetProperty,

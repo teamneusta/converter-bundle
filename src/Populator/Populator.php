@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Populator;
 
 /**
- * @template S of object
- * @template T of object
- * @template C of object
+ * @template TSource of object
+ * @template TTarget of object
+ * @template TContext of object|null
  */
 interface Populator
 {
     /**
-     * @param T $target
-     * @param S $source
-     * @param C|null $ctx
+     * @param TTarget $target
+     * @param TSource $source
+     * @param TContext $ctx
      */
     public function populate(object $target, object $source, ?object $ctx = null): void;
 }

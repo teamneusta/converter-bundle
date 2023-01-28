@@ -5,25 +5,26 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\CacheManagement;
 
 /**
- * @template S of object
- * @template T of object
+ * @template TSource of object
+ * @template TTarget of object
  */
 interface CacheManagement
 {
     /**
-     * @param S $cacheKey
+     * @param TSource $cacheKey
      */
     public function isInCache(object $cacheKey): bool;
 
     /**
-     * @param S $cacheKey
-     * @return T
+     * @param TSource $cacheKey
+     *
+     * @return TTarget
      */
     public function get(object $cacheKey): object;
 
     /**
-     * @param T $cacheEntry
-     * @param S $cacheKey
+     * @param TTarget $cacheEntry
+     * @param TSource $cacheKey
      */
     public function writeInCache(object $cacheEntry, object $cacheKey): void;
 }

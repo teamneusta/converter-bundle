@@ -7,16 +7,17 @@ namespace Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\CacheManagement\CacheManagement;
 
 /**
- * @template S of object
- * @template T of object
- * @template C of object
- * @implements Converter<S, T, C>
+ * @template TSource of object
+ * @template TTarget of object
+ * @template TContext of object|null
+ *
+ * @implements Converter<TSource, TTarget, TContext>
  */
 class CachedConverter implements Converter
 {
     /**
-     * @param Converter<S, T, C> $inner
-     * @param CacheManagement<S, T> $cacheManagement
+     * @param Converter<TSource, TTarget, TContext> $inner
+     * @param CacheManagement<TSource, TTarget> $cacheManagement
      */
     public function __construct(
         private Converter $inner,
@@ -25,10 +26,10 @@ class CachedConverter implements Converter
     }
 
     /**
-     * @param S $source
-     * @param C|null $ctx
+     * @param TSource $source
+     * @param TContext $ctx
      *
-     * @return T
+     * @return TTarget
      */
     public function convert(object $source, ?object $ctx = null): object
     {

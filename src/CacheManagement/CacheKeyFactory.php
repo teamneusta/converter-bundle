@@ -6,13 +6,12 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\CacheManagement;
 
 /**
- * @template S of object
+ * @template TSource of object
  */
 interface CacheKeyFactory
 {
     /**
-     * @param S $source
-     * @return string
+     * @param TSource $source
      */
     public function createCacheKey(object $source): string;
 }

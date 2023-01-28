@@ -8,16 +8,17 @@ use Neusta\ConverterBundle\Factory\TargetTypeFactory;
 use Neusta\ConverterBundle\Populator\Populator;
 
 /**
- * @template S of object
- * @template T of object
- * @template C of object
- * @implements Converter<S, T, C>
+ * @template TSource of object
+ * @template TTarget of object
+ * @template TContext of object|null
+ *
+ * @implements Converter<TSource, TTarget, TContext>
  */
 class DefaultConverter implements Converter
 {
     /**
-     * @param TargetTypeFactory<T, C> $factory
-     * @param array<Populator<S, T, C>> $populators
+     * @param TargetTypeFactory<TTarget, TContext> $factory
+     * @param array<Populator<TSource, TTarget, TContext>> $populators
      */
     public function __construct(
         private TargetTypeFactory $factory,
@@ -26,10 +27,10 @@ class DefaultConverter implements Converter
     }
 
     /**
-     * @param S $source
-     * @param C|null $ctx
+     * @param TSource $source
+     * @param TContext $ctx
      *
-     * @return T
+     * @return TTarget
      */
     public function convert(object $source, ?object $ctx = null): object
     {

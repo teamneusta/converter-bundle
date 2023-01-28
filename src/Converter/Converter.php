@@ -7,17 +7,18 @@ namespace Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Exception\ConverterException;
 
 /**
- * @template S of object
- * @template T of object
- * @template C of object
+ * @template TSource of object
+ * @template TTarget of object
+ * @template TContext of object|null
  */
 interface Converter
 {
     /**
-     * @param S $source
-     * @param C|null $ctx
+     * @param TSource $source
+     * @param TContext $ctx
      *
-     * @return T target type of your conversion
+     * @return TTarget target type of your conversion
+     *
      * @throws ConverterException
      */
     public function convert(object $source, ?object $ctx = null): object;
