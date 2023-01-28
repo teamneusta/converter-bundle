@@ -6,12 +6,6 @@
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /.php-cs-fixer.php export-ignore
-/CONTRIBUTING.md export-ignore
 /depfile.yaml export-ignore
-/docker-compose.yaml export-ignore
-/Dockerfile export-ignore
-/php.ini export-ignore
 /phpstan.neon export-ignore
 /phpunit.xml.dist export-ignore
-/sonar-project.properties export-ignore
-/sonar-scanner.sh export-ignore

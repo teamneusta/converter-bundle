@@ -1,5 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-IFS=$'\n\t'
-
-exec docker-compose exec --user www-data php vendor/bin/php-cs-fixer --config=.php-cs-fixer.php "$@"
