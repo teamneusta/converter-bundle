@@ -44,7 +44,6 @@ final class Configuration implements ConfigurationInterface
                             ->end()
                             ->arrayNode('populators')
                                 ->info('Service ids of the "Populator"s')
-                                ->beforeNormalization()->castToArray()->end()
                                 ->prototype('scalar')->end()
                             ->end()
                             ->arrayNode('properties')
