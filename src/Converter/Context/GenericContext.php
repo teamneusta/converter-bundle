@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter\Context;
 
-class GenericContext
+use Neusta\ConverterBundle\Converter\Cache\CacheAwareContext;
+
+class GenericContext implements CacheAwareContext
 {
     /** @var array<string, mixed> */
     protected array $values;

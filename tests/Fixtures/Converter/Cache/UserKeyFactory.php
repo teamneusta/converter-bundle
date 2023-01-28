@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache;
 
 use Neusta\ConverterBundle\Converter\Cache\CacheKeyFactory;
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 
 /**
- * @implements CacheKeyFactory<User, DefaultConverterContext>
+ * @implements CacheKeyFactory<User>
  */
 class UserKeyFactory implements CacheKeyFactory
 {
-    public function createFor(object $source, ?object $ctx = null): string
+    public function createFor(object $source): string
     {
-        return $source->getUuid() . $ctx?->getHash();
+        return (string) $source->getUuid();
     }
 }

@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle\Converter\Cache;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of CacheAwareContext|null
  *
  * @implements Cache<TSource, TTarget, TContext>
  */
@@ -19,20 +19,28 @@ final class InMemoryCache implements Cache
     private array $targets = [];
 
     /**
-     * @param CacheKeyFactory<TSource, TContext> $keyFactory
+     * @param CacheKeyFactory<TSource> $keyFactory
      */
     public function __construct(
         private CacheKeyFactory $keyFactory,
     ) {
     }
 
-    public function get(object $source, ?object $ctx = null): ?object
+    public function get(object $source, ?CacheAwareContext $ctx = null): ?object
     {
-        return $this->targets[$this->keyFactory->createFor($source, $ctx)] ?? null;
+        return $this->targets[$this->createKey($source, $ctx)] ?? null;
     }
 
-    public function set(object $source, object $target, ?object $ctx = null): void
+    public function set(object $source, object $target, ?CacheAwareContext $ctx = null): void
     {
-        $this->targets[$this->keyFactory->createFor($source, $ctx)] = $target;
+        $this->targets[$this->createKey($source, $ctx)] = $target;
+    }
+
+    /**
+     * @param TSource $source
+     */
+    private function createKey(object $source, ?CacheAwareContext $ctx = null): string
+    {
+        return $this->keyFactory->createFor($source) . $ctx?->getHash();
     }
 }

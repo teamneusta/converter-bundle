@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\Converter\Cache\Cache;
+use Neusta\ConverterBundle\Converter\Cache\CacheAwareContext;
 use Neusta\ConverterBundle\Converter;
 
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of CacheAwareContext|null
  *
  * @implements Converter<TSource, TTarget, TContext>
  */

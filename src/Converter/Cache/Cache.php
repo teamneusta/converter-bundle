@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle\Converter\Cache;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of CacheAwareContext|null
  */
 interface Cache
 {
@@ -17,12 +17,12 @@ interface Cache
      *
      * @return TTarget|null
      */
-    public function get(object $source, ?object $ctx = null): ?object;
+    public function get(object $source, ?CacheAwareContext $ctx = null): ?object;
 
     /**
      * @param TSource $source
      * @param TTarget $target
      * @param TContext $ctx
      */
-    public function set(object $source, object $target, ?object $ctx = null): void;
+    public function set(object $source, object $target, ?CacheAwareContext $ctx = null): void;
 }
