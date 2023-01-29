@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter;
 
-use Neusta\ConverterBundle\Factory\TargetTypeFactory;
+use Neusta\ConverterBundle\Factory\TargetFactory;
 use Neusta\ConverterBundle\Populator\Populator;
 
 /**
@@ -17,11 +17,11 @@ use Neusta\ConverterBundle\Populator\Populator;
 final class GenericConverter implements Converter
 {
     /**
-     * @param TargetTypeFactory<TTarget, TContext> $factory
+     * @param TargetFactory<TTarget, TContext> $factory
      * @param array<Populator<TSource, TTarget, TContext>> $populators
      */
     public function __construct(
-        private TargetTypeFactory $factory,
+        private TargetFactory $factory,
         private array $populators,
     ) {
     }

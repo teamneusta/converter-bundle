@@ -38,7 +38,7 @@ final class Configuration implements ConfigurationInterface
                                 ->defaultValue(GenericConverter::class)
                             ->end()
                             ->scalarNode('target_factory')
-                                ->info('Service id of the "TargetTypeFactory"')
+                                ->info('Service id of the "TargetFactory"')
                                 ->isRequired()
                                 ->cannotBeEmpty()
                             ->end()

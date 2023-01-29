@@ -8,7 +8,7 @@ namespace Neusta\ConverterBundle\Factory;
  * @template TTarget of object
  * @template TContext of object|null
  */
-interface TargetTypeFactory
+interface TargetFactory
 {
     /**
      * @param TContext $ctx

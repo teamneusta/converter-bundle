@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Fixtures\Factory;
 
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Factory\TargetTypeFactory;
+use Neusta\ConverterBundle\Factory\TargetFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 
 /**
- * @implements TargetTypeFactory<Person, GenericContext>
+ * @implements TargetFactory<Person, GenericContext>
  */
-class PersonFactory implements TargetTypeFactory
+class PersonFactory implements TargetFactory
 {
     public function create(?object $ctx = null): Person
     {

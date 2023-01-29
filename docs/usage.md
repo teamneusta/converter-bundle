@@ -49,12 +49,12 @@ Implement a comfortable factory for your target type:
 
 ```php
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Factory\TargetTypeFactory;
+use Neusta\ConverterBundle\Factory\TargetFactory;
 
 /**
- * @implements TargetTypeFactory<Person, GenericContext>
+ * @implements TargetFactory<Person, GenericContext>
  */
-class PersonFactory implements TargetTypeFactory
+class PersonFactory implements TargetFactory
 {
     public function create(?object $ctx = null): Person
     {
@@ -116,7 +116,7 @@ neusta_converter:
 ```
 
 > Note: You can use a custom implementation of the `Converter` interface via the `converter` keyword.
-> Its constructor must contain the two parameters `TargetTypeFactory $factory` and `array $populators`.
+> Its constructor must contain the two parameters `TargetFactory $factory` and `array $populators`.
 
 #### Mapping properties
 
