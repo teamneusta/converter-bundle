@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\Exception\ConverterException;
-use Neusta\ConverterBundle\Strategy\ConverterSelector;
+use Neusta\ConverterBundle\Converter\Strategy\ConverterSelector;
 
 /**
  * @template TSource of object
@@ -14,7 +14,7 @@ use Neusta\ConverterBundle\Strategy\ConverterSelector;
  *
  * @implements Converter<TSource, TTarget, TContext>
  */
-class ConverterStrategyHandler implements Converter
+final class StrategicConverter implements Converter
 {
     /**
      * @param array<string, Converter<TSource, TTarget, TContext>> $converters

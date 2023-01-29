@@ -5,25 +5,22 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Converter\ConverterStrategyHandler;
+use Neusta\ConverterBundle\Converter\StrategicConverter;
 use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Exception\ConverterException;
-use Neusta\ConverterBundle\Strategy\ConverterSelector;
+use Neusta\ConverterBundle\Converter\Strategy\ConverterSelector;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class ConverterStrategyHandlerTest extends TestCase
+class StrategicConverterTest extends TestCase
 {
     use ProphecyTrait;
 
-    /**
-     * @var ConverterStrategyHandler<User, Person, DefaultConverterContext>
-     */
-    private ConverterStrategyHandler $strategyHandler;
-
+    /** @var StrategicConverter<User, Person, DefaultConverterContext> */
+    private StrategicConverter $strategyHandler;
     /** @var ObjectProphecy<Converter> */
     private $converter;
     /** @var ObjectProphecy<ConverterSelector> */
@@ -34,7 +31,7 @@ class ConverterStrategyHandlerTest extends TestCase
         $this->selector = $this->prophesize(ConverterSelector::class);
         $this->converter = $this->prophesize(Converter::class);
 
-        $this->strategyHandler = new ConverterStrategyHandler(
+        $this->strategyHandler = new StrategicConverter(
             [
                 'testKey' => $this->converter->reveal(),
             ],
@@ -56,7 +53,7 @@ class ConverterStrategyHandlerTest extends TestCase
         $this->selector = $this->prophesize(ConverterSelector::class);
         $this->converter = $this->prophesize(Converter::class);
 
-        $this->strategyHandler = new ConverterStrategyHandler(
+        $this->strategyHandler = new StrategicConverter(
             [
                 'testKey' => $this->converter->reveal(),
             ],
@@ -75,5 +72,4 @@ class ConverterStrategyHandlerTest extends TestCase
         $this->strategyHandler->convert($user);
 
     }
-
 }
