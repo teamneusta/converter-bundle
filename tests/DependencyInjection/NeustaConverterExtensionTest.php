@@ -10,7 +10,7 @@ use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
-use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
+use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
@@ -73,14 +73,14 @@ class NeustaConverterExtensionTest extends TestCase
 
         // name property populator
         $namePopulator = $container->getDefinition('foobar.populator.name');
-        self::assertSame(MappedPropertyPopulator::class, $namePopulator->getClass());
+        self::assertSame(PropertyMappingPopulator::class, $namePopulator->getClass());
         self::assertIsReference('property_accessor', $namePopulator->getArgument('$accessor'));
         self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
         self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
 
         // ageInYears property populator
         $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
-        self::assertSame(MappedPropertyPopulator::class, $ageInYearsPopulator->getClass());
+        self::assertSame(PropertyMappingPopulator::class, $ageInYearsPopulator->getClass());
         self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));

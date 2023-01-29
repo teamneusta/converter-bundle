@@ -16,7 +16,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
-final class MappedPropertyPopulator implements Populator
+final class PropertyMappingPopulator implements Populator
 {
     /** @var \Closure(mixed, TContext=):mixed */
     private \Closure $mapper;

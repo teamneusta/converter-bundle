@@ -21,7 +21,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 final class ConvertingPopulator implements Populator
 {
-    private MappedPropertyPopulator $populator;
+    private PropertyMappingPopulator $populator;
 
     /**
      * @template TInnerSource of object
@@ -35,7 +35,7 @@ final class ConvertingPopulator implements Populator
         string $targetPropertyName,
         PropertyAccessorInterface $accessor = null,
     ) {
-        $this->populator = new MappedPropertyPopulator(
+        $this->populator = new PropertyMappingPopulator(
             $targetPropertyName,
             $sourcePropertyName,
             \Closure::fromCallable([$converter, 'convert']),

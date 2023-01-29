@@ -20,9 +20,9 @@ services:
     ############################################################
     # Populators
     ############################################################
-    neusta_converter.mapped_property_populator:
+    neusta_converter.property_mapping_populator:
         abstract: true
-        class: Neusta\ConverterBundle\Populator\MappedPropertyPopulator
+        class: Neusta\ConverterBundle\Populator\PropertyMappingPopulator
 
     neusta_converter.converting_populator:
         abstract: true

@@ -121,7 +121,7 @@ neusta_converter:
 #### Mapping properties
 
 If you just want to map a single property from the source to the target without transforming it in between, you don't
-need to write a custom populator for this, as this bundle already contains the `MappedPropertyPopulator` for this use
+need to write a custom populator for this, as this bundle already contains the `PropertyMappingPopulator` for this use
 case.
 
 You can use it in your converter config via the `properties` keyword:

@@ -42,7 +42,7 @@ services:
 
 
     test.person.fullName.populator:
-        parent: 'neusta_converter.mapped_property_populator'
+        parent: 'neusta_converter.property_mapping_populator'
         public: true
         arguments:
             $targetProperty: 'fullName'
