@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator;
 
-use Neusta\ConverterBundle\Converter\Converter;
+use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 

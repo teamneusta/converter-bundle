@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
 use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
 use Neusta\ConverterBundle\Converter\CachedConverter;
-use Neusta\ConverterBundle\Converter\Converter;
+use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;

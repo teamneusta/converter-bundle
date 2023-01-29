@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
-use Neusta\ConverterBundle\Converter\Converter;
+use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;

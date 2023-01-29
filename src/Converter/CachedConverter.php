@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\CacheManagement\CacheManagement;
+use Neusta\ConverterBundle\Converter;
 
 /**
  * @template TSource of object

@@ -9,7 +9,7 @@ parameters:
                 - type: bool
                   must:
                     -   type: implements
-                        value: 'Neusta\ConverterBundle\Converter\Converter'
+                        value: 'Neusta\ConverterBundle\Converter'
         -   name: Populator
             collectors:
                 - type: bool
