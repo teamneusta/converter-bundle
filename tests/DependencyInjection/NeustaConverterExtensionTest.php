@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
 use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Converter\DefaultConverter;
+use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class NeustaConverterExtensionTest extends TestCase
 {
-    public function test_with_default_converter(): void
+    public function test_with_generic_converter(): void
     {
         $container = $this->buildContainer([
             'converter' => [
@@ -37,7 +37,7 @@ class NeustaConverterExtensionTest extends TestCase
 
         // converter
         $converter = $container->getDefinition('foobar');
-        self::assertSame(DefaultConverter::class, $converter->getClass());
+        self::assertSame(GenericConverter::class, $converter->getClass());
         self::assertTrue($converter->isPublic());
         self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
@@ -62,7 +62,7 @@ class NeustaConverterExtensionTest extends TestCase
 
         // converter
         $converter = $container->getDefinition('foobar');
-        self::assertSame(DefaultConverter::class, $converter->getClass());
+        self::assertSame(GenericConverter::class, $converter->getClass());
         self::assertTrue($converter->isPublic());
         self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
@@ -104,7 +104,7 @@ class NeustaConverterExtensionTest extends TestCase
 
         // converter
         $converter = $container->getDefinition('foobar');
-        self::assertSame(DefaultConverter::class, $converter->getClass());
+        self::assertSame(GenericConverter::class, $converter->getClass());
         self::assertTrue($converter->isPublic());
         self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));

@@ -6,7 +6,7 @@ services:
         public: true
 
     test.address.converter:
-        parent: 'neusta_converter.default_converter'
+        parent: 'neusta_converter.generic_converter'
         public: true
         arguments:
             $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\AddressFactory'

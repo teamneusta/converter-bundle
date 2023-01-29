@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Converter\DefaultConverter;
+use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\Converter\DefaultConverterContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
@@ -13,14 +13,14 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
 
-class DefaultConverterTest extends TestCase
+class GenericConverterTest extends TestCase
 {
     /** @var Converter<User, Person, DefaultConverterContext> */
     private Converter $converter;
 
     protected function setUp(): void
     {
-        $this->converter = new DefaultConverter(new PersonFactory(), [new PersonNamePopulator()]);
+        $this->converter = new GenericConverter(new PersonFactory(), [new PersonNamePopulator()]);
     }
 
     public function testConvert(): void

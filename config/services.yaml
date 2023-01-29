@@ -4,11 +4,11 @@ services:
         autoconfigure: false
 
     ############################################################
-    # Default Converter
+    # Generic Converter
     ############################################################
-    neusta_converter.default_converter:
+    neusta_converter.generic_converter:
         abstract: true
-        class: Neusta\ConverterBundle\Converter\DefaultConverter
+        class: Neusta\ConverterBundle\Converter\GenericConverter
 
     ############################################################
     # Strategic Converter

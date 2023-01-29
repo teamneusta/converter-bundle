@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Converter\CachedConverter;
-use Neusta\ConverterBundle\Converter\DefaultConverter;
+use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
@@ -23,7 +23,7 @@ class CachedConverterTest extends TestCase
     protected function setUp(): void
     {
         $this->converter = new CachedConverter(
-            new DefaultConverter(
+            new GenericConverter(
                 new PersonFactory(),
                 [
                     new PersonNamePopulator()

@@ -14,7 +14,7 @@ use Neusta\ConverterBundle\Populator\Populator;
  *
  * @implements Converter<TSource, TTarget, TContext>
  */
-class DefaultConverter implements Converter
+final class GenericConverter implements Converter
 {
     /**
      * @param TargetTypeFactory<TTarget, TContext> $factory
