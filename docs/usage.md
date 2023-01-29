@@ -48,11 +48,11 @@ Implement the following three artifacts:
 Implement a comfortable factory for your target type:
 
 ```php
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Factory\TargetTypeFactory;
 
 /**
- * @implements TargetTypeFactory<Person, DefaultConverterContext>
+ * @implements TargetTypeFactory<Person, GenericContext>
  */
 class PersonFactory implements TargetTypeFactory
 {
@@ -71,11 +71,11 @@ maybe not now but in a few weeks. You will see.
 Implement one or several populators:
 
 ```php
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Populator\Populator;
 
 /**
- * @implements Populator<User, Person, DefaultConverterContext>
+ * @implements Populator<User, Person, GenericContext>
  */
 class PersonNamePopulator implements Populator
 {
@@ -147,7 +147,7 @@ Which will populate the `email` property of the target object with the `email` p
 And now if you want to convert `User`s into `Person`s just type in your code:
 
 ```php
-/** @var Converter<User, Person, DefaultConverterContext> */
+/** @var Converter<User, Person, GenericContext> */
 $converter = $this->getContainer()->get('person.converter');
 ...
 $person = $this->converter->convert($user);
@@ -159,10 +159,10 @@ Conversion done.
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.
 Think about environment parameters, localization or other specifications of your app.
-This information can be put inside a simple `DefaultConverterContext` object and called with your conversion:
+This information can be put inside a simple `GenericContext` object and called with your conversion:
 
 ```php
-$ctx = new \Neusta\ConverterBundle\Converter\DefaultConverterContext();
+$ctx = new \Neusta\ConverterBundle\Converter\Context\GenericContext();
 $ctx->setValue('locale', 'de');
 ...
 $target = $this->converter->convert($source, $ctx);
@@ -178,7 +178,7 @@ if ($ctx && $ctx->hasKey('locale')) {
 }
 ```
 
-Internally the `DefaultConverterContext` is only an associative array but the interface allows you to adapt your own
+Internally the `GenericContext` is only an associative array but the interface allows you to adapt your own
 implementation of a domain-oriented context and use it in your populators as you like.
 
 ## [Conversion with Caching](cached-converter.md)

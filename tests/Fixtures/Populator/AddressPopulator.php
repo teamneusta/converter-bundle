@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Fixtures\Populator;
 
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Populator\Populator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Address;
 
 /**
- * @implements Populator<Address, PersonAddress, DefaultConverterContext>
+ * @implements Populator<Address, PersonAddress, GenericContext>
  */
 class AddressPopulator implements Populator
 {

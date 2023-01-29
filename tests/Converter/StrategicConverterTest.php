@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Converter\StrategicConverter;
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\ConverterException;
 use Neusta\ConverterBundle\Converter\Strategy\ConverterSelector;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
@@ -19,7 +19,7 @@ class StrategicConverterTest extends TestCase
 {
     use ProphecyTrait;
 
-    /** @var StrategicConverter<User, Person, DefaultConverterContext> */
+    /** @var StrategicConverter<User, Person, GenericContext> */
     private StrategicConverter $strategyHandler;
     /** @var ObjectProphecy<Converter> */
     private $converter;

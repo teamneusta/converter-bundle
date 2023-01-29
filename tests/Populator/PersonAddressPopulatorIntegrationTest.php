@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator;
 
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator\Populator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Address;
@@ -18,7 +18,7 @@ class PersonAddressPopulatorIntegrationTest extends KernelTestCase
 {
     public function testPopulate_regular_case(): void
     {
-        /** @var Populator<User, Person, DefaultConverterContext> $populator */
+        /** @var Populator<User, Person, GenericContext> $populator */
         $populator = self::getContainer()->get('test.person.address.populator');
         $address = (new Address())
             ->setCity('Bremen')
@@ -37,7 +37,7 @@ class PersonAddressPopulatorIntegrationTest extends KernelTestCase
 
     public function testPopulate_wrong_source_type(): void
     {
-        /** @var Populator<User, Person, DefaultConverterContext> $populator */
+        /** @var Populator<User, Person, GenericContext> $populator */
         $populator = self::getContainer()->get('test.person.wrong.source.type.populator');
 
         $user = (new User())->setFieldWithUnknownType(new UnknownType());
@@ -53,7 +53,7 @@ class PersonAddressPopulatorIntegrationTest extends KernelTestCase
 
     public function testPopulate_wrong_converter(): void
     {
-        /** @var Populator<User, Person, DefaultConverterContext> $populator */
+        /** @var Populator<User, Person, GenericContext> $populator */
         $populator = self::getContainer()->get('test.person.wrong.converter.populator');
         $address = (new Address())
             ->setCity('Bremen')

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Fixtures\Factory;
 
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Factory\TargetTypeFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;
 
 /**
- * @implements TargetTypeFactory<PersonAddress, DefaultConverterContext>
+ * @implements TargetTypeFactory<PersonAddress, GenericContext>
  */
 class AddressFactory implements TargetTypeFactory
 {

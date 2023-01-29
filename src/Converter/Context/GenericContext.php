@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Converter;
+namespace Neusta\ConverterBundle\Converter\Context;
 
-class DefaultConverterContext
+class GenericContext
 {
     /** @var array<string, mixed> */
     protected array $values;

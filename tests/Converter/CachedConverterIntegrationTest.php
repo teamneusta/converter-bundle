@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CachedConverterIntegrationTest extends KernelTestCase
 {
-    /** @var Converter<User, Person, DefaultConverterContext> */
+    /** @var Converter<User, Person, GenericContext> */
     private Converter $converter;
 
     protected function setUp(): void
@@ -35,7 +35,7 @@ class CachedConverterIntegrationTest extends KernelTestCase
     {
         // Test Fixture
         $source = (new User())->setUuid(17)->setFirstname('Max')->setLastname('Mustermann');
-        $ctx = (new DefaultConverterContext())->setValue('separator', ', ');
+        $ctx = (new GenericContext())->setValue('separator', ', ');
         // Test Execution
         $target = $this->converter->convert($source, $ctx);
         // Test Assertion
