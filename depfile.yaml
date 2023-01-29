@@ -19,7 +19,7 @@ parameters:
         -   name: Factory
             collectors:
                 -   type: implements
-                    value: 'Neusta\ConverterBundle\Factory\TargetFactory'
+                    value: 'Neusta\ConverterBundle\Target\TargetFactory'
     ruleset:
         Populator:
             - Converter

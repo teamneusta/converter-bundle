@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 use Neusta\ConverterBundle\Converter\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Target\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;

@@ -2,7 +2,7 @@ neusta_converter:
   converter:
     test.person.converter:
 #      converter: Neusta\ConverterBundle\Converter\GenericConverter
-      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Target\PersonFactory
       populators:
         - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
 #      properties:

@@ -12,7 +12,7 @@ use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;
-use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Target\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter;
 
-use Neusta\ConverterBundle\Factory\TargetFactory;
+use Neusta\ConverterBundle\Target\TargetFactory;
 use Neusta\ConverterBundle\Populator\Populator;
 
 /**
