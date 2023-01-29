@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\PopulationException;
-use Neusta\ConverterBundle\Populator\Populator;
+use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Address;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;

@@ -72,7 +72,7 @@ Implement one or several populators:
 
 ```php
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Populator\Populator;
+use Neusta\ConverterBundle\Populator;
 
 /**
  * @implements Populator<User, Person, GenericContext>

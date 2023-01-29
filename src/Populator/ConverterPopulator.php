@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\Populator;
 
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Exception\PopulationException;
+use Neusta\ConverterBundle\Populator;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**

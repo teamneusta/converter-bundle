@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Target\TargetFactory;
-use Neusta\ConverterBundle\Populator\Populator;
+use Neusta\ConverterBundle\Populator;
 
 /**
  * @template TSource of object

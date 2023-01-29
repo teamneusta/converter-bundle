@@ -15,7 +15,7 @@ parameters:
                 - type: bool
                   must:
                     -   type: implements
-                        value: 'Neusta\ConverterBundle\Populator\Populator'
+                        value: 'Neusta\ConverterBundle\Populator'
         -   name: Factory
             collectors:
                 -   type: implements
