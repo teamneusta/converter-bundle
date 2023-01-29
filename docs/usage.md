@@ -49,7 +49,7 @@ Implement a comfortable factory for your target type:
 
 ```php
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Target\TargetFactory;
+use Neusta\ConverterBundle\TargetFactory;
 
 /**
  * @implements TargetFactory<Person, GenericContext>

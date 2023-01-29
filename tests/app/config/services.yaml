@@ -9,7 +9,7 @@ services:
         parent: 'neusta_converter.generic_converter'
         public: true
         arguments:
-            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Target\AddressFactory'
+            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Model\AddressFactory'
             $populators:
                 - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator'
 
@@ -48,8 +48,8 @@ services:
             $targetProperty: 'fullName'
             $sourceProperty: 'fullName'
 
-    Neusta\ConverterBundle\Tests\Fixtures\Target\PersonFactory: ~
-    Neusta\ConverterBundle\Tests\Fixtures\Target\AddressFactory: ~
+    Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory: ~
+    Neusta\ConverterBundle\Tests\Fixtures\Model\AddressFactory: ~
 
     Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory: ~
 

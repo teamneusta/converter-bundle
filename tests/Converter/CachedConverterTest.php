@@ -9,7 +9,7 @@ use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;
-use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;

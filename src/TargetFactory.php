@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Target;
+namespace Neusta\ConverterBundle;
 
 /**
  * @template TTarget of object

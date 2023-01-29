@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Tests\Fixtures\Target;
+namespace Neusta\ConverterBundle\Tests\Fixtures\Model;
 
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Target\TargetFactory;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
+use Neusta\ConverterBundle\TargetFactory;
 
 /**
  * @implements TargetFactory<Person, GenericContext>
