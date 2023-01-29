@@ -24,6 +24,6 @@ services:
         abstract: true
         class: Neusta\ConverterBundle\Populator\MappedPropertyPopulator
 
-    neusta_converter.converter_populator:
+    neusta_converter.converting_populator:
         abstract: true
-        class: Neusta\ConverterBundle\Populator\ConverterPopulator
+        class: Neusta\ConverterBundle\Populator\ConvertingPopulator

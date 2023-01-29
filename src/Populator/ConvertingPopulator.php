@@ -19,7 +19,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
-final class ConverterPopulator implements Populator
+final class ConvertingPopulator implements Populator
 {
     private MappedPropertyPopulator $populator;
 

@@ -17,7 +17,7 @@ services:
     Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator: ~
 
     test.person.address.populator:
-        parent: 'neusta_converter.converter_populator'
+        parent: 'neusta_converter.converting_populator'
         public: true
         arguments:
             $converter: '@test.address.converter'
@@ -25,7 +25,7 @@ services:
             $targetPropertyName: 'address'
 
     test.person.wrong.source.type.populator:
-        parent: 'neusta_converter.converter_populator'
+        parent: 'neusta_converter.converting_populator'
         public: true
         arguments:
             $converter: '@test.address.converter'
@@ -33,7 +33,7 @@ services:
             $targetPropertyName: 'address'
 
     test.person.wrong.converter.populator:
-        parent: 'neusta_converter.converter_populator'
+        parent: 'neusta_converter.converting_populator'
         public: true
         arguments:
             $converter: '@test.person.converter' # wrong converter for testing
