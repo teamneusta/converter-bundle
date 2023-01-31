@@ -125,7 +125,41 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertIsReference(UserKeyFactory::class, $cache->getArgument('$keyFactory'));
     }
 
-    public function test_with_cache_with_service_and_key_factory_defined(): void
+    public function test_with_custom_cache_service(): void
+    {
+        $container = $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                    'cached' => [
+                        'service' => 'other.cache',
+                    ],
+                ],
+            ],
+        ]);
+
+        // converter
+        $converter = $container->getDefinition('foobar');
+        self::assertSame(GenericConverter::class, $converter->getClass());
+        self::assertTrue($converter->isPublic());
+        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
+        self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
+        self::assertIsArray($converter->getArgument('$populators'));
+        self::assertCount(1, $converter->getArgument('$populators'));
+        self::assertIsReference(PersonNamePopulator::class, $converter->getArgument('$populators')[0]);
+
+        // cached converter
+        $cachedConverter = $container->getDefinition('foobar.cached');
+        self::assertSame(CachedConverter::class, $cachedConverter->getClass());
+        self::assertSame('foobar', $cachedConverter->getDecoratedService()[0]);
+        self::assertIsReference('.inner', $cachedConverter->getArgument('$inner'));
+        self::assertIsReference('other.cache', $cachedConverter->getArgument('$cache'));
+    }
+
+    public function test_with_custom_cache_service_and_key_factory_defined(): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage('You cannot use "service" and "key_factory" at the same time');
