@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
+use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
+use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Symfony\Component\Config\FileLocator;
@@ -52,6 +54,22 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     $config['populators'],
                 ),
             ]);
+
+        if (isset($config['cached'])) {
+            if (!$cacheManagementId = $config['cached']['service'] ?? null) {
+                $container->register($cacheManagementId = "{$id}.cache_management", DefaultCacheManagement::class)
+                    ->setArguments([
+                        '$keyFactory' => new Reference($config['cached']['key_factory']),
+                    ]);
+            }
+
+            $container->register("{$id}.cached", CachedConverter::class)
+                ->setDecoratedService($id)
+                ->setArguments([
+                    '$inner' => new Reference('.inner'),
+                    '$cacheManagement' => new Reference($cacheManagementId),
+                ]);
+        }
     }
 
     private function appendSuffix(string $value, string $suffix): string

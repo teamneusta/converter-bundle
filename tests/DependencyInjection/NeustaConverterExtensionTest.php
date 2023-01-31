@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
+use Neusta\ConverterBundle\CacheManagement\DefaultCacheManagement;
+use Neusta\ConverterBundle\Converter\CachedConverter;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\Tests\Fixtures\CacheManagement\UserKeyFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Reference;
@@ -80,6 +84,84 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
+    }
+
+    public function test_with_default_cached_converter(): void
+    {
+        $container = $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                    'cached' => [
+                        'key_factory' => UserKeyFactory::class,
+                    ],
+                ],
+            ],
+        ]);
+
+        // converter
+        $converter = $container->getDefinition('foobar');
+        self::assertSame(GenericConverter::class, $converter->getClass());
+        self::assertTrue($converter->isPublic());
+        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
+        self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
+        self::assertIsArray($converter->getArgument('$populators'));
+        self::assertCount(1, $converter->getArgument('$populators'));
+        self::assertIsReference(PersonNamePopulator::class, $converter->getArgument('$populators')[0]);
+
+        // cached converter
+        $cachedConverter = $container->getDefinition('foobar.cached');
+        self::assertSame(CachedConverter::class, $cachedConverter->getClass());
+        self::assertSame('foobar', $cachedConverter->getDecoratedService()[0]);
+        self::assertIsReference('.inner', $cachedConverter->getArgument('$inner'));
+        self::assertIsReference('foobar.cache_management', $cachedConverter->getArgument('$cacheManagement'));
+
+        // cache management
+        $cacheManagement = $container->getDefinition('foobar.cache_management');
+        self::assertSame(DefaultCacheManagement::class, $cacheManagement->getClass());
+        self::assertIsReference(UserKeyFactory::class, $cacheManagement->getArgument('$keyFactory'));
+    }
+
+    public function test_with_cache_with_service_and_key_factory_defined(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('You cannot use "service" and "key_factory" at the same time');
+
+        $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                    'cached' => [
+                        'service' => DefaultCacheManagement::class,
+                        'key_factory' => UserKeyFactory::class,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_cache_without_service_and_key_factory_defined(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Either "service" or "key_factory" must be defined');
+
+        $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                    'cached' => [],
+                ],
+            ],
+        ]);
     }
 
     private static function assertIsReference(string $expected, mixed $actual): void
