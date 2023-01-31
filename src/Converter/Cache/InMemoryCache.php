@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter\Cache;
 
+use Neusta\ConverterBundle\Converter\Cache;
+
 /**
  * @template TSource of object
  * @template TTarget of object

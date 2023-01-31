@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter;
 
-use Neusta\ConverterBundle\Converter\Cache\Cache;
 use Neusta\ConverterBundle\Converter\Cache\CacheAwareContext;
 use Neusta\ConverterBundle\Converter;
 

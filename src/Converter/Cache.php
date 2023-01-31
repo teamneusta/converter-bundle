@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Converter\Cache;
+namespace Neusta\ConverterBundle\Converter;
+
+use Neusta\ConverterBundle\Converter\Cache\CacheAwareContext;
 
 /**
  * @template TSource of object
