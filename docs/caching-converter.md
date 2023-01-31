@@ -3,7 +3,7 @@
 In some situations - especially if you are transforming objects with relation to objects - it may be helpful
 to use caching to avoid conversion of same object instances again and again.
 
-Therefore, we offer a `CachedConverter`.
+Therefore, we offer a `CachingConverter`.
 
 Before you can directly use it you have to implement a cache key strategy for your source objects;
 i.e. you have to determine how one can differentiate the source objects.

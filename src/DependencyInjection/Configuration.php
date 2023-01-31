@@ -52,7 +52,7 @@ final class Configuration implements ConfigurationInterface
                                 ->useAttributeAsKey('target')
                                 ->prototype('scalar')->end()
                             ->end()
-                            ->arrayNode('cached')
+                            ->arrayNode('cache')
                                 ->info('Whether the result should be cached')
                                 ->children()
                                     ->scalarNode('service')

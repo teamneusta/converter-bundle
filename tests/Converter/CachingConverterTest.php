@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter\Cache\InMemoryCache;
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Converter\CachedConverter;
+use Neusta\ConverterBundle\Converter\CachingConverter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache\UserKeyFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
@@ -15,14 +15,14 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
 
-class CachedConverterTest extends TestCase
+class CachingConverterTest extends TestCase
 {
     /** @var Converter<User, Person> */
     private Converter $converter;
 
     protected function setUp(): void
     {
-        $this->converter = new CachedConverter(
+        $this->converter = new CachingConverter(
             new GenericConverter(
                 new PersonFactory(),
                 [

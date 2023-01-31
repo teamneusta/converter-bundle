@@ -14,6 +14,6 @@ neusta_converter:
       target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory
       populators:
         - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
-      cached:
+      cache:
 #        service: user.cache
         key_factory: Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache\UserKeyFactory
