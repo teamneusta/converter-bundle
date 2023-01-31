@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
-use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Converter\DefaultConverter;
+use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
-use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
-use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
+use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Reference;

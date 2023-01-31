@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
-use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
+use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
