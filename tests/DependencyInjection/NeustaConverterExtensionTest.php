@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
-use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Converter\DefaultConverter;
+use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
-use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
-use Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory;
+use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Reference;
 
 class NeustaConverterExtensionTest extends TestCase
 {
-    public function test_with_default_converter(): void
+    public function test_with_generic_converter(): void
     {
         $container = $this->buildContainer([
             'converter' => [
@@ -34,7 +33,7 @@ class NeustaConverterExtensionTest extends TestCase
 
         // converter
         $converter = $container->getDefinition('foobar');
-        self::assertSame(DefaultConverter::class, $converter->getClass());
+        self::assertSame(GenericConverter::class, $converter->getClass());
         self::assertTrue($converter->isPublic());
         self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
@@ -59,7 +58,7 @@ class NeustaConverterExtensionTest extends TestCase
 
         // converter
         $converter = $container->getDefinition('foobar');
-        self::assertSame(DefaultConverter::class, $converter->getClass());
+        self::assertSame(GenericConverter::class, $converter->getClass());
         self::assertTrue($converter->isPublic());
         self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
@@ -70,14 +69,14 @@ class NeustaConverterExtensionTest extends TestCase
 
         // name property populator
         $namePopulator = $container->getDefinition('foobar.populator.name');
-        self::assertSame(MappedPropertyPopulator::class, $namePopulator->getClass());
+        self::assertSame(PropertyMappingPopulator::class, $namePopulator->getClass());
         self::assertIsReference('property_accessor', $namePopulator->getArgument('$accessor'));
         self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
         self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
 
         // ageInYears property populator
         $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
-        self::assertSame(MappedPropertyPopulator::class, $ageInYearsPopulator->getClass());
+        self::assertSame(PropertyMappingPopulator::class, $ageInYearsPopulator->getClass());
         self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));

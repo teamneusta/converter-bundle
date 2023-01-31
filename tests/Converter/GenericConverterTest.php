@@ -4,21 +4,23 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Converter;
 
-use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
+use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\GenericConverter;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
+use PHPUnit\Framework\TestCase;
 
-class DefaultConverterIntegrationTest extends KernelTestCase
+class GenericConverterTest extends TestCase
 {
-    /** @var Converter<User, Person, DefaultConverterContext> */
+    /** @var Converter<User, Person, GenericContext> */
     private Converter $converter;
 
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->converter = self::getContainer()->get('test.person.converter');
+        $this->converter = new GenericConverter(new PersonFactory(), [new PersonNamePopulator()]);
     }
 
     public function testConvert(): void
@@ -35,7 +37,7 @@ class DefaultConverterIntegrationTest extends KernelTestCase
     {
         // Test Fixture
         $source = (new User())->setFirstname('Max')->setLastname('Mustermann');
-        $ctx = (new DefaultConverterContext())->setValue('separator', ', ');
+        $ctx = (new GenericContext())->setValue('separator', ', ');
         // Test Execution
         $target = $this->converter->convert($source, $ctx);
         // Test Assertion

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Converter;
+namespace Neusta\ConverterBundle;
 
 use Neusta\ConverterBundle\Exception\ConverterException;
 

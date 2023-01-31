@@ -6,10 +6,10 @@ services:
         public: true
 
     test.address.converter:
-        parent: 'neusta_converter.default_converter'
+        parent: 'neusta_converter.generic_converter'
         public: true
         arguments:
-            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Factory\AddressFactory'
+            $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Model\AddressFactory'
             $populators:
                 - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator'
 
@@ -17,7 +17,7 @@ services:
     Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator: ~
 
     test.person.address.populator:
-        parent: 'neusta_converter.converter_populator'
+        parent: 'neusta_converter.converting_populator'
         public: true
         arguments:
             $converter: '@test.address.converter'
@@ -25,7 +25,7 @@ services:
             $targetPropertyName: 'address'
 
     test.person.wrong.source.type.populator:
-        parent: 'neusta_converter.converter_populator'
+        parent: 'neusta_converter.converting_populator'
         public: true
         arguments:
             $converter: '@test.address.converter'
@@ -33,7 +33,7 @@ services:
             $targetPropertyName: 'address'
 
     test.person.wrong.converter.populator:
-        parent: 'neusta_converter.converter_populator'
+        parent: 'neusta_converter.converting_populator'
         public: true
         arguments:
             $converter: '@test.person.converter' # wrong converter for testing
@@ -42,11 +42,11 @@ services:
 
 
     test.person.fullName.populator:
-        parent: 'neusta_converter.mapped_property_populator'
+        parent: 'neusta_converter.property_mapping_populator'
         public: true
         arguments:
             $targetProperty: 'fullName'
             $sourceProperty: 'fullName'
 
-    Neusta\ConverterBundle\Tests\Fixtures\Factory\PersonFactory: ~
-    Neusta\ConverterBundle\Tests\Fixtures\Factory\AddressFactory: ~
+    Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory: ~
+    Neusta\ConverterBundle\Tests\Fixtures\Model\AddressFactory: ~

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
-use Neusta\ConverterBundle\Converter\Converter;
-use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
+use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -34,7 +34,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
     {
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceProperty) {
             $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
-            $container->register($propertyPopulatorId, MappedPropertyPopulator::class)
+            $container->register($propertyPopulatorId, PropertyMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
                     '$sourceProperty' => $sourceProperty ?? $targetProperty,

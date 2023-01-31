@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Strategy;
+namespace Neusta\ConverterBundle\Converter\Strategy;
 
 /**
  * @template TSource of object

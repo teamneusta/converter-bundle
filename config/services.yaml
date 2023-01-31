@@ -4,26 +4,26 @@ services:
         autoconfigure: false
 
     ############################################################
-    # Default Converter
+    # Generic Converter
     ############################################################
-    neusta_converter.default_converter:
+    neusta_converter.generic_converter:
         abstract: true
-        class: Neusta\ConverterBundle\Converter\DefaultConverter
+        class: Neusta\ConverterBundle\Converter\GenericConverter
 
     ############################################################
-    # Strategy Handler Converter
+    # Strategic Converter
     ############################################################
-    neusta_converter.converter_strategy_handler:
+    neusta_converter.strategic_converter:
         abstract: true
-        class: Neusta\ConverterBundle\Converter\ConverterStrategyHandler
+        class: Neusta\ConverterBundle\Converter\StrategicConverter
 
     ############################################################
     # Populators
     ############################################################
-    neusta_converter.mapped_property_populator:
+    neusta_converter.property_mapping_populator:
         abstract: true
-        class: Neusta\ConverterBundle\Populator\MappedPropertyPopulator
+        class: Neusta\ConverterBundle\Populator\PropertyMappingPopulator
 
-    neusta_converter.converter_populator:
+    neusta_converter.converting_populator:
         abstract: true
-        class: Neusta\ConverterBundle\Populator\ConverterPopulator
+        class: Neusta\ConverterBundle\Populator\ConvertingPopulator

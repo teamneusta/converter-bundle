@@ -9,17 +9,17 @@ parameters:
                 - type: bool
                   must:
                     -   type: implements
-                        value: 'Neusta\ConverterBundle\Converter\Converter'
+                        value: 'Neusta\ConverterBundle\Converter'
         -   name: Populator
             collectors:
                 - type: bool
                   must:
                     -   type: implements
-                        value: 'Neusta\ConverterBundle\Populator\Populator'
+                        value: 'Neusta\ConverterBundle\Populator'
         -   name: Factory
             collectors:
                 -   type: implements
-                    value: 'Neusta\ConverterBundle\Factory\TargetTypeFactory'
+                    value: 'Neusta\ConverterBundle\TargetFactory'
     ruleset:
         Populator:
             - Converter

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Factory;
+namespace Neusta\ConverterBundle;
 
 /**
  * @template TTarget of object
  * @template TContext of object|null
  */
-interface TargetTypeFactory
+interface TargetFactory
 {
     /**
      * @param TContext $ctx

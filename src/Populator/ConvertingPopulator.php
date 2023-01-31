@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator;
 
-use Neusta\ConverterBundle\Converter\Converter;
+use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Exception\PopulationException;
+use Neusta\ConverterBundle\Populator;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
@@ -18,9 +19,9 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
-final class ConverterPopulator implements Populator
+final class ConvertingPopulator implements Populator
 {
-    private MappedPropertyPopulator $populator;
+    private PropertyMappingPopulator $populator;
 
     /**
      * @template TInnerSource of object
@@ -34,7 +35,7 @@ final class ConverterPopulator implements Populator
         string $targetPropertyName,
         PropertyAccessorInterface $accessor = null,
     ) {
-        $this->populator = new MappedPropertyPopulator(
+        $this->populator = new PropertyMappingPopulator(
             $targetPropertyName,
             $sourcePropertyName,
             \Closure::fromCallable([$converter, 'convert']),

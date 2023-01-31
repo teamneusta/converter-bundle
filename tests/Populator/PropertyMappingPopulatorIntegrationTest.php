@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator;
 
-use Neusta\ConverterBundle\Populator\MappedPropertyPopulator;
+use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class MappedPropertyPopulatorIntegrationTest extends KernelTestCase
+class PropertyMappingPopulatorIntegrationTest extends KernelTestCase
 {
-    private MappedPropertyPopulator $populator;
+    private PropertyMappingPopulator $populator;
 
     protected function setUp(): void
     {

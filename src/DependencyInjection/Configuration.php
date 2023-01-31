@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
-use Neusta\ConverterBundle\Converter\DefaultConverter;
+use Neusta\ConverterBundle\Converter\GenericConverter;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -35,10 +35,10 @@ final class Configuration implements ConfigurationInterface
                         ->children()
                             ->scalarNode('converter')
                                 ->info('Class name of the "Converter" implementation')
-                                ->defaultValue(DefaultConverter::class)
+                                ->defaultValue(GenericConverter::class)
                             ->end()
                             ->scalarNode('target_factory')
-                                ->info('Service id of the "TargetTypeFactory"')
+                                ->info('Service id of the "TargetFactory"')
                                 ->isRequired()
                                 ->cannotBeEmpty()
                             ->end()

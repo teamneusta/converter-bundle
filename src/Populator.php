@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Populator;
+namespace Neusta\ConverterBundle;
 
 /**
  * @template TSource of object

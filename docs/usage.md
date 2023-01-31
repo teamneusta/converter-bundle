@@ -48,13 +48,13 @@ Implement the following three artifacts:
 Implement a comfortable factory for your target type:
 
 ```php
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
-use Neusta\ConverterBundle\Factory\TargetTypeFactory;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
+use Neusta\ConverterBundle\TargetFactory;
 
 /**
- * @implements TargetTypeFactory<Person, DefaultConverterContext>
+ * @implements TargetFactory<Person, GenericContext>
  */
-class PersonFactory implements TargetTypeFactory
+class PersonFactory implements TargetFactory
 {
     public function create(?object $ctx = null): Person
     {
@@ -71,11 +71,11 @@ maybe not now but in a few weeks. You will see.
 Implement one or several populators:
 
 ```php
-use Neusta\ConverterBundle\Converter\DefaultConverterContext;
-use Neusta\ConverterBundle\Populator\Populator;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
+use Neusta\ConverterBundle\Populator;
 
 /**
- * @implements Populator<User, Person, DefaultConverterContext>
+ * @implements Populator<User, Person, GenericContext>
  */
 class PersonNamePopulator implements Populator
 {
@@ -116,12 +116,12 @@ neusta_converter:
 ```
 
 > Note: You can use a custom implementation of the `Converter` interface via the `converter` keyword.
-> Its constructor must contain the two parameters `TargetTypeFactory $factory` and `array $populators`.
+> Its constructor must contain the two parameters `TargetFactory $factory` and `array $populators`.
 
 #### Mapping properties
 
 If you just want to map a single property from the source to the target without transforming it in between, you don't
-need to write a custom populator for this, as this bundle already contains the `MappedPropertyPopulator` for this use
+need to write a custom populator for this, as this bundle already contains the `PropertyMappingPopulator` for this use
 case.
 
 You can use it in your converter config via the `properties` keyword:
@@ -147,7 +147,7 @@ Which will populate the `email` property of the target object with the `email` p
 And now if you want to convert `User`s into `Person`s just type in your code:
 
 ```php
-/** @var Converter<User, Person, DefaultConverterContext> */
+/** @var Converter<User, Person, GenericContext> */
 $converter = $this->getContainer()->get('person.converter');
 ...
 $person = $this->converter->convert($user);
@@ -159,10 +159,10 @@ Conversion done.
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.
 Think about environment parameters, localization or other specifications of your app.
-This information can be put inside a simple `DefaultConverterContext` object and called with your conversion:
+This information can be put inside a simple `GenericContext` object and called with your conversion:
 
 ```php
-$ctx = new \Neusta\ConverterBundle\Converter\DefaultConverterContext();
+$ctx = new \Neusta\ConverterBundle\Converter\Context\GenericContext();
 $ctx->setValue('locale', 'de');
 ...
 $target = $this->converter->convert($source, $ctx);
@@ -178,5 +178,5 @@ if ($ctx && $ctx->hasKey('locale')) {
 }
 ```
 
-Internally the `DefaultConverterContext` is only an associative array but the interface allows you to adapt your own
+Internally the `GenericContext` is only an associative array but the interface allows you to adapt your own
 implementation of a domain-oriented context and use it in your populators as you like.
