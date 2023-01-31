@@ -14,7 +14,7 @@ use Neusta\ConverterBundle\Converter;
  *
  * @implements Converter<TSource, TTarget, TContext>
  */
-class CachingConverter implements Converter
+final class CachingConverter implements Converter
 {
     /**
      * @param Converter<TSource, TTarget, TContext> $inner
