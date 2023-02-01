@@ -4,7 +4,7 @@ A default implementation of the Converter & Populator design pattern.
 
 ## Installation
 
-Run `composer require neusta/converter-bundle` to install the bundle.
+Run `composer require teamneusta/converter-bundle` to install the bundle.
 
 Add the following line into your `bundles.php` file to activate it:
 
