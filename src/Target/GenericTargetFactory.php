@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\TargetFactory;
+namespace Neusta\ConverterBundle\Target;
 
 use Neusta\ConverterBundle\TargetFactory;
 
