@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Neusta\ConverterBundle\TargetFactory\GenericTargetFactory;
+use Neusta\ConverterBundle\Target\GenericTargetFactory;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;

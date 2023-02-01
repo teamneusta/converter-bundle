@@ -9,7 +9,7 @@ use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Neusta\ConverterBundle\TargetFactory\GenericTargetFactory;
+use Neusta\ConverterBundle\Target\GenericTargetFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
