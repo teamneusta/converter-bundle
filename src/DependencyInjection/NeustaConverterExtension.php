@@ -42,8 +42,10 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
-        if (!$targetFactoryId = $config['target_factory'] ?? null) {
-            $container->register($targetFactoryId = "{$id}.target_factory", GenericTargetFactory::class)
+        $targetFactoryId = $config['target_factory'] ?? "{$id}.target_factory";
+
+        if (!isset($config['target_factory'])) {
+            $container->register($targetFactoryId, GenericTargetFactory::class)
                 ->setArguments([
                     '$type' => new Reference($config['target']),
                 ]);
