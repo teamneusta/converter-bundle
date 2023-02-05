@@ -8,3 +8,12 @@ neusta_converter:
 #      properties:
 #        fullName: ~
 #        age: ageInYears
+
+    test.person.converter.with.cache:
+#      converter: Neusta\ConverterBundle\Converter\DefaultConverter
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory
+      populators:
+        - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
+      cache:
+#        service: user.cache
+        key_factory: Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache\UserKeyFactory
