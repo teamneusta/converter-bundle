@@ -15,5 +15,5 @@ interface CacheKeyFactory
      *
      * @return non-empty-string
      */
-    public function createFor(object $source): string;
+    public function createCacheKeyFor(object $source): string;
 }

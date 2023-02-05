@@ -12,7 +12,7 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
  */
 class UserKeyFactory implements CacheKeyFactory
 {
-    public function createFor(object $source): string
+    public function createCacheKeyFor(object $source): string
     {
         return (string) $source->getUuid();
     }

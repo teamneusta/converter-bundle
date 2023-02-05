@@ -30,19 +30,19 @@ final class InMemoryCache implements Cache
 
     public function get(object $source, ?CacheAwareContext $ctx = null): ?object
     {
-        return $this->targets[$this->createKey($source, $ctx)] ?? null;
+        return $this->targets[$this->createCacheKeyFor($source, $ctx)] ?? null;
     }
 
     public function set(object $source, object $target, ?CacheAwareContext $ctx = null): void
     {
-        $this->targets[$this->createKey($source, $ctx)] = $target;
+        $this->targets[$this->createCacheKeyFor($source, $ctx)] = $target;
     }
 
     /**
      * @param TSource $source
      */
-    private function createKey(object $source, ?CacheAwareContext $ctx = null): string
+    private function createCacheKeyFor(object $source, ?CacheAwareContext $ctx = null): string
     {
-        return $this->keyFactory->createFor($source) . $ctx?->getHash();
+        return $this->keyFactory->createCacheKeyFor($source) . $ctx?->getHash();
     }
 }
