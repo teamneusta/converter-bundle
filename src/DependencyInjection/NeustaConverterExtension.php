@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -14,6 +16,19 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
 final class NeustaConverterExtension extends ConfigurableExtension
 {
+    /** @var list<ConverterFactory> */
+    private array $converterFactories = [];
+
+    public function addConverterFactory(ConverterFactory $factory): void
+    {
+        $this->converterFactories[] = $factory;
+    }
+
+    public function getConfiguration(array $config, ContainerBuilder $container): Configuration
+    {
+        return new Configuration($this->converterFactories);
+    }
+
     /**
      * @param array<string, mixed> $config
      */
@@ -22,15 +37,32 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__, 2) . '/config'));
         $loader->load('services.yaml');
 
-        foreach ($config['converter'] as $converterId => $converter) {
-            $this->registerConverterConfiguration($converterId, $converter, $container);
+        foreach ($config['converters'] as $name => $converter) {
+            $this->createConverter($container, $name, $converter);
+        }
+
+        foreach ($config['converter'] as $name => $converter) {
+            $this->createDeprecatedConverter($container, $name, $converter);
         }
     }
 
     /**
      * @param array<string, mixed> $config
      */
-    private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
+    private function createConverter(ContainerBuilder $container, string $name, array $config): void
+    {
+        foreach ($this->converterFactories as $factory) {
+            if (!empty($config[$factory->getKey()])) {
+                $factory->create($container, $name, $config[$factory->getKey()]);
+
+                return;
+            }
+        }
+
+        throw new InvalidConfigurationException(sprintf('Unable to create definition for "%s" converter.', $name));
+    }
+
+    public function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config): void
     {
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceProperty) {
             $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
@@ -42,7 +74,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ]);
         }
 
-        $container->registerAliasForArgument($id, Converter::class, $this->appendSuffix($id, 'Converter'));
+        $container->registerAliasForArgument($id, Converter::class, $this->ensureSuffix($id, 'Converter'));
         $container->register($id, $config['converter'])
             ->setPublic(true)
             ->setArguments([
@@ -54,7 +86,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
             ]);
     }
 
-    private function appendSuffix(string $value, string $suffix): string
+    private function ensureSuffix(string $value, string $suffix): string
     {
         return str_ends_with($value, $suffix) ? $value : $value . $suffix;
     }
