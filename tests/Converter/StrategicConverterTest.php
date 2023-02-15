@@ -32,16 +32,13 @@ class StrategicConverterTest extends TestCase
         $this->converter = $this->prophesize(Converter::class);
 
         $this->strategyHandler = new StrategicConverter(
-            [
-                'testKey' => $this->converter->reveal(),
-            ],
             $this->selector->reveal(),
         );
 
         $user = new User();
         $person = new Person();
 
-        $this->selector->selectConverter($user, null)->willReturn('testKey');
+        $this->selector->selectConverter($user, null)->willReturn($this->converter->reveal());
         $this->converter->convert($user, null)->willReturn($person)->shouldBeCalled();
 
         $this->strategyHandler->convert($user);
@@ -54,20 +51,16 @@ class StrategicConverterTest extends TestCase
         $this->converter = $this->prophesize(Converter::class);
 
         $this->strategyHandler = new StrategicConverter(
-            [
-                'testKey' => $this->converter->reveal(),
-            ],
             $this->selector->reveal(),
         );
 
         $user = new User();
         $person = new Person();
 
-        $this->selector->selectConverter($user, null)->willReturn('otherKey');
+        $this->selector->selectConverter($user, null)->willThrow(ConverterException::class);
         $this->converter->convert($user, null)->willReturn($person)->shouldNotBeCalled();
 
         $this->expectException(ConverterException::class);
-        $this->expectExceptionMessage("No converter found for key <otherKey>");
 
         $this->strategyHandler->convert($user);
 
