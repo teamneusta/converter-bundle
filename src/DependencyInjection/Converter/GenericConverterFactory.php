@@ -24,10 +24,11 @@ final class GenericConverterFactory implements ConverterFactory
             ->fixXmlConfig('populator')
             ->fixXmlConfig('property', 'properties')
             ->children()
+                ->scalarNode('selector')
+                    ->info('Service id of the ConverterSelector')
+                ->end()
                 ->scalarNode('target_factory')
                     ->info('Service id of the TargetFactory')
-                    ->isRequired()
-                    ->cannotBeEmpty()
                 ->end()
                 ->arrayNode('populators')
                     ->info('Service ids of the Populator\'s')
@@ -43,6 +44,8 @@ final class GenericConverterFactory implements ConverterFactory
             ->validate()
                 ->ifTrue(fn (array $c) => empty($c['populators']) && empty($c['properties']))
                 ->thenInvalid('At least one "populator" or "property" must be defined.')
+                ->ifTrue(fn (array $c) => empty($c['selector']) && empty($c['target_factory']) || (!empty($c['selector']) && !empty($c['target_factory'])))
+                ->thenInvalid('Exactly one "selector" or "target_factory" must be defined.')
             ->end();
     }
 
