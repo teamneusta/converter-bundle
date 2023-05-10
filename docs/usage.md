@@ -132,7 +132,7 @@ neusta_converter:
   converter:
     person.converter:
       ...
-      populators:
+      properties:
         email: ~
         phoneNumber: phone
 ```
