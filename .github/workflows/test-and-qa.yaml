@@ -17,11 +17,11 @@ jobs:
       matrix:
         php-versions: ['8.0', '8.1', '8.2']
     steps:
-      - name: PHP Setup
-        uses: shivammathur/setup-php@v2
-
       - name: Git Checkout
         uses: actions/checkout@v3
+
+      - name: PHP Setup
+        uses: shivammathur/setup-php@v2
 
       - name: Copy .env.test.local
         run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
@@ -40,9 +40,6 @@ jobs:
 
       - name: Install Dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: Check Symfony requirements
-        run: composer symfony:check
 
       - name: Check CS-Fixer
         run: composer cs:check
