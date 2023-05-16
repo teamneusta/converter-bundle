@@ -42,10 +42,7 @@ jobs:
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Check Symfony requirements
-        run: vendor/bin/requirements-checker
-
-      - name: Check the Symfony console
-        run: bin/console -V
+        run: composer symfony:check
 
       - name: Check CS-Fixer
         run: composer cs:check
