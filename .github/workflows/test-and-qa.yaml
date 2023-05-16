@@ -12,11 +12,16 @@ permissions:
 jobs:
   TestAndQaJobs:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php-versions: ['8.0', '8.1', '8.2']
     steps:
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-      - uses: actions/checkout@v3
+      - name: PHP Setup
+        uses: shivammathur/setup-php@v2
+
+      - name: Git Checkout
+        uses: actions/checkout@v3
 
       - name: Copy .env.test.local
         run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
@@ -35,6 +40,12 @@ jobs:
 
       - name: Install Dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Check Symfony requirements
+        run: vendor/bin/requirements-checker
+
+      - name: Check the Symfony console
+        run: bin/console -V
 
       - name: Check CS-Fixer
         run: composer cs:check
