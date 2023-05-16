@@ -12,29 +12,36 @@ permissions:
 jobs:
   TestAndQaJobs:
     runs-on: ubuntu-latest
-    steps:
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-      - uses: actions/checkout@v3
 
-      - name: Copy .env.test.local
-        run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-version: "8.0"
+            dependencies: "lowest"
+          - php-version: "8.0"
+            dependencies: "highest"
+          - php-version: "8.1"
+            dependencies: "highest"
+          - php-version: "8.2"
+            dependencies: "highest"
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+
+      - name: PHP Setup
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v3
+      - name: Install dependencies
+        uses: ramsey/composer-install@v2
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      - name: Install Dependencies
-        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          dependency-versions: ${{ matrix.dependencies }}
 
       - name: Check CS-Fixer
         run: composer cs:check
@@ -44,5 +51,5 @@ jobs:
           php tests/app/bin/console cache:clear
           composer phpstan
 
-      - name: Execute tests (Unit and Feature tests) via PHPUnit
+      - name: Execute tests
         run: composer tests
