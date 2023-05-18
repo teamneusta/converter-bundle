@@ -1,10 +1,10 @@
 neusta_converter:
-  converter:
+  converters:
     test.person.converter:
-#      converter: Neusta\ConverterBundle\Converter\GenericConverter
-      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory
-      populators:
-        - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
-#      properties:
-#        fullName: ~
-#        age: ageInYears
+      generic:
+        target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory
+        populators:
+          - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
+#        properties:
+#          fullName: ~
+#          age: ageInYears
