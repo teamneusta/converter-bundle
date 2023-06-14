@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\Target\GenericTargetFactory;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -32,6 +33,15 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
+        $targetFactoryId = $config['target_factory'] ?? "{$id}.target_factory";
+
+        if (!isset($config['target_factory'])) {
+            $container->register($targetFactoryId, GenericTargetFactory::class)
+                ->setArguments([
+                    '$type' => new Reference($config['target']),
+                ]);
+        }
+
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceProperty) {
             $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
             $container->register($propertyPopulatorId, PropertyMappingPopulator::class)
@@ -46,7 +56,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $container->register($id, $config['converter'])
             ->setPublic(true)
             ->setArguments([
-                '$factory' => new Reference($config['target_factory']),
+                '$factory' => new Reference($targetFactoryId),
                 '$populators' => array_map(
                     static fn (string $populator) => new Reference($populator),
                     $config['populators'],
