@@ -50,3 +50,10 @@ services:
 
     Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory: ~
     Neusta\ConverterBundle\Tests\Fixtures\Model\AddressFactory: ~
+
+    Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache\UserKeyFactory: ~
+
+    user.cache:
+        class: Neusta\ConverterBundle\Converter\Cache\InMemoryCache
+        arguments:
+            $keyFactory: '@Neusta\ConverterBundle\Tests\Fixtures\Converter\Cache\UserKeyFactory'
