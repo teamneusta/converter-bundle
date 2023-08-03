@@ -284,6 +284,73 @@ n relation then the ConvertingPopulator can not be used.
 
 In these cases we have implemented an extended version of it called `ArrayConvertingPopulator`.
 
+This populator uses the same internal technique but expects to convert eac item of a source array of properties before
+it will be set into the target object.
+
+#### Example: User to Person
+
+So imagine the addresses will now be an array of addresses (billing address, shipping addresses, contact
+addresses, ...).
+
+```php
+class Address
+{
+    private string $street;
+    private string $number;
+    private string $postalCode;
+    private string $city;
+    // ...
+}
+
+class User
+{
+    // ...
+    private Address[] $addresses;    
+    // ...
+}
+```
+
+and the target type is `Person`:
+
+```php
+class PersonAddress
+{
+    private string $streetWithNumber;
+    private string $postalCodeAndCity;
+    // ...
+}
+
+class Person
+{
+    // ...
+    private PersonAddress[] $addresses;
+    // ...
+}
+```
+
+Now you have to declare the following populator:
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+    converter:
+        person.converter:
+            ...
+            populators:
+                - person.addresses.populator
+
+        address.converter:
+            ...
+
+...
+person.addresses.populator:
+    class: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
+    arguments:
+        $converter: '@address.converter'
+        $sourcePropertyName: 'addresses'
+        $targetPropertyName: 'addresses'
+```
+there is no new converter but a different populator implementation for this.
+
 ## Context
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.
