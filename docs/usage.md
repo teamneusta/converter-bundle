@@ -349,7 +349,7 @@ person.addresses.populator:
         $sourcePropertyName: 'addresses'
         $targetPropertyName: 'addresses'
 ```
-there is no new converter but a different populator implementation for this.
+There is no new converter but a different populator implementation for this.
 
 ## Context
 
