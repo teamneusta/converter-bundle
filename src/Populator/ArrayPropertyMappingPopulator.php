@@ -16,7 +16,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
-final class PropertyMappingPopulator implements Populator
+final class ArrayPropertyMappingPopulator implements Populator
 {
     /** @var \Closure(mixed, TContext=):mixed */
     private \Closure $mapper;
@@ -26,12 +26,13 @@ final class PropertyMappingPopulator implements Populator
      * @param \Closure(mixed, TContext=):mixed|null $mapper
      */
     public function __construct(
-        private string $targetProperty,
-        private string $sourceProperty,
-        ?\Closure $mapper = null,
+        private string            $targetProperty,
+        private string            $sourceProperty,
+        ?\Closure                 $mapper = null,
         PropertyAccessorInterface $accessor = null,
-    ) {
-        $this->mapper = $mapper ?? static fn ($v) => $v;
+    )
+    {
+        $this->mapper = $mapper ?? static fn($v) => $v;
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();
     }
 
@@ -44,7 +45,12 @@ final class PropertyMappingPopulator implements Populator
             $this->accessor->setValue(
                 $target,
                 $this->targetProperty,
-                ($this->mapper)($this->accessor->getValue($source, $this->sourceProperty), $ctx),
+                array_map(
+                    function ($item) use ($ctx) {
+                        return ($this->mapper)($item, $ctx);
+                    },
+                    $this->accessor->getValue($source, $this->sourceProperty)
+                )
             );
         } catch (\Throwable $exception) {
             throw new PopulationException($this->sourceProperty, $this->targetProperty, $exception);

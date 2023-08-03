@@ -203,7 +203,9 @@ After a while you will recognize that a lot of scenarios in population are very 
 could be done with the same populator except the target and the source property name.
 
 ### Converting Populator
+
 Let's go on with the following extended model classes:
+
 ```php
 class Address
 {
@@ -241,14 +243,16 @@ class Person
 ```
 
 If you have a situation as above and your User will have an address which should be populated into Person than you have
-to write a Populator which 
-* gets the address from User, 
+to write a Populator which
+
+* gets the address from User,
 * converts it into a PersonAddress object
 * and sets it in Person.
 
 The second step is typically a task for a (e.g. Address-) Converter.
 
 Therefore we have a ConvertingPopulator which can easily be used:
+
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
@@ -262,15 +266,23 @@ neusta_converter:
             ...
 
 ...
-    person.address.populator:
-        class: Neusta\ConverterBundle\Populator\ConvertingPopulator
-        arguments:
-          $converter: '@address.converter'
-          $sourcePropertyName: 'address'
-          $targetPropertyName: 'address'
+person.address.populator:
+    class: Neusta\ConverterBundle\Populator\ConvertingPopulator
+    arguments:
+        $converter: '@address.converter'
+        $sourcePropertyName: 'address'
+        $targetPropertyName: 'address'
 ```
+
 Be aware - that both properties have the same name should not lead you think they have the same type.
 There is really an object conversion behind done by `address.converter`.
+
+### ArrayConvertingPopulator
+
+If you think that there is no 1:1 relation between User and Address (or corresponding Person and PersonAddress) but a 1:
+n relation then the ConvertingPopulator can not be used.
+
+In these cases we have implemented an extended version of it called `ArrayConvertingPopulator`.
 
 ## Context
 
