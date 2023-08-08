@@ -21,7 +21,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 final class ArrayConvertingPopulator implements Populator
 {
-    private PropertyMappingPopulator $populator;
+    private ArrayPropertyMappingPopulator $populator;
 
     /**
      * @template TInnerSource of object
@@ -30,15 +30,19 @@ final class ArrayConvertingPopulator implements Populator
      * @param Converter<TInnerSource, TInnerTarget, TContext> $converter
      */
     public function __construct(
-        Converter $converter,
-        string $sourcePropertyName,
-        string $targetPropertyName,
+        Converter                 $converter,
+        string                    $sourceArrayPropertyName,
+        string                    $sourceArrayItemPropertyName,
+        string                    $targetPropertyName,
+        PropertyAccessorInterface $itemAccessor = null,
         PropertyAccessorInterface $accessor = null,
     ) {
         $this->populator = new ArrayPropertyMappingPopulator(
             $targetPropertyName,
-            $sourcePropertyName,
+            $sourceArrayPropertyName,
+            $sourceArrayItemPropertyName,
             \Closure::fromCallable([$converter, 'convert']),
+            $itemAccessor,
             $accessor,
         );
     }

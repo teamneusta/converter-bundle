@@ -13,6 +13,15 @@ class User
     private int $ageInYears;
     private Address $address;
 
+    /** @var array<string> */
+    private array $favouriteMovies;
+
+    /** @var array<Hobby> */
+    private array $hobbies;
+
+    /** @var array<Phone> */
+    private array $phones;
+
     private UnknownType $fieldWithUnknownType;
 
     public function getUuid(): int
@@ -84,14 +93,68 @@ class User
         return $this;
     }
 
+    /**
+     * @return array
+     */
+    public function getFavouriteMovies(): array
+    {
+        return $this->favouriteMovies;
+    }
+
+    /**
+     * @param array $favouriteMovies
+     * @return User
+     */
+    public function setFavouriteMovies(array $favouriteMovies): User
+    {
+        $this->favouriteMovies = $favouriteMovies;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHobbies(): array
+    {
+        return $this->hobbies;
+    }
+
+    /**
+     * @param array $hobbies
+     * @return User
+     */
+    public function setHobbies(array $hobbies): User
+    {
+        $this->hobbies = $hobbies;
+        return $this;
+    }
+
     public function getFieldWithUnknownType(): UnknownType
     {
         return $this->fieldWithUnknownType;
     }
-
     public function setFieldWithUnknownType(UnknownType $fieldWithUnknownType): User
     {
         $this->fieldWithUnknownType = $fieldWithUnknownType;
         return $this;
     }
+
+    /**
+     * @return array<Phone>
+     */
+    public function getPhones(): array
+    {
+        return $this->phones;
+    }
+
+    /**
+     * @param array<Phone> $phones
+     * @return User
+     */
+    public function setPhones(array $phones): User
+    {
+        $this->phones = $phones;
+        return $this;
+    }
+
 }
