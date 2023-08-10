@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator;
 
-use Neusta\ConverterBundle\Converter\Context\GenericContextInterface;
+use Neusta\ConverterBundle\Converter\Context\ContextInterface;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -13,7 +13,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of GenericContextInterface|null
+ * @template TContext of ContextInterface|null
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
@@ -39,7 +39,7 @@ final class ContextMappingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?object $ctx = null): void
+    public function populate(object $target, object $source, ?ContextInterface $ctx = null): void
     {
         if (!$ctx || !$ctx->hasKey($this->sourceProperty)) {
             return;

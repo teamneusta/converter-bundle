@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle;
 
+use Neusta\ConverterBundle\Converter\Context\ContextInterface;
+
 /**
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of ContextInterface|null
  */
 interface TargetFactory
 {
@@ -15,5 +17,5 @@ interface TargetFactory
      *
      * @return TTarget
      */
-    public function create(?object $ctx = null): object;
+    public function create(?ContextInterface $ctx = null): object;
 }

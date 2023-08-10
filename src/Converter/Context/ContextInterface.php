@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter\Context;
 
-interface GenericContextInterface
+interface ContextInterface
 {
     public function hasKey(string $key): bool;
 

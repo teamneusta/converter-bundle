@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\Context\ContextInterface;
 use Neusta\ConverterBundle\Exception\ConverterException;
 use Neusta\ConverterBundle\Converter\Strategy\ConverterSelector;
 
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of ContextInterface|null
  *
  * @implements Converter<TSource, TTarget, TContext>
  */
@@ -33,7 +34,7 @@ final class StrategicConverter implements Converter
      *
      * @return TTarget
      */
-    public function convert(object $source, ?object $ctx = null): object
+    public function convert(object $source, ?ContextInterface $ctx = null): object
     {
         $selectedConverterKey = $this->selector->selectConverter($source, $ctx);
         if (array_key_exists($selectedConverterKey, $this->converters)) {

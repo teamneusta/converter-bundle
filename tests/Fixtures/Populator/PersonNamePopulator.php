@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Fixtures\Populator;
 
-use Neusta\ConverterBundle\Converter\Context\GenericContext;
+use Neusta\ConverterBundle\Converter\Context\ContextInterface;
 use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 
 /**
- * @implements Populator<User, Person, GenericContext>
+ * @implements Populator<User, Person, ContextInterface>
  */
 class PersonNamePopulator implements Populator
 {
-    public function populate(object $target, object $source, ?object $ctx = null): void
+    public function populate(object $target, object $source, ?ContextInterface $ctx = null): void
     {
         $separator = ' ';
         if ($ctx?->hasKey('separator')) {
