@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
+use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
@@ -47,6 +48,19 @@ class ContextMappingPopulatorTest extends TestCase
         $populator->populate($person, $user, $ctx);
 
         self::assertNull($person->getLocale());
+    }
+
+    public function test_populate_exceptional_case(): void
+    {
+        $populator = new ContextMappingPopulator('unknown', 'locale');
+        $user = new User();
+        $person = new Person();
+        $ctx = new GenericContext();
+        $ctx->setValue('locale', 'de');
+
+        $this->expectException(PopulationException::class);
+
+        $populator->populate($person, $user, $ctx);
     }
 
     public function test_populateWithoutContext(): void

@@ -27,9 +27,9 @@ final class ContextMappingPopulator implements Populator
      * @param \Closure(mixed, TContext=):mixed|null $mapper
      */
     public function __construct(
-        private string $targetProperty,
-        private string $sourceProperty,
-        ?\Closure $mapper = null,
+        private string            $targetProperty,
+        private string            $contextProperty,
+        ?\Closure                 $mapper = null,
         PropertyAccessorInterface $accessor = null,
     ) {
         $this->mapper = $mapper ?? static fn ($v) => $v;
@@ -41,7 +41,7 @@ final class ContextMappingPopulator implements Populator
      */
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
-        if (!$ctx || !$ctx->hasKey($this->sourceProperty)) {
+        if (!$ctx || !$ctx->hasKey($this->contextProperty)) {
             return;
         }
 
@@ -49,10 +49,10 @@ final class ContextMappingPopulator implements Populator
             $this->accessor->setValue(
                 $target,
                 $this->targetProperty,
-                ($this->mapper)($ctx->getValue($this->sourceProperty), $ctx)
+                ($this->mapper)($ctx->getValue($this->contextProperty), $ctx)
             );
         } catch (\Throwable $exception) {
-            throw new PopulationException($this->sourceProperty, $this->targetProperty, $exception);
+            throw new PopulationException($this->contextProperty, $this->targetProperty, $exception);
         }
     }
 }
