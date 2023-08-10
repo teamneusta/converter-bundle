@@ -8,3 +8,6 @@ neusta_converter:
 #      properties:
 #        fullName: ~
 #        age: ageInYears
+#      context:
+#        group: ~ # same property name
+#        locale: language # different property names

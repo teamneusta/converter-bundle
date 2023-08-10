@@ -151,6 +151,39 @@ with `phone` (property of the source object).
 
 > Note: the source and the target property must be of the same type for this to work.
 
+#### Mapping context
+
+If you just want to map a single property from the context to the target without transforming it in between, you don't
+need to write a custom populator for this, as this bundle already contains the `ContextMappingPopulator` for this use
+case.
+
+You can use it in your converter config via the `context` keyword:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  converter:
+    person.converter:
+      ...
+      context:
+        group: ~
+        locale: language
+```
+
+Which will populate
+
+`group` (property of the target object)
+
+with `group` (property of the context object)
+
+and
+
+`locale` (property of the target object)
+
+with `language` (property of the context object).
+
+> Note: the context and the target property must be of the same type for this to work.
+
 ### Conversion
 
 And now if you want to convert `User`s into `Person`s just type in your code:
@@ -189,3 +222,6 @@ if ($ctx && $ctx->hasKey('locale')) {
 
 Internally the `GenericContext` is only an associative array but the interface allows you to adapt your own
 implementation of a domain-oriented context and use it in your populators as you like.
+
+You can use the context in factories and populators with custom implementation,
+but it is also possible to use the simple property mapping like in section mapping context described.

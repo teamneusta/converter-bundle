@@ -6,42 +6,68 @@ namespace Neusta\ConverterBundle\Tests\Fixtures\Model;
 
 class Person
 {
-    private string $fullName;
+    private ?string $fullName = null;
 
-    private int $age;
+    private ?int $age = null;
 
-    private PersonAddress $address;
+    private ?string $locale = null;
 
-    public function getFullName(): string
+    private ?string $group = null;
+
+    private ?PersonAddress $address = null;
+
+    public function getFullName(): ?string
     {
         return $this->fullName;
     }
 
-    public function setFullName(string $fullName): Person
+    public function setFullName(?string $fullName): Person
     {
         $this->fullName = $fullName;
         return $this;
     }
 
-    public function getAge(): int
+    public function getAge(): ?int
     {
         return $this->age;
     }
 
-    public function setAge(int $age): Person
+    public function setAge(?int $age): Person
     {
         $this->age = $age;
         return $this;
     }
 
-    public function getAddress(): PersonAddress
+    public function getAddress(): ?PersonAddress
     {
         return $this->address;
     }
 
-    public function setAddress(PersonAddress $address): Person
+    public function setAddress(?PersonAddress $address): Person
     {
         $this->address = $address;
+        return $this;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(?string $locale): Person
+    {
+        $this->locale = $locale;
+        return $this;
+    }
+
+    public function getGroup(): ?string
+    {
+        return $this->group;
+    }
+
+    public function setGroup(?string $group): Person
+    {
+        $this->group = $group;
         return $this;
     }
 }

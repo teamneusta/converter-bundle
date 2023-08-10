@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -15,14 +16,14 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 final class NeustaConverterExtension extends ConfigurableExtension
 {
     /**
-     * @param array<string, mixed> $config
+     * @param array<string, mixed> $mergedConfig
      */
-    public function loadInternal(array $config, ContainerBuilder $container): void
+    public function loadInternal(array $mergedConfig, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__, 2) . '/config'));
         $loader->load('services.yaml');
 
-        foreach ($config['converter'] as $converterId => $converter) {
+        foreach ($mergedConfig['converter'] as $converterId => $converter) {
             $this->registerConverterConfiguration($converterId, $converter, $container);
         }
     }
@@ -35,6 +36,16 @@ final class NeustaConverterExtension extends ConfigurableExtension
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceProperty) {
             $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
             $container->register($propertyPopulatorId, PropertyMappingPopulator::class)
+                ->setArguments([
+                    '$targetProperty' => $targetProperty,
+                    '$sourceProperty' => $sourceProperty ?? $targetProperty,
+                    '$accessor' => new Reference('property_accessor'),
+                ]);
+        }
+
+        foreach ($config['context'] ?? [] as $targetProperty => $sourceProperty) {
+            $config['populators'][] = $propertyContextPopulatorId = "{$id}.populator.context.{$targetProperty}";
+            $container->register($propertyContextPopulatorId, ContextMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
                     '$sourceProperty' => $sourceProperty ?? $targetProperty,

@@ -8,6 +8,7 @@ use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
+use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
@@ -77,6 +78,46 @@ class NeustaConverterExtensionTest extends TestCase
         // ageInYears property populator
         $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
         self::assertSame(PropertyMappingPopulator::class, $ageInYearsPopulator->getClass());
+        self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
+        self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
+        self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
+    }
+
+    public function test_with_mapped_context(): void
+    {
+        $container = $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'name' => null,
+                        'ageInYears' => 'age',
+                    ],
+                ],
+            ],
+        ]);
+
+        // converter
+        $converter = $container->getDefinition('foobar');
+        self::assertSame(GenericConverter::class, $converter->getClass());
+        self::assertTrue($converter->isPublic());
+        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
+        self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
+        self::assertIsArray($converter->getArgument('$populators'));
+        self::assertCount(2, $converter->getArgument('$populators'));
+        self::assertIsReference('foobar.populator.context.name', $converter->getArgument('$populators')[0]);
+        self::assertIsReference('foobar.populator.context.ageInYears', $converter->getArgument('$populators')[1]);
+
+        // name context populator
+        $namePopulator = $container->getDefinition('foobar.populator.context.name');
+        self::assertSame(ContextMappingPopulator::class, $namePopulator->getClass());
+        self::assertIsReference('property_accessor', $namePopulator->getArgument('$accessor'));
+        self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
+        self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
+
+        // ageInYears context populator
+        $ageInYearsPopulator = $container->getDefinition('foobar.populator.context.ageInYears');
+        self::assertSame(ContextMappingPopulator::class, $ageInYearsPopulator->getClass());
         self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
