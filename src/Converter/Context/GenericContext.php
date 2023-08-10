@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle\Converter\Context;
 class GenericContext
 {
     /** @var array<string, mixed> */
-    protected array $values;
+    protected array $values = [];
 
     public function hasKey(string $key): bool
     {

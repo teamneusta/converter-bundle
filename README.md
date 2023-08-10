@@ -21,3 +21,5 @@ This is important for preloading the default configuration of provided converter
 and simplify your code and further updates.
 
 ## [Usage](docs/usage.md)
+
+## [Development](docs/development.md)
