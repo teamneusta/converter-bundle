@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Populator;
 
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Converter\Context\ContextInterface;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of ContextInterface|null
+ * @template TContext of GenericContext|null
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
@@ -47,7 +47,7 @@ final class ConvertingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?ContextInterface $ctx = null): void
+    public function populate(object $target, object $source, ?GenericContext $ctx = null): void
     {
         $this->populator->populate($target, $source, $ctx);
     }

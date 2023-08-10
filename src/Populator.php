@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle;
 
-use Neusta\ConverterBundle\Converter\Context\ContextInterface;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of ContextInterface|null
+ * @template TContext of GenericContext|null
  */
 interface Populator
 {
@@ -18,5 +18,5 @@ interface Populator
      * @param TSource $source
      * @param TContext $ctx
      */
-    public function populate(object $target, object $source, ?ContextInterface $ctx = null): void;
+    public function populate(object $target, object $source, ?GenericContext $ctx = null): void;
 }

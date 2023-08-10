@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle;
 
-use Neusta\ConverterBundle\Converter\Context\ContextInterface;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\ConverterException;
 
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of ContextInterface|null
+ * @template TContext of GenericContext|null
  */
 interface Converter
 {
@@ -22,5 +22,5 @@ interface Converter
      *
      * @throws ConverterException
      */
-    public function convert(object $source, ?ContextInterface $ctx = null): object;
+    public function convert(object $source, ?GenericContext $ctx = null): object;
 }

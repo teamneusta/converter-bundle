@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter\Strategy;
 
-use Neusta\ConverterBundle\Converter\Context\ContextInterface;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 
 /**
  * @template TSource of object
- * @template TContext of ContextInterface|null
+ * @template TContext of GenericContext|null
  */
 interface ConverterSelector
 {
@@ -16,5 +16,5 @@ interface ConverterSelector
      * @param TSource $source
      * @param TContext $ctx
      */
-    public function selectConverter(object $source, ?ContextInterface $ctx = null): string;
+    public function selectConverter(object $source, ?GenericContext $ctx = null): string;
 }

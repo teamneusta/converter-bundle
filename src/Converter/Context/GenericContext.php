@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter\Context;
 
-class GenericContext implements ContextInterface
+class GenericContext
 {
     /** @var array<string, mixed> */
     protected array $values = [];
