@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle;
 
-use Neusta\ConverterBundle\Converter\Context\GenericContext;
-
 /**
  * @template TSource of object
  * @template TTarget of object

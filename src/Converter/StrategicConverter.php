@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Exception\ConverterException;
 use Neusta\ConverterBundle\Converter\Strategy\ConverterSelector;
+use Neusta\ConverterBundle\Exception\ConverterException;
 
 /**
  * @template TSource of object

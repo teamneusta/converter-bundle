@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\TargetFactory;
 use Neusta\ConverterBundle\Populator;
+use Neusta\ConverterBundle\TargetFactory;
 
 /**
  * @template TSource of object

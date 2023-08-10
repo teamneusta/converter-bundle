@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle;
 
-use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\ConverterException;
 
 /**
