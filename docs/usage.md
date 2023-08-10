@@ -224,4 +224,4 @@ Internally the `GenericContext` is only an associative array but the interface a
 implementation of a domain-oriented context and use it in your populators as you like.
 
 You can use the context in factories and populators with custom implementation,
-but it is also possible to use the simple property mapping like in section mapping context described.
+but it is also possible to use the simple property mapping like in section [mapping context](#mapping-context) described.
