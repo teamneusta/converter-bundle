@@ -12,7 +12,7 @@ use Neusta\ConverterBundle\Converter\Strategy\ConverterSelector;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of GenericContext|null
+ * @template TContext of object|null
  *
  * @implements Converter<TSource, TTarget, TContext>
  */
@@ -34,7 +34,7 @@ final class StrategicConverter implements Converter
      *
      * @return TTarget
      */
-    public function convert(object $source, ?GenericContext $ctx = null): object
+    public function convert(object $source, ?object $ctx = null): object
     {
         $selectedConverterKey = $this->selector->selectConverter($source, $ctx);
         if (array_key_exists($selectedConverterKey, $this->converters)) {

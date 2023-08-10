@@ -8,7 +8,7 @@ use Neusta\ConverterBundle\Converter\Context\GenericContext;
 
 /**
  * @template TSource of object
- * @template TContext of GenericContext|null
+ * @template TContext of object|null
  */
 interface ConverterSelector
 {
@@ -16,5 +16,5 @@ interface ConverterSelector
      * @param TSource $source
      * @param TContext $ctx
      */
-    public function selectConverter(object $source, ?GenericContext $ctx = null): string;
+    public function selectConverter(object $source, ?object $ctx = null): string;
 }

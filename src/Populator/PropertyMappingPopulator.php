@@ -13,7 +13,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of GenericContext|null
+ * @template TContext of object|null
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
@@ -39,7 +39,7 @@ final class PropertyMappingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?GenericContext $ctx = null): void
+    public function populate(object $target, object $source, ?object $ctx = null): void
     {
         try {
             $this->accessor->setValue($target, $this->targetProperty,

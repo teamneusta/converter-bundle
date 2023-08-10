@@ -39,7 +39,7 @@ final class ContextMappingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?GenericContext $ctx = null): void
+    public function populate(object $target, object $source, ?object $ctx = null): void
     {
         if (!$ctx || !$ctx->hasKey($this->sourceProperty)) {
             return;

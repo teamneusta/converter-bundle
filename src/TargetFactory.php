@@ -8,7 +8,7 @@ use Neusta\ConverterBundle\Converter\Context\GenericContext;
 
 /**
  * @template TTarget of object
- * @template TContext of GenericContext|null
+ * @template TContext of object|null
  */
 interface TargetFactory
 {
@@ -17,5 +17,5 @@ interface TargetFactory
      *
      * @return TTarget
      */
-    public function create(?GenericContext $ctx = null): object;
+    public function create(?object $ctx = null): object;
 }

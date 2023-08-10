@@ -10,7 +10,7 @@ use Neusta\ConverterBundle\Exception\ConverterException;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of GenericContext|null
+ * @template TContext of object|null
  */
 interface Converter
 {
@@ -22,5 +22,5 @@ interface Converter
      *
      * @throws ConverterException
      */
-    public function convert(object $source, ?GenericContext $ctx = null): object;
+    public function convert(object $source, ?object $ctx = null): object;
 }

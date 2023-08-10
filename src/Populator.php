@@ -9,7 +9,7 @@ use Neusta\ConverterBundle\Converter\Context\GenericContext;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of GenericContext|null
+ * @template TContext of object|null
  */
 interface Populator
 {
@@ -18,5 +18,5 @@ interface Populator
      * @param TSource $source
      * @param TContext $ctx
      */
-    public function populate(object $target, object $source, ?GenericContext $ctx = null): void;
+    public function populate(object $target, object $source, ?object $ctx = null): void;
 }
