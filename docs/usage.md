@@ -199,8 +199,8 @@ Conversion done.
 
 ## Special Populators
 
-After a while you will recognize that a lot of scenarios in population are very similiar to each other. Some of them
-could be done with the same populator except the target and the source property name.
+After working a while with the converter pattern, you will notice, that many scenarios in the population are very similar.
+If the source property can be copied directly to the target property, but only the names of the properties change, the same populator could be reused over and over again.
 
 ### Converting Populator
 
@@ -213,14 +213,11 @@ class Address
     private string $number;
     private string $postalCode;
     private string $city;
-    // ...
 }
 
 class User
 {
-    // ...
-    private Address $address;    
-    // ...
+    private Address $address;
 }
 ```
 
@@ -231,14 +228,11 @@ class PersonAddress
 {
     private string $streetWithNumber;
     private string $postalCodeAndCity;
-    // ...
 }
 
 class Person
 {
-    // ...
     private PersonAddress $address;
-    // ...
 }
 ```
 
