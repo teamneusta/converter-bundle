@@ -41,7 +41,9 @@ final class PropertyMappingPopulator implements Populator
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
         try {
-            $this->accessor->setValue($target, $this->targetProperty,
+            $this->accessor->setValue(
+                $target,
+                $this->targetProperty,
                 ($this->mapper)($this->accessor->getValue($source, $this->sourceProperty), $ctx),
             );
         } catch (\Throwable $exception) {

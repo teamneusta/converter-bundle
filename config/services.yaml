@@ -27,3 +27,11 @@ services:
     neusta_converter.converting_populator:
         abstract: true
         class: Neusta\ConverterBundle\Populator\ConvertingPopulator
+
+    neusta_converter.array_property_mapping_populator:
+        abstract: true
+        class: Neusta\ConverterBundle\Populator\ArrayPropertyMappingPopulator
+
+    neusta_converter.array_converting_populator:
+        abstract: true
+        class: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator

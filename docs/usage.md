@@ -98,8 +98,8 @@ To put things together register the factory and populator as services:
 ```yaml
 # config/services.yaml
 services:
-  YourNamespace\PersonFactory: ~
-  YourNamespace\PersonNamePopulator: ~
+    YourNamespace\PersonFactory: ~
+    YourNamespace\PersonNamePopulator: ~
 ```
 
 And then declare the following converter in your package config:
@@ -107,12 +107,12 @@ And then declare the following converter in your package config:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-  converter:
-    person.converter:
-      target_factory: YourNamespace\PersonFactory
-      populators:
-        - YourNamespace\PersonNamePopulator
-        # additional populators may follow
+    converter:
+        person.converter:
+            target_factory: YourNamespace\PersonFactory
+            populators:
+                - YourNamespace\PersonNamePopulator
+                # additional populators may follow
 ```
 
 > Note: You can use a custom implementation of the `Converter` interface via the `converter` keyword.
@@ -129,23 +129,23 @@ You can use it in your converter config via the `properties` keyword:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-  converter:
-    person.converter:
-      ...
-      properties:
-        email: ~
-        phoneNumber: phone
+    converter:
+        person.converter:
+            ...
+            properties:
+                email: ~
+                phoneNumber: phone
 ```
 
-Which will populate 
+Which will populate
 
-`email` (property of the target object) 
+`email` (property of the target object)
 
 with `email` (property of the source object)
 
 and
 
-`phoneNumber` (property of the target object) 
+`phoneNumber` (property of the target object)
 
 with `phone` (property of the source object).
 
@@ -196,6 +196,160 @@ $person = $this->converter->convert($user);
 ```
 
 Conversion done.
+
+## Special Populators
+
+After a while you will recognize that a lot of scenarios in population are very similiar to each other. Some of them
+could be done with the same populator except the target and the source property name.
+
+### Converting Populator
+
+Let's go on with the following extended model classes:
+
+```php
+class Address
+{
+    private string $street;
+    private string $number;
+    private string $postalCode;
+    private string $city;
+    // ...
+}
+
+class User
+{
+    // ...
+    private Address $address;    
+    // ...
+}
+```
+
+and the target type is `Person`:
+
+```php
+class PersonAddress
+{
+    private string $streetWithNumber;
+    private string $postalCodeAndCity;
+    // ...
+}
+
+class Person
+{
+    // ...
+    private PersonAddress $address;
+    // ...
+}
+```
+
+If you have a situation as above and your User will have an address which should be populated into Person than you have
+to write a Populator which
+
+* gets the address from User,
+* converts it into a PersonAddress object
+* and sets it in Person.
+
+The second step is typically a task for a (e.g. Address-) Converter.
+
+Therefore we have a ConvertingPopulator which can easily be used:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+    converter:
+        person.converter:
+            ...
+            populators:
+                - person.address.populator
+
+        address.converter:
+            ...
+
+...
+person.address.populator:
+    class: Neusta\ConverterBundle\Populator\ConvertingPopulator
+    arguments:
+        $converter: '@address.converter'
+        $sourcePropertyName: 'address'
+        $targetPropertyName: 'address'
+```
+
+Be aware - that both properties have the same name should not lead you think they have the same type.
+There is really an object conversion behind done by `address.converter`.
+
+### ArrayConvertingPopulator
+
+If you think that there is no 1:1 relation between User and Address (or corresponding Person and PersonAddress) but a 1:
+n relation then the ConvertingPopulator can not be used.
+
+In these cases we have implemented an extended version of it called `ArrayConvertingPopulator`.
+
+This populator uses the same internal technique but expects to convert eac item of a source array of properties before
+it will be set into the target object.
+
+#### Example: User to Person
+
+So imagine the addresses will now be an array of addresses (billing address, shipping addresses, contact
+addresses, ...).
+
+```php
+class Address
+{
+    private string $street;
+    private string $number;
+    private string $postalCode;
+    private string $city;
+    // ...
+}
+
+class User
+{
+    // ...
+    private Address[] $addresses;    
+    // ...
+}
+```
+
+and the target type is `Person`:
+
+```php
+class PersonAddress
+{
+    private string $streetWithNumber;
+    private string $postalCodeAndCity;
+    // ...
+}
+
+class Person
+{
+    // ...
+    private PersonAddress[] $addresses;
+    // ...
+}
+```
+
+Now you have to declare the following populator:
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+    converter:
+        person.converter:
+            ...
+            populators:
+                - person.addresses.populator
+
+        address.converter:
+            ...
+
+...
+person.addresses.populator:
+    class: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
+    arguments:
+        $converter: '@address.converter'
+        $sourcePropertyName: 'addresses'
+        $targetPropertyName: 'addresses'
+```
+There is no new converter but a different populator implementation for this.
 
 ## Context
 

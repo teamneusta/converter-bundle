@@ -48,5 +48,22 @@ services:
             $targetProperty: 'fullName'
             $sourceProperty: 'fullName'
 
+    test.person.activities.populator:
+        parent: 'neusta_converter.array_property_mapping_populator'
+        public: true
+        arguments:
+            $sourceArrayItemProperty: 'label'
+            $sourceArrayProperty: 'hobbies'
+            $targetProperty: 'activities'
+
+    test.person.contactnumbers.populator:
+        parent: 'neusta_converter.array_converting_populator'
+        public: true
+        arguments:
+            $converter: '@test.contactnumber.converter'
+            $sourceArrayPropertyName: 'phones'
+            $targetPropertyName: 'contactNumbers'
+
     Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory: ~
     Neusta\ConverterBundle\Tests\Fixtures\Model\AddressFactory: ~
+    Neusta\ConverterBundle\Tests\Fixtures\Model\ContactNumberFactory: ~

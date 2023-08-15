@@ -11,3 +11,8 @@ neusta_converter:
 #      context:
 #        group: ~ # same property name
 #        locale: language # different property names
+
+    test.contactnumber.converter:
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\ContactNumberFactory
+      properties:
+        phoneNumber: number
