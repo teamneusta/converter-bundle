@@ -228,14 +228,11 @@ class PersonAddress
 {
     private string $streetWithNumber;
     private string $postalCodeAndCity;
-    // ...
 }
 
 class Person
 {
-    // ...
     private PersonAddress $address;
-    // ...
 }
 ```
 
