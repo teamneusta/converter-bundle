@@ -213,14 +213,11 @@ class Address
     private string $number;
     private string $postalCode;
     private string $city;
-    // ...
 }
 
 class User
 {
-    // ...
-    private Address $address;    
-    // ...
+    private Address $address;
 }
 ```
 
