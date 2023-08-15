@@ -39,6 +39,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
                     '$sourceProperty' => $sourceProperty ?? $targetProperty,
+                    '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
                 ]);
         }
@@ -49,6 +50,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
                     '$sourceProperty' => $sourceProperty ?? $targetProperty,
+                    '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
                 ]);
         }
