@@ -32,11 +32,12 @@ final class ArrayConvertingPopulator implements Populator
     public function __construct(
         Converter                 $converter,
         string                    $sourceArrayPropertyName,
-        string                    $sourceArrayItemPropertyName,
         string                    $targetPropertyName,
+        ?string                   $sourceArrayItemPropertyName = null,
         PropertyAccessorInterface $itemAccessor = null,
         PropertyAccessorInterface $accessor = null,
-    ) {
+    )
+    {
         $this->populator = new ArrayPropertyMappingPopulator(
             $targetPropertyName,
             $sourceArrayPropertyName,

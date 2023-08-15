@@ -62,7 +62,6 @@ services:
         arguments:
             $converter: '@test.contactnumber.converter'
             $sourceArrayPropertyName: 'phones'
-            $sourceArrayItemPropertyName: ''
             $targetPropertyName: 'contactNumbers'
 
     Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory: ~
