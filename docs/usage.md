@@ -199,7 +199,7 @@ Conversion done.
 
 ## Special Populators
 
-After a while you will recognize that a lot of scenarios in population are very similiar to each other. Some of them
+After working a while with the converter pattern, you will notice, that many scenarios in the population are very similar.
 could be done with the same populator except the target and the source property name.
 
 ### Converting Populator
