@@ -200,7 +200,7 @@ Conversion done.
 ## Special Populators
 
 After working a while with the converter pattern, you will notice, that many scenarios in the population are very similar.
-could be done with the same populator except the target and the source property name.
+If the source property can be copied directly to the target property, but only the names of the properties change, the same populator could be reused over and over again.
 
 ### Converting Populator
 
