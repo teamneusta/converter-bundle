@@ -113,14 +113,14 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame(ContextMappingPopulator::class, $namePopulator->getClass());
         self::assertIsReference('property_accessor', $namePopulator->getArgument('$accessor'));
         self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
-        self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
+        self::assertSame('name', $namePopulator->getArgument('$contextProperty'));
 
         // ageInYears context populator
         $ageInYearsPopulator = $container->getDefinition('foobar.populator.context.ageInYears');
         self::assertSame(ContextMappingPopulator::class, $ageInYearsPopulator->getClass());
         self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
-        self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
+        self::assertSame('age', $ageInYearsPopulator->getArgument('$contextProperty'));
     }
 
     private static function assertIsReference(string $expected, mixed $actual): void

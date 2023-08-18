@@ -43,12 +43,12 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ]);
         }
 
-        foreach ($config['context'] ?? [] as $targetProperty => $sourceProperty) {
-            $config['populators'][] = $propertyContextPopulatorId = "{$id}.populator.context.{$targetProperty}";
-            $container->register($propertyContextPopulatorId, ContextMappingPopulator::class)
+        foreach ($config['context'] ?? [] as $targetProperty => $contextProperty) {
+            $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
+            $container->register($contextPopulatorId, ContextMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
-                    '$sourceProperty' => $sourceProperty ?? $targetProperty,
+                    '$contextProperty' => $contextProperty ?? $targetProperty,
                     '$accessor' => new Reference('property_accessor'),
                 ]);
         }
