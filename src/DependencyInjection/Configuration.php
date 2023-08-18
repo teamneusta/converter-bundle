@@ -61,7 +61,7 @@ final class Configuration implements ConfigurationInterface
                         ->end()
                         ->validate()
                             ->ifTrue(fn (array $c) => empty($c['populators']) && empty($c['properties']) && empty($c['context']))
-                            ->thenInvalid('At least one "populator" or "property" must be defined.')
+                            ->thenInvalid('At least one "populator", "property" or "context" must be defined.')
                         ->end()
                     ->end()
                 ->end()
