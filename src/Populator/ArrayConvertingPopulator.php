@@ -34,7 +34,7 @@ final class ArrayConvertingPopulator implements Populator
         string $sourceArrayPropertyName,
         string $targetPropertyName,
         ?string $sourceArrayItemPropertyName = null,
-        PropertyAccessorInterface $itemAccessor = null,
+        PropertyAccessorInterface $arrayItemAccessor = null,
         PropertyAccessorInterface $accessor = null,
     ) {
         $this->populator = new ArrayPropertyMappingPopulator(
@@ -42,7 +42,7 @@ final class ArrayConvertingPopulator implements Populator
             $sourceArrayPropertyName,
             $sourceArrayItemPropertyName,
             \Closure::fromCallable([$converter, 'convert']),
-            $itemAccessor,
+            $arrayItemAccessor,
             $accessor,
         );
     }

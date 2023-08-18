@@ -20,7 +20,7 @@ final class ArrayPropertyMappingPopulator implements Populator
 {
     /** @var \Closure(mixed, TContext=):mixed */
     private \Closure $mapper;
-    private PropertyAccessorInterface $itemAccessor;
+    private PropertyAccessorInterface $arrayItemAccessor;
     private PropertyAccessorInterface $accessor;
 
     /**
@@ -31,11 +31,11 @@ final class ArrayPropertyMappingPopulator implements Populator
         private string $sourceArrayProperty,
         private ?string $sourceArrayItemProperty = null,
         ?\Closure $mapper = null,
-        PropertyAccessorInterface $itemAccessor = null,
+        PropertyAccessorInterface $arrayItemAccessor = null,
         PropertyAccessorInterface $accessor = null,
     ) {
         $this->mapper = $mapper ?? static fn($v) => $v;
-        $this->itemAccessor = $itemAccessor ?? PropertyAccess::createPropertyAccessor();
+        $this->arrayItemAccessor = $arrayItemAccessor ?? PropertyAccess::createPropertyAccessor();
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();
     }
 
@@ -46,29 +46,19 @@ final class ArrayPropertyMappingPopulator implements Populator
     {
         try {
             $unwrappedArray = array_map(
-                function ($arrayItem) {
-                    if (!empty($this->sourceArrayItemProperty)) {
-                        return $this->itemAccessor->getValue($arrayItem, $this->sourceArrayItemProperty);
-                    }
-                    return $arrayItem;
-                },
-                $this->accessor->getValue($source, $this->sourceArrayProperty)
+                fn($item) => null !== $this->sourceArrayItemProperty
+                    ? $this->arrayItemAccessor->getValue($item, $this->sourceArrayItemProperty)
+                    : $item,
+                $this->accessor->getValue($source, $this->sourceArrayProperty),
             );
-
 
             $this->accessor->setValue(
                 $target,
                 $this->targetProperty,
-                array_map(
-                    function ($item) use ($ctx) {
-                        return ($this->mapper)($item, $ctx);
-                    },
-                    $unwrappedArray
-                )
+                array_map(fn($item) => ($this->mapper)($item, $ctx), $unwrappedArray),
             );
         } catch (\Throwable $exception) {
             throw new PopulationException($this->sourceArrayProperty, $this->targetProperty, $exception);
         }
     }
-
 }
