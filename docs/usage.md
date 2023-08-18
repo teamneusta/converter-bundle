@@ -1,6 +1,6 @@
 ## Usage
 
-After the bundle is activated you can directly use it by implementing a factory and a populator for your target and
+After the bundle is activated, you can directly use it by implementing a factory and a populator for your target and
 source types.
 
 Imagine your source type is `User`:
@@ -35,7 +35,7 @@ and your task is to transform a given `User` instance into a `Person` instance.
 Of course, you can do it by instantiating a new `Person` and calling associated getters and setters in your code.
 But - you shouldn't...why?
 
-There are a lot of reasons but at least the most important is:
+There are a lot of reasons, but at least the most important is:
 
 Separation of Concerns.
 
@@ -87,13 +87,13 @@ class PersonNamePopulator implements Populator
 }
 ```
 
-As you can see implementation here is quite simple - just concatenation of two attributes.
-But however transformation will become more and more complex it should be done in a testable,
+As you can see, implementation here is quite simple - just concatenation of two attributes.
+But however transformation will become more and more complex, it should be done in a testable,
 separated Populator or in several of them.
 
 ### Configuration
 
-To put things together register the factory and populator as services:
+To put things together, register the factory and populator as services:
 
 ```yaml
 # config/services.yaml
@@ -199,8 +199,9 @@ Conversion done.
 
 ## Special Populators
 
-After working a while with the converter pattern, you will notice, that many scenarios in the population are very similar.
-If the source property can be copied directly to the target property, but only the names of the properties change, the same populator could be reused over and over again.
+After working a while with the converter pattern, you will notice that many scenarios in the population are very similar.
+If the source property can be copied directly to the target property, but only the names of the properties change, 
+the same populator could be reused over and over again.
 
 ### Converting Populator
 
@@ -236,16 +237,16 @@ class Person
 }
 ```
 
-If you have a situation as above and your User will have an address which should be populated into Person than you have
-to write a Populator which
+If you have a situation as above and your `User` will have an `Address` which should be populated into `Person`, 
+then you have to write a Populator which
 
-* gets the address from User,
-* converts it into a PersonAddress object
-* and sets it in Person.
+* gets the `Address` from `User`,
+* converts it into a `PersonAddress` object
+* and sets it in `Person`.
 
-The second step is typically a task for a (e.g. Address-) Converter.
+The second step is typically a task for a (e.g. `Address`) converter.
 
-Therefore we have a ConvertingPopulator which can easily be used:
+Therefore, we have a `ConvertingPopulator` which can be used as follows:
 
 ```yaml
 # config/packages/neusta_converter.yaml
@@ -273,12 +274,12 @@ There is really an object conversion behind done by `address.converter`.
 
 ### ArrayConvertingPopulator
 
-If you think that there is no 1:1 relation between User and Address (or corresponding Person and PersonAddress) but a 1:
-n relation then the ConvertingPopulator can not be used.
+If you think that there is no 1:1 relation between `User` and `Address` (or corresponding Person and PersonAddress) 
+but a 1:n relation then the `ConvertingPopulator` cannot be used.
 
 In these cases we have implemented an extended version of it called `ArrayConvertingPopulator`.
 
-This populator uses the same internal technique but expects to convert eac item of a source array of properties before
+This populator uses the same internal technique but expects to convert an item of a source array of properties before
 it will be set into the target object.
 
 #### Example: User to Person
@@ -293,14 +294,12 @@ class Address
     private string $number;
     private string $postalCode;
     private string $city;
-    // ...
 }
 
 class User
 {
-    // ...
-    private Address[] $addresses;    
-    // ...
+    /** @var Address[] */
+    private array $addresses;    
 }
 ```
 
@@ -311,14 +310,12 @@ class PersonAddress
 {
     private string $streetWithNumber;
     private string $postalCodeAndCity;
-    // ...
 }
 
 class Person
 {
-    // ...
-    private PersonAddress[] $addresses;
-    // ...
+    /** @var PersonAddress[] */
+    private array $addresses;
 }
 ```
 
@@ -349,7 +346,7 @@ There is no new converter but a different populator implementation for this.
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.
 Think about environment parameters, localization or other specifications of your app.
-This information can be put inside a simple `GenericContext` object and called with your conversion:
+This information can be put inside a `GenericContext` object and called with your conversion:
 
 ```php
 $ctx = new \Neusta\ConverterBundle\Converter\Context\GenericContext();
@@ -358,8 +355,7 @@ $ctx->setValue('locale', 'de');
 $target = $this->converter->convert($source, $ctx);
 ```
 
-The factory and the populators will be called with that context as well, so that they can read and
-use it:
+The factory and the populators will be called with that context as well, so that they can read and use it:
 
 ```php
 // inside the Populator implementation
@@ -368,8 +364,8 @@ if ($ctx && $ctx->hasKey('locale')) {
 }
 ```
 
-Internally the `GenericContext` is only an associative array but the interface allows you to adapt your own
+Internally the `GenericContext` is only an associative array, but the interface allows you to adapt your own
 implementation of a domain-oriented context and use it in your populators as you like.
 
 You can use the context in factories and populators with custom implementation,
-but it is also possible to use the simple property mapping like in section [mapping context](#mapping-context) described.
+but it is also possible to use the property mapping like described in section [mapping context](#mapping-context).
