@@ -27,14 +27,13 @@ final class ArrayPropertyMappingPopulator implements Populator
      * @param \Closure(mixed, TContext=):mixed|null $mapper
      */
     public function __construct(
-        private string            $targetProperty,
-        private string            $sourceArrayProperty,
-        private ?string           $sourceArrayItemProperty = null,
-        ?\Closure                 $mapper = null,
+        private string $targetProperty,
+        private string $sourceArrayProperty,
+        private ?string $sourceArrayItemProperty = null,
+        ?\Closure $mapper = null,
         PropertyAccessorInterface $itemAccessor = null,
         PropertyAccessorInterface $accessor = null,
-    )
-    {
+    ) {
         $this->mapper = $mapper ?? static fn($v) => $v;
         $this->itemAccessor = $itemAccessor ?? PropertyAccess::createPropertyAccessor();
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();

@@ -30,14 +30,13 @@ final class ArrayConvertingPopulator implements Populator
      * @param Converter<TInnerSource, TInnerTarget, TContext> $converter
      */
     public function __construct(
-        Converter                 $converter,
-        string                    $sourceArrayPropertyName,
-        string                    $targetPropertyName,
-        ?string                   $sourceArrayItemPropertyName = null,
+        Converter $converter,
+        string $sourceArrayPropertyName,
+        string $targetPropertyName,
+        ?string $sourceArrayItemPropertyName = null,
         PropertyAccessorInterface $itemAccessor = null,
         PropertyAccessorInterface $accessor = null,
-    )
-    {
+    ) {
         $this->populator = new ArrayPropertyMappingPopulator(
             $targetPropertyName,
             $sourceArrayPropertyName,

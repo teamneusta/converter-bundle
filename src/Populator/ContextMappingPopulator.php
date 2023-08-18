@@ -27,9 +27,9 @@ final class ContextMappingPopulator implements Populator
      * @param \Closure(mixed, TContext=):mixed|null $mapper
      */
     public function __construct(
-        private string            $targetProperty,
-        private string            $contextProperty,
-        ?\Closure                 $mapper = null,
+        private string $targetProperty,
+        private string $contextProperty,
+        ?\Closure $mapper = null,
         PropertyAccessorInterface $accessor = null,
     ) {
         $this->mapper = $mapper ?? static fn ($v) => $v;
