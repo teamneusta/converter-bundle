@@ -3,7 +3,8 @@
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-    bootstrap="vendor/autoload.php"
+    beStrictAboutOutputDuringTests="true"
+    beStrictAboutTodoAnnotatedTests="true"
     cacheResultFile=".phpunit.cache/test-results"
     colors="true"
     failOnRisky="true"
@@ -18,7 +19,7 @@
     </php>
 
     <testsuites>
-        <testsuite name="NeustaConverterBundle Test Suite">
+        <testsuite name="All tests">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
