@@ -11,6 +11,6 @@ class NeustaConverterBundleTest extends TestCase
 {
     public function testThatBundlePathIsCurrentDir(): void
     {
-        self::assertStringEndsWith('src', (new NeustaConverterBundle)->getPath());
+        self::assertStringEndsWith('src', (new NeustaConverterBundle())->getPath());
     }
 }

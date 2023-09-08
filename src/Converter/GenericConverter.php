@@ -18,7 +18,7 @@ use Neusta\ConverterBundle\TargetFactory;
 final class GenericConverter implements Converter
 {
     /**
-     * @param TargetFactory<TTarget, TContext> $factory
+     * @param TargetFactory<TTarget, TContext>             $factory
      * @param array<Populator<TSource, TTarget, TContext>> $populators
      */
     public function __construct(
@@ -28,12 +28,12 @@ final class GenericConverter implements Converter
     }
 
     /**
-     * @param TSource $source
+     * @param TSource  $source
      * @param TContext $ctx
      *
      * @return TTarget
      */
-    public function convert(object $source, ?object $ctx = null): object
+    public function convert(object $source, object $ctx = null): object
     {
         $target = $this->factory->create($ctx);
 

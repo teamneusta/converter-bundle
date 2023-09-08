@@ -4,22 +4,43 @@ A default implementation of the Converter & Populator design pattern.
 
 ## Installation
 
-Run `composer require teamneusta/converter-bundle` to install the bundle.
+1. **Require the bundle**
 
-Add the following line into your `bundles.php` file to activate it:
+   ```shell
+   composer require teamneusta/converter-bundle
+   ```
 
-```php
-...
-return [
-    ...
-    Neusta\ConverterBundle\NeustaConverterBundle::class => ['all' => true],
-    ...
-];
-```
+2. **Enable the bundle**
 
-This is important for preloading the default configuration of provided converter implementations which can be reused
-and simplify your code and further updates.
+   Add the Bundle to your `config/bundles.php`:
+
+   ```php
+   Neusta\ConverterBundle\NeustaConverterBundle::class => ['all' => true],
+   ```
+
+   This is important for preloading the default configuration of provided converter implementations which can be reused
+   and simplify your code and further updates.
 
 ## [Usage](docs/usage.md)
 
-## [Development](docs/development.md)
+## Contribution
+
+Feel free to open issues for any bug, feature request, or other ideas.
+
+Please remember to create an issue before creating large pull requests.
+
+### Local Development
+
+To develop on local machine, the vendor dependencies are required.
+
+```shell
+bin/composer install
+```
+
+We use composer scripts for our main quality tools. They can be executed via the `bin/composer` file as well.
+
+```shell
+bin/composer cs:fix
+bin/composer phpstan
+bin/composer tests
+```

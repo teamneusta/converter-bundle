@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
-use Neusta\ConverterBundle\Populator\ArrayPropertyMappingPopulator;
-use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Hobby;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Phone;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
@@ -29,7 +26,7 @@ class ArrayConvertingPopulatorIntegrationTest extends KernelTestCase
         $phone2 = (new Phone())->setType('mobile')->setNumber('0172 2456543');
         $phone3 = (new Phone())->setType('home')->setNumber('0421 2456543');
 
-        $user = (new User())->setPhones([$phone1, $phone2, $phone3,]);
+        $user = (new User())->setPhones([$phone1, $phone2, $phone3]);
         $person = new Person();
 
         $this->populator->populate($person, $user);

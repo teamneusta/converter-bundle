@@ -12,9 +12,9 @@ namespace Neusta\ConverterBundle;
 interface Populator
 {
     /**
-     * @param TTarget $target
-     * @param TSource $source
+     * @param TTarget  $target
+     * @param TSource  $source
      * @param TContext $ctx
      */
-    public function populate(object $target, object $source, ?object $ctx = null): void;
+    public function populate(object $target, object $source, object $ctx = null): void;
 }

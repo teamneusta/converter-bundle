@@ -1,13 +1,8 @@
 parameters:
+
+	level: 8
+
 	paths:
 		- src
-#		- tests
-
-	excludePaths:
-		- vendor
-		- tests/app
-
-	symfony:
-		containerXmlPath: tests/app/var/cache/test/TestKernelTestDebugContainer.xml
 
 	checkGenericClassInNonGenericObjectType: false

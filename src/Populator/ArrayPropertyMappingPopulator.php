@@ -30,11 +30,11 @@ final class ArrayPropertyMappingPopulator implements Populator
         private string $targetProperty,
         private string $sourceArrayProperty,
         private ?string $sourceArrayItemProperty = null,
-        ?\Closure $mapper = null,
+        \Closure $mapper = null,
         PropertyAccessorInterface $arrayItemAccessor = null,
         PropertyAccessorInterface $accessor = null,
     ) {
-        $this->mapper = $mapper ?? static fn($v) => $v;
+        $this->mapper = $mapper ?? static fn ($v) => $v;
         $this->arrayItemAccessor = $arrayItemAccessor ?? PropertyAccess::createPropertyAccessor();
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();
     }
@@ -42,11 +42,11 @@ final class ArrayPropertyMappingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?object $ctx = null): void
+    public function populate(object $target, object $source, object $ctx = null): void
     {
         try {
             $unwrappedArray = array_map(
-                fn($item) => null !== $this->sourceArrayItemProperty
+                fn ($item) => null !== $this->sourceArrayItemProperty
                     ? $this->arrayItemAccessor->getValue($item, $this->sourceArrayItemProperty)
                     : $item,
                 $this->accessor->getValue($source, $this->sourceArrayProperty),
@@ -55,7 +55,7 @@ final class ArrayPropertyMappingPopulator implements Populator
             $this->accessor->setValue(
                 $target,
                 $this->targetProperty,
-                array_map(fn($item) => ($this->mapper)($item, $ctx), $unwrappedArray),
+                array_map(fn ($item) => ($this->mapper)($item, $ctx), $unwrappedArray),
             );
         } catch (\Throwable $exception) {
             throw new PopulationException($this->sourceArrayProperty, $this->targetProperty, $exception);

@@ -8,22 +8,15 @@ class ContactNumber
 {
     private string $phoneNumber;
 
-    /**
-     * @return string
-     */
     public function getPhoneNumber(): string
     {
         return $this->phoneNumber;
     }
 
-    /**
-     * @param string $phoneNumber
-     * @return ContactNumber
-     */
-    public function setPhoneNumber(string $phoneNumber): ContactNumber
+    public function setPhoneNumber(string $phoneNumber): self
     {
         $this->phoneNumber = $phoneNumber;
+
         return $this;
     }
-
 }
