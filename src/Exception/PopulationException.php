@@ -9,7 +9,7 @@ class PopulationException extends \Exception
     public function __construct(string $sourcePropertyName, string $targetPropertyName, \Throwable $previous)
     {
         parent::__construct(
-            sprintf("Population Exception (%s -> %s): %s",
+            sprintf('Population Exception (%s -> %s): %s',
                 $sourcePropertyName,
                 $targetPropertyName,
                 $previous->getMessage(),

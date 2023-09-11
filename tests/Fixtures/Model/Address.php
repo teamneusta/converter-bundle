@@ -16,9 +16,10 @@ class Address
         return $this->postalCode;
     }
 
-    public function setPostalCode(string $postalCode): Address
+    public function setPostalCode(string $postalCode): self
     {
         $this->postalCode = $postalCode;
+
         return $this;
     }
 
@@ -27,9 +28,10 @@ class Address
         return $this->city;
     }
 
-    public function setCity(string $city): Address
+    public function setCity(string $city): self
     {
         $this->city = $city;
+
         return $this;
     }
 
@@ -38,9 +40,10 @@ class Address
         return $this->street;
     }
 
-    public function setStreet(string $street): Address
+    public function setStreet(string $street): self
     {
         $this->street = $street;
+
         return $this;
     }
 
@@ -49,9 +52,10 @@ class Address
         return $this->streetNo;
     }
 
-    public function setStreetNo(string $streetNo): Address
+    public function setStreetNo(string $streetNo): self
     {
         $this->streetNo = $streetNo;
+
         return $this;
     }
 }

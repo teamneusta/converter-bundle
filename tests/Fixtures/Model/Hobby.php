@@ -10,39 +10,27 @@ class Hobby
 
     private string $category;
 
-    /**
-     * @return string
-     */
     public function getLabel(): string
     {
         return $this->label;
     }
 
-    /**
-     * @param string $label
-     * @return Hobby
-     */
-    public function setLabel(string $label): Hobby
+    public function setLabel(string $label): self
     {
         $this->label = $label;
+
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getCategory(): string
     {
         return $this->category;
     }
 
-    /**
-     * @param string $category
-     * @return Hobby
-     */
-    public function setCategory(string $category): Hobby
+    public function setCategory(string $category): self
     {
         $this->category = $category;
+
         return $this;
     }
 

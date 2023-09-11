@@ -34,7 +34,7 @@ class ArrayPropertyMappingPopulatorTest extends TestCase
 
     public function test_populateWithInnerProperty(): void
     {
-        $populator = new ArrayPropertyMappingPopulator('activities', 'hobbies','label');
+        $populator = new ArrayPropertyMappingPopulator('activities', 'hobbies', 'label');
         $user = (new User())->setHobbies([
             (new Hobby())->setLabel('reading'),
             (new Hobby())->setLabel('swimming'),

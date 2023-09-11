@@ -46,7 +46,7 @@ final class ConvertingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?object $ctx = null): void
+    public function populate(object $target, object $source, object $ctx = null): void
     {
         $this->populator->populate($target, $source, $ctx);
     }

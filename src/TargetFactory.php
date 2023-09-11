@@ -15,5 +15,5 @@ interface TargetFactory
      *
      * @return TTarget
      */
-    public function create(?object $ctx = null): object;
+    public function create(object $ctx = null): object;
 }

@@ -6,5 +6,4 @@ namespace Neusta\ConverterBundle\Exception;
 
 class ConverterException extends \Exception
 {
-
 }

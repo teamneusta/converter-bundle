@@ -33,7 +33,7 @@ final class ArrayConvertingPopulator implements Populator
         Converter $converter,
         string $sourceArrayPropertyName,
         string $targetPropertyName,
-        ?string $sourceArrayItemPropertyName = null,
+        string $sourceArrayItemPropertyName = null,
         PropertyAccessorInterface $arrayItemAccessor = null,
         PropertyAccessorInterface $accessor = null,
     ) {
@@ -50,7 +50,7 @@ final class ArrayConvertingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?object $ctx = null): void
+    public function populate(object $target, object $source, object $ctx = null): void
     {
         $this->populator->populate($target, $source, $ctx);
     }

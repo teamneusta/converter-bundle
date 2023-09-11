@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Converter\StrategicConverter;
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Exception\ConverterException;
+use Neusta\ConverterBundle\Converter\StrategicConverter;
 use Neusta\ConverterBundle\Converter\Strategy\ConverterSelector;
+use Neusta\ConverterBundle\Exception\ConverterException;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +45,6 @@ class StrategicConverterTest extends TestCase
         $this->converter->convert($user, null)->willReturn($person)->shouldBeCalled();
 
         $this->strategyHandler->convert($user);
-
     }
 
     public function testConvert_exceptional_case(): void
@@ -67,9 +66,8 @@ class StrategicConverterTest extends TestCase
         $this->converter->convert($user, null)->willReturn($person)->shouldNotBeCalled();
 
         $this->expectException(ConverterException::class);
-        $this->expectExceptionMessage("No converter found for key <otherKey>");
+        $this->expectExceptionMessage('No converter found for key <otherKey>');
 
         $this->strategyHandler->convert($user);
-
     }
 }

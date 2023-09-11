@@ -28,7 +28,7 @@ final class PropertyMappingPopulator implements Populator
     public function __construct(
         private string $targetProperty,
         private string $sourceProperty,
-        ?\Closure $mapper = null,
+        \Closure $mapper = null,
         PropertyAccessorInterface $accessor = null,
     ) {
         $this->mapper = $mapper ?? static fn ($v) => $v;
@@ -38,7 +38,7 @@ final class PropertyMappingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?object $ctx = null): void
+    public function populate(object $target, object $source, object $ctx = null): void
     {
         try {
             $this->accessor->setValue(
