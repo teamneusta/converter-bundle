@@ -14,12 +14,12 @@ use Neusta\ConverterBundle\Exception\ConverterException;
 interface Converter
 {
     /**
-     * @param TSource $source
+     * @param TSource  $source
      * @param TContext $ctx
      *
      * @return TTarget target type of your conversion
      *
      * @throws ConverterException
      */
-    public function convert(object $source, ?object $ctx = null): object;
+    public function convert(object $source, object $ctx = null): object;
 }

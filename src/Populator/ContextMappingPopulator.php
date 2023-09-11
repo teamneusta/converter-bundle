@@ -29,7 +29,7 @@ final class ContextMappingPopulator implements Populator
     public function __construct(
         private string $targetProperty,
         private string $contextProperty,
-        ?\Closure $mapper = null,
+        \Closure $mapper = null,
         PropertyAccessorInterface $accessor = null,
     ) {
         $this->mapper = $mapper ?? static fn ($v) => $v;
@@ -39,7 +39,7 @@ final class ContextMappingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, ?object $ctx = null): void
+    public function populate(object $target, object $source, object $ctx = null): void
     {
         if (!$ctx || !$ctx->hasKey($this->contextProperty)) {
             return;

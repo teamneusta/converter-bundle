@@ -29,7 +29,7 @@ class User
         return $this->uuid;
     }
 
-    public function setUuid(int $uuid): User
+    public function setUuid(int $uuid): self
     {
         $this->uuid = $uuid;
 
@@ -41,7 +41,7 @@ class User
         return $this->firstname;
     }
 
-    public function setFirstname(string $firstname): User
+    public function setFirstname(string $firstname): self
     {
         $this->firstname = $firstname;
 
@@ -53,7 +53,7 @@ class User
         return $this->lastname;
     }
 
-    public function setLastname(string $lastname): User
+    public function setLastname(string $lastname): self
     {
         $this->lastname = $lastname;
 
@@ -65,9 +65,10 @@ class User
         return $this->fullName;
     }
 
-    public function setFullName(string $fullName): User
+    public function setFullName(string $fullName): self
     {
         $this->fullName = $fullName;
+
         return $this;
     }
 
@@ -76,9 +77,10 @@ class User
         return $this->ageInYears;
     }
 
-    public function setAgeInYears($ageInYears): User
+    public function setAgeInYears($ageInYears): self
     {
         $this->ageInYears = $ageInYears;
+
         return $this;
     }
 
@@ -87,45 +89,34 @@ class User
         return $this->address;
     }
 
-    public function setAddress(Address $address): User
+    public function setAddress(Address $address): self
     {
         $this->address = $address;
+
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getFavouriteMovies(): array
     {
         return $this->favouriteMovies;
     }
 
-    /**
-     * @param array $favouriteMovies
-     * @return User
-     */
-    public function setFavouriteMovies(array $favouriteMovies): User
+    public function setFavouriteMovies(array $favouriteMovies): self
     {
         $this->favouriteMovies = $favouriteMovies;
+
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getHobbies(): array
     {
         return $this->hobbies;
     }
 
-    /**
-     * @param array $hobbies
-     * @return User
-     */
-    public function setHobbies(array $hobbies): User
+    public function setHobbies(array $hobbies): self
     {
         $this->hobbies = $hobbies;
+
         return $this;
     }
 
@@ -133,9 +124,11 @@ class User
     {
         return $this->fieldWithUnknownType;
     }
-    public function setFieldWithUnknownType(UnknownType $fieldWithUnknownType): User
+
+    public function setFieldWithUnknownType(UnknownType $fieldWithUnknownType): self
     {
         $this->fieldWithUnknownType = $fieldWithUnknownType;
+
         return $this;
     }
 
@@ -149,12 +142,11 @@ class User
 
     /**
      * @param array<Phone> $phones
-     * @return User
      */
-    public function setPhones(array $phones): User
+    public function setPhones(array $phones): self
     {
         $this->phones = $phones;
+
         return $this;
     }
-
 }

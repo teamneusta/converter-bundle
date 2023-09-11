@@ -25,21 +25,15 @@ class Person
     /** @var array<ContactNumber> */
     private array $contactNumbers;
 
-    /**
-     * @return array
-     */
     public function getContactNumbers(): array
     {
         return $this->contactNumbers;
     }
 
-    /**
-     * @param array $contactNumbers
-     * @return Person
-     */
-    public function setContactNumbers(array $contactNumbers): Person
+    public function setContactNumbers(array $contactNumbers): self
     {
         $this->contactNumbers = $contactNumbers;
+
         return $this;
     }
 
@@ -47,9 +41,11 @@ class Person
     {
         return $this->fullName;
     }
-    public function setFullName(?string $fullName): Person
+
+    public function setFullName(?string $fullName): self
     {
         $this->fullName = $fullName;
+
         return $this;
     }
 
@@ -58,9 +54,10 @@ class Person
         return $this->age;
     }
 
-    public function setAge(?int $age): Person
+    public function setAge(?int $age): self
     {
         $this->age = $age;
+
         return $this;
     }
 
@@ -69,57 +66,46 @@ class Person
         return $this->address;
     }
 
-    public function setAddress(?PersonAddress $address): Person
+    public function setAddress(?PersonAddress $address): self
     {
         $this->address = $address;
+
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getFavouriteMovies(): array
     {
         return $this->favouriteMovies;
     }
 
-    /**
-     * @param array $favouriteMovies
-     * @return Person
-     */
-    public function setFavouriteMovies(array $favouriteMovies): Person
+    public function setFavouriteMovies(array $favouriteMovies): self
     {
         $this->favouriteMovies = $favouriteMovies;
+
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getActivities(): array
     {
         return $this->activities;
     }
 
-    /**
-     * @param array $activities
-     * @return Person
-     */
-    public function setActivities(array $activities): Person
+    public function setActivities(array $activities): self
     {
         $this->activities = $activities;
+
         return $this;
     }
-
 
     public function getLocale(): ?string
     {
         return $this->locale;
     }
 
-    public function setLocale(?string $locale): Person
+    public function setLocale(?string $locale): self
     {
         $this->locale = $locale;
+
         return $this;
     }
 
@@ -128,9 +114,10 @@ class Person
         return $this->group;
     }
 
-    public function setGroup(?string $group): Person
+    public function setGroup(?string $group): self
     {
         $this->group = $group;
+
         return $this;
     }
 }
