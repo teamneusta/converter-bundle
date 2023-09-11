@@ -3,7 +3,7 @@
 /*
  * This document has been initially generated with
  * https://mlocati.github.io/php-cs-fixer-configurator/#version:3.5.0|configurator
- * and then adapted be our needs
+ * and then adapted to our needs
  */
 
 return (new PhpCsFixer\Config)
