@@ -16,14 +16,6 @@ services:
     Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~
     Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator: ~
 
-    test.person.address.populator:
-        parent: 'neusta_converter.converting_populator'
-        public: true
-        arguments:
-            $converter: '@test.address.converter'
-            $sourcePropertyName: 'address'
-            $targetPropertyName: 'address'
-
     test.person.wrong.source.type.populator:
         parent: 'neusta_converter.converting_populator'
         public: true
