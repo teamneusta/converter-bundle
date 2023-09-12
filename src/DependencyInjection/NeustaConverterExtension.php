@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\DependencyInjection\Handler\PopulatorConfigurationHandler;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -70,7 +68,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
             ->setArguments([
                 '$factory' => new Reference($config['target_factory']),
                 '$populators' => array_map(
-                    static fn(string $populator) => new Reference($populator),
+                    static fn (string $populator) => new Reference($populator),
                     $config['populators'],
                 ),
             ]);
@@ -82,9 +80,9 @@ final class NeustaConverterExtension extends ConfigurableExtension
     private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
         $arguments = [];
-        if (empty($config['class']) || $config['class'] === ConvertingPopulator::class) {
+        if (empty($config['class']) || ConvertingPopulator::class === $config['class']) {
             $arguments = $this->buildArgumentsForConvertingPopulator($config);
-        } elseif ($config['class'] === ArrayConvertingPopulator::class) {
+        } elseif (ArrayConvertingPopulator::class === $config['class']) {
             $arguments = $this->buildArgumentsForArrayConvertingPopulator($config);
         }
 
@@ -95,6 +93,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
     /**
      * @param array<string, mixed> $config
+     *
      * @return array<string, string>
      */
     private function buildArgumentsForConvertingPopulator(array $config): array
@@ -114,6 +113,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
     /**
      * @param array<string, mixed> $config
+     *
      * @return array<string, string>
      */
     private function buildArgumentsForArrayConvertingPopulator(array $config): array
@@ -127,6 +127,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
             $innerPropertyArgument,
             $this->buildArgumentsForConvertingPopulator($config),
         );
+
         return $arguments;
     }
 

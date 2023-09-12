@@ -6,7 +6,6 @@ namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
-use Neusta\ConverterBundle\DependencyInjection\Handler\PopulatorConfigurationHandler;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
@@ -86,6 +85,7 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
     }
+
     public function test_with_mapped_context(): void
     {
         $container = $this->buildContainer([
@@ -133,7 +133,7 @@ class NeustaConverterExtensionTest extends TestCase
                 'foobar' => [
                     'converter' => GenericConverter::class,
                     'property' => [
-                        'targetTest' => 'sourceTest'
+                        'targetTest' => 'sourceTest',
                     ],
                 ],
             ],
