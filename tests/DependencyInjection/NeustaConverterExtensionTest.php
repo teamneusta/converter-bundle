@@ -242,6 +242,43 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
     }
 
+    public function test_with_array_converting_populator_with_default_value(): void
+    {
+        $container = $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'properties' => [
+                        'name' => [
+                            'source' => null,
+                            'default' => 'John Doe',
+                        ],
+                        'ageInYears' => [
+                            'source' => 'age',
+                            'default' => 42,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        // name property populator
+        $namePopulator = $container->getDefinition('foobar.populator.name');
+        self::assertSame(PropertyMappingPopulator::class, $namePopulator->getClass());
+        self::assertIsReference('property_accessor', $namePopulator->getArgument('$accessor'));
+        self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
+        self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
+        self::assertSame('John Doe', $namePopulator->getArgument('$defaultValue'));
+
+        // ageInYears property populator
+        $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
+        self::assertSame(PropertyMappingPopulator::class, $ageInYearsPopulator->getClass());
+        self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
+        self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
+        self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
+        self::assertSame(42, $ageInYearsPopulator->getArgument('$defaultValue'));
+    }
+
     private static function assertIsReference(string $expected, mixed $actual): void
     {
         self::assertInstanceOf(Reference::class, $actual);

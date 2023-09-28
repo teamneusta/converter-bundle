@@ -28,6 +28,7 @@ final class PropertyMappingPopulator implements Populator
     public function __construct(
         private string $targetProperty,
         private string $sourceProperty,
+        private mixed $defaultValue = null,
         \Closure $mapper = null,
         PropertyAccessorInterface $accessor = null,
     ) {
@@ -41,10 +42,12 @@ final class PropertyMappingPopulator implements Populator
     public function populate(object $target, object $source, object $ctx = null): void
     {
         try {
+            $value = $this->accessor->getValue($source, $this->sourceProperty);
+
             $this->accessor->setValue(
                 $target,
                 $this->targetProperty,
-                ($this->mapper)($this->accessor->getValue($source, $this->sourceProperty), $ctx),
+                ($this->mapper)($value ?? $this->defaultValue, $ctx),
             );
         } catch (\Throwable $exception) {
             throw new PopulationException($this->sourceProperty, $this->targetProperty, $exception);

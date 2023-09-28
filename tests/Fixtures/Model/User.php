@@ -9,7 +9,7 @@ class User
     private int $uuid;
     private string $firstname;
     private string $lastname;
-    private string $fullName;
+    private ?string $fullName;
     private int $ageInYears;
     private Address $address;
 
@@ -60,12 +60,12 @@ class User
         return $this;
     }
 
-    public function getFullName(): string
+    public function getFullName(): ?string
     {
         return $this->fullName;
     }
 
-    public function setFullName(string $fullName): self
+    public function setFullName(?string $fullName): self
     {
         $this->fullName = $fullName;
 
