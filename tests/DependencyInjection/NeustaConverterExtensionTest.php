@@ -165,6 +165,7 @@ class NeustaConverterExtensionTest extends TestCase
         $container = $this->buildContainer([
             'populator' => [
                 'foobar' => [
+                    'populator' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
                     'property' => [
                         'targetTest' => 'sourceTest',
@@ -176,12 +177,12 @@ class NeustaConverterExtensionTest extends TestCase
         // converter
         $populator = $container->getDefinition('foobar');
 
-        self::assertSame(ConvertingPopulator::class, $populator->getClass());
+        self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
         self::assertTrue($populator->isPublic());
         self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
         self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
         self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
+        self::assertSame('sourceTest', $populator->getArgument('$sourceArrayPropertyName'));
     }
 
     public function test_with_array_converting_populator_with_inner_property(): void
