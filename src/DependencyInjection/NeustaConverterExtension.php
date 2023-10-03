@@ -114,15 +114,19 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function buildArgumentsForArrayConvertingPopulator(array $config): array
     {
-        $innerPropertyArgument = [
-            '$sourceArrayItemPropertyName' => $config['property']['itemProperty']
-        ];
+        $itemProperty = $config['property']['itemProperty'] ?? null;
         unset($config['property']['itemProperty']);
 
-        return array_merge(
-            $innerPropertyArgument,
-            $this->buildArgumentsForConvertingPopulator($config),
-        );
+        $targetProperty = array_key_first($config['property']);
+        $sourceProperty = $config['property'][$targetProperty] ?? $targetProperty;
+
+        return [
+            '$converter' => new TypedReference($config['converter'], Converter::class),
+            '$sourceArrayPropertyName' => $sourceProperty,
+            '$targetPropertyName' => $targetProperty,
+            '$sourceArrayItemPropertyName' => $itemProperty,
+            '$accessor' => new Reference('property_accessor'),
+        ];
     }
 
     private function appendSuffix(string $value, string $suffix): string

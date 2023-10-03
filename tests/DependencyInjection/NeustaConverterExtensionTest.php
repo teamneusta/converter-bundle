@@ -224,7 +224,7 @@ class NeustaConverterExtensionTest extends TestCase
 
         self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
         self::assertSame('test', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('test', $populator->getArgument('$sourcePropertyName'));
+        self::assertSame('test', $populator->getArgument('$sourceArrayPropertyName'));
         self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
     }
 
@@ -248,7 +248,7 @@ class NeustaConverterExtensionTest extends TestCase
 
         self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
         self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
+        self::assertSame('sourceTest', $populator->getArgument('$sourceArrayPropertyName'));
         self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
     }
 
