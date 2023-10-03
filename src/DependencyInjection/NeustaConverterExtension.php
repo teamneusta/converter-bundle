@@ -80,26 +80,20 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
-        $itemProperty = $config['property']['itemProperty'] ?? null;
-        unset($config['property']['itemProperty']);
-
-        $targetProperty = array_key_first($config['property']);
-        $sourceProperty = $config['property'][$targetProperty] ?? $targetProperty;
-
         $container->register($id, $config['populator'])
             ->setPublic(true)
             ->setArguments(match ($config['populator']) {
                 ConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
-                    '$sourcePropertyName' => $sourceProperty,
-                    '$targetPropertyName' => $targetProperty,
+                    '$sourcePropertyName' => $config['property']['source'] ?? $config['property']['target'],
+                    '$targetPropertyName' => $config['property']['target'],
                     '$accessor' => new Reference('property_accessor'),
                 ],
                 ArrayConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
-                    '$sourceArrayPropertyName' => $sourceProperty,
-                    '$targetPropertyName' => $targetProperty,
-                    '$sourceArrayItemPropertyName' => $itemProperty,
+                    '$sourceArrayPropertyName' => $config['property']['source'] ?? $config['property']['target'],
+                    '$targetPropertyName' => $config['property']['target'],
+                    '$sourceArrayItemPropertyName' => $config['property']['source_array_item'],
                     '$accessor' => new Reference('property_accessor'),
                 ],
                 default => [],

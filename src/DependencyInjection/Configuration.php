@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
+use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -108,16 +109,18 @@ final class Configuration implements ConfigurationInterface
                                 ->cannotBeEmpty()
                             ->end()
                             ->arrayNode('property')
-                                ->info('Mapping of source property (value) to target property (key)')
-                                ->normalizeKeys(false)
-                                ->useAttributeAsKey('target')
-                                ->prototype('scalar')
+                                ->info('Mapping of source property to target property')
+                                ->children()
+                                    ->scalarNode('target')->isRequired()->cannotBeEmpty()->end()
+                                    ->scalarNode('source')->defaultNull()->end()
+                                    ->scalarNode('source_array_item')->defaultNull()->end()
+                                ->end()
                             ->end()
                         ->end()
-                    ->end()
-                    ->validate()
-                        ->ifTrue(fn (array $c) => empty($c['property']))
-                        ->thenInvalid('At least one "property" must be defined.')
+                        ->validate()
+                            ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property']['source_array_item']))
+                            ->thenInvalid('The "property.source_array_item" option is only supported for array converting populators.')
+                        ->end()
                     ->end()
                 ->end()
             ->end()
