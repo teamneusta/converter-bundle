@@ -80,53 +80,30 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
-        $container->register($id, $config['populator'])
-            ->setPublic(true)
-            ->setArguments(match ($config['populator']) {
-                ConvertingPopulator::class => $this->buildArgumentsForConvertingPopulator($config),
-                ArrayConvertingPopulator::class => $this->buildArgumentsForArrayConvertingPopulator($config),
-                default => [],
-            });
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     *
-     * @return array<string, string>
-     */
-    private function buildArgumentsForConvertingPopulator(array $config): array
-    {
-        $targetProperty = array_key_first($config['property']);
-        $sourceProperty = $config['property'][$targetProperty] ?? $targetProperty;
-
-        return [
-            '$converter' => new TypedReference($config['converter'], Converter::class),
-            '$sourcePropertyName' => $sourceProperty,
-            '$targetPropertyName' => $targetProperty,
-            '$accessor' => new Reference('property_accessor'),
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     *
-     * @return array<string, string>
-     */
-    private function buildArgumentsForArrayConvertingPopulator(array $config): array
-    {
         $itemProperty = $config['property']['itemProperty'] ?? null;
         unset($config['property']['itemProperty']);
 
         $targetProperty = array_key_first($config['property']);
         $sourceProperty = $config['property'][$targetProperty] ?? $targetProperty;
 
-        return [
-            '$converter' => new TypedReference($config['converter'], Converter::class),
-            '$sourceArrayPropertyName' => $sourceProperty,
-            '$targetPropertyName' => $targetProperty,
-            '$sourceArrayItemPropertyName' => $itemProperty,
-            '$accessor' => new Reference('property_accessor'),
-        ];
+        $container->register($id, $config['populator'])
+            ->setPublic(true)
+            ->setArguments(match ($config['populator']) {
+                ConvertingPopulator::class => [
+                    '$converter' => new TypedReference($config['converter'], Converter::class),
+                    '$sourcePropertyName' => $sourceProperty,
+                    '$targetPropertyName' => $targetProperty,
+                    '$accessor' => new Reference('property_accessor'),
+                ],
+                ArrayConvertingPopulator::class => [
+                    '$converter' => new TypedReference($config['converter'], Converter::class),
+                    '$sourceArrayPropertyName' => $sourceProperty,
+                    '$targetPropertyName' => $targetProperty,
+                    '$sourceArrayItemPropertyName' => $itemProperty,
+                    '$accessor' => new Reference('property_accessor'),
+                ],
+                default => [],
+            });
     }
 
     private function appendSuffix(string $value, string $suffix): string
