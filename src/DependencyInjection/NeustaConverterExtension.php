@@ -30,7 +30,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
             $this->registerConverterConfiguration($converterId, $converter, $container);
         }
 
-        foreach ($mergedConfig['populators'] as $populatorId => $populator) {
+        foreach ($mergedConfig['populator'] as $populatorId => $populator) {
             $this->registerPopulatorConfiguration($populatorId, $populator, $container);
         }
     }

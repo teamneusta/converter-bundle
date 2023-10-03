@@ -139,7 +139,7 @@ class NeustaConverterExtensionTest extends TestCase
     public function test_with_converting_populator(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
                     'converter' => GenericConverter::class,
                     'property' => [
@@ -162,7 +162,7 @@ class NeustaConverterExtensionTest extends TestCase
     public function test_with_array_converting_populator(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
                     'converter' => GenericConverter::class,
                     'property' => [
@@ -185,7 +185,7 @@ class NeustaConverterExtensionTest extends TestCase
     public function test_with_array_converting_populator_with_inner_property(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
                     'class' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
@@ -207,7 +207,7 @@ class NeustaConverterExtensionTest extends TestCase
     public function test_with_array_converting_populator_with_inner_property_same_name(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
                     'class' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
@@ -231,7 +231,7 @@ class NeustaConverterExtensionTest extends TestCase
     public function test_with_array_converting_populator_with_inner_property_first(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
                     'class' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,

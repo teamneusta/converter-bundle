@@ -17,7 +17,7 @@ neusta_converter:
       properties:
         phoneNumber: number
 
-  populators:
+  populator:
     test.person.address.populator:
       converter: test.address.converter
       property:

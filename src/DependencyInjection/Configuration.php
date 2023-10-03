@@ -92,7 +92,7 @@ final class Configuration implements ConfigurationInterface
     {
         $rootNode
             ->children()
-                ->arrayNode('populators')
+                ->arrayNode('populator')
                     ->info('Populator configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
