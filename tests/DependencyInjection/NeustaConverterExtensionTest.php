@@ -155,6 +155,7 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame(ConvertingPopulator::class, $populator->getClass());
         self::assertTrue($populator->isPublic());
         self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
+        self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
         self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
         self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
     }
@@ -178,6 +179,7 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame(ConvertingPopulator::class, $populator->getClass());
         self::assertTrue($populator->isPublic());
         self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
+        self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
         self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
         self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
     }
