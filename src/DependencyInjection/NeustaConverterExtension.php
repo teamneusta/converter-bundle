@@ -80,16 +80,13 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
-        $arguments = [];
-        if (empty($config['populator']) || ConvertingPopulator::class === $config['populator']) {
-            $arguments = $this->buildArgumentsForConvertingPopulator($config);
-        } elseif (ArrayConvertingPopulator::class === $config['populator']) {
-            $arguments = $this->buildArgumentsForArrayConvertingPopulator($config);
-        }
-
         $container->register($id, $config['populator'])
             ->setPublic(true)
-            ->setArguments($arguments);
+            ->setArguments(match ($config['populator']) {
+                ConvertingPopulator::class => $this->buildArgumentsForConvertingPopulator($config),
+                ArrayConvertingPopulator::class => $this->buildArgumentsForArrayConvertingPopulator($config),
+                default => [],
+            });
     }
 
     /**
@@ -100,16 +97,14 @@ final class NeustaConverterExtension extends ConfigurableExtension
     private function buildArgumentsForConvertingPopulator(array $config): array
     {
         $targetProperty = array_key_first($config['property']);
-        $sourceProperty = $config['property'][$targetProperty];
-        $sourceProperty = $sourceProperty ?? $targetProperty;
+        $sourceProperty = $config['property'][$targetProperty] ?? $targetProperty;
 
-        return
-            [
-                '$converter' => new TypedReference($config['converter'], Converter::class),
-                '$sourcePropertyName' => $sourceProperty,
-                '$targetPropertyName' => $targetProperty,
-                '$accessor' => new Reference('property_accessor'),
-            ];
+        return [
+            '$converter' => new TypedReference($config['converter'], Converter::class),
+            '$sourcePropertyName' => $sourceProperty,
+            '$targetPropertyName' => $targetProperty,
+            '$accessor' => new Reference('property_accessor'),
+        ];
     }
 
     /**
@@ -119,17 +114,15 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function buildArgumentsForArrayConvertingPopulator(array $config): array
     {
-        $innerPropertyArgument = [];
-        $innerProperty = $config['property']['itemProperty'];
-        $innerPropertyArgument['$sourceArrayItemPropertyName'] = $innerProperty;
+        $innerPropertyArgument = [
+            '$sourceArrayItemPropertyName' => $config['property']['itemProperty']
+        ];
         unset($config['property']['itemProperty']);
 
-        $arguments = array_merge(
+        return array_merge(
             $innerPropertyArgument,
             $this->buildArgumentsForConvertingPopulator($config),
         );
-
-        return $arguments;
     }
 
     private function appendSuffix(string $value, string $suffix): string
