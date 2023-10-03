@@ -9,6 +9,7 @@ use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -96,7 +97,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     '$sourceArrayItemPropertyName' => $config['property']['source_array_item'],
                     '$accessor' => new Reference('property_accessor'),
                 ],
-                default => [],
+                default => throw new InvalidConfigurationException(sprintf('The populator "%s" is not supported.', $config['populator'])),
             });
     }
 
