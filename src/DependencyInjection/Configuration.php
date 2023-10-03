@@ -98,7 +98,7 @@ final class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
                         ->children()
-                            ->scalarNode('class')
+                            ->scalarNode('populator')
                                 ->info('class of the "Populator" implementation')
                                 ->defaultValue(ConvertingPopulator::class)
                             ->end()

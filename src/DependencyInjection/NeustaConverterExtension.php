@@ -81,13 +81,13 @@ final class NeustaConverterExtension extends ConfigurableExtension
     private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
         $arguments = [];
-        if (empty($config['class']) || ConvertingPopulator::class === $config['class']) {
+        if (empty($config['populator']) || ConvertingPopulator::class === $config['populator']) {
             $arguments = $this->buildArgumentsForConvertingPopulator($config);
-        } elseif (ArrayConvertingPopulator::class === $config['class']) {
+        } elseif (ArrayConvertingPopulator::class === $config['populator']) {
             $arguments = $this->buildArgumentsForArrayConvertingPopulator($config);
         }
 
-        $container->register($id, $config['class'])
+        $container->register($id, $config['populator'])
             ->setPublic(true)
             ->setArguments($arguments);
     }

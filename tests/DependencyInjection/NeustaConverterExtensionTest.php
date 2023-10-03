@@ -187,7 +187,7 @@ class NeustaConverterExtensionTest extends TestCase
         $container = $this->buildContainer([
             'populator' => [
                 'foobar' => [
-                    'class' => ArrayConvertingPopulator::class,
+                    'populator' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
                     'property' => [
                         'targetTest' => 'sourceTest',
@@ -209,7 +209,7 @@ class NeustaConverterExtensionTest extends TestCase
         $container = $this->buildContainer([
             'populator' => [
                 'foobar' => [
-                    'class' => ArrayConvertingPopulator::class,
+                    'populator' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
                     'property' => [
                         'test' => null, // in yaml one will write ~
@@ -233,7 +233,7 @@ class NeustaConverterExtensionTest extends TestCase
         $container = $this->buildContainer([
             'populator' => [
                 'foobar' => [
-                    'class' => ArrayConvertingPopulator::class,
+                    'populator' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
                     'property' => [
                         'itemProperty' => 'value',
