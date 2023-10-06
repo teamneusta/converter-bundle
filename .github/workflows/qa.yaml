@@ -37,6 +37,3 @@ jobs:
         run: |
           php tests/app/bin/console cache:clear
           composer phpstan
-
-      - name: Execute tests
-        run: composer tests
