@@ -1,4 +1,4 @@
-name: test-and-qa
+name: Tests
 
 on:
   push:
@@ -11,7 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  TestAndQaJobs:
+  tests:
+    name: PHPUnit with PHP ${{ matrix.php-version }} ${{ matrix.dependencies }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -36,21 +37,10 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
-
       - name: Install dependencies
         uses: ramsey/composer-install@v2
         with:
           dependency-versions: ${{ matrix.dependencies }}
-
-      - name: Check CS-Fixer
-        run: composer cs:check
-
-      - name: Check PHPStan
-        run: |
-          php tests/app/bin/console cache:clear
-          composer phpstan
 
       - name: Execute tests
         run: composer tests
