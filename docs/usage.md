@@ -293,6 +293,10 @@ person.address.populator:
 Be aware - that both properties have the same name should not lead you think they have the same type.
 There is really an object conversion behind done by `address.converter`.
 
+If you set the `sourcePropertyName` as empty string the complete `source` object will be used for population.
+
+Especially in addition wih the `ConvertingPopulator` this is sometimes necessary.
+
 ### ArrayConvertingPopulator
 
 If you think that there is no 1:1 relation between `User` and `Address` (or corresponding Person and PersonAddress) 
