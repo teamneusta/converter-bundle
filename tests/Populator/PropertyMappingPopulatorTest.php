@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\Address;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +16,7 @@ class PropertyMappingPopulatorTest extends TestCase
 {
     use ProphecyTrait;
 
-    public function test_populate(): void
+    public function test_populate_a_certain_source_property(): void
     {
         $populator = new PropertyMappingPopulator(
             targetProperty: 'age',
@@ -91,5 +92,21 @@ class PropertyMappingPopulatorTest extends TestCase
         $populator->populate($target, $source);
 
         self::assertSame('Old City', $target->getPlaceOfResidence());
+    }
+
+    public function test_populate_whole_source_object(): void
+    {
+        $populator = new PropertyMappingPopulator('address', '');
+        $address = (new PersonAddress())
+            ->setStreet('Street')
+            ->setStreetNo('1')
+            ->setCity('Capitol City')
+            ->setPostalCode('12345');
+
+        $person = new Person();
+
+        $populator->populate($person, $address);
+
+        self::assertEquals('Street', $person->getAddress()->getStreet());
     }
 }
