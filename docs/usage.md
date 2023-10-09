@@ -151,6 +151,23 @@ with `phone` (property of the source object).
 
 > Note: the source and the target property must be of the same type for this to work.
 
+In order to set a default value for a property, you can use the `default` keyword:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+    converter:
+      person.converter:
+        properties:
+          # ...
+          phoneNumber:
+            source: phone
+            default: 0123456789
+```
+
+The converter will set the value of `phoneNumber` (property of the target object) to `0123456789` if
+the value of `phone` (property of the source object) is null. 
+
 #### Mapping context
 
 If you just want to map a single property from the context to the target without transforming it in between, you don't
