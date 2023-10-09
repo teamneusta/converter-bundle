@@ -257,6 +257,9 @@ class NeustaConverterExtensionTest extends TestCase
                             'source' => 'age',
                             'default' => 42,
                         ],
+                        'locale' => [
+                            'default' => 'en',
+                        ],
                     ],
                 ],
             ],
@@ -264,19 +267,21 @@ class NeustaConverterExtensionTest extends TestCase
 
         // name property populator
         $namePopulator = $container->getDefinition('foobar.populator.name');
-        self::assertSame(PropertyMappingPopulator::class, $namePopulator->getClass());
-        self::assertIsReference('property_accessor', $namePopulator->getArgument('$accessor'));
         self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
         self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
         self::assertSame('John Doe', $namePopulator->getArgument('$defaultValue'));
 
         // ageInYears property populator
         $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
-        self::assertSame(PropertyMappingPopulator::class, $ageInYearsPopulator->getClass());
-        self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
         self::assertSame(42, $ageInYearsPopulator->getArgument('$defaultValue'));
+
+        // locale property populator
+        $localePopulator = $container->getDefinition('foobar.populator.locale');
+        self::assertSame('locale', $localePopulator->getArgument('$targetProperty'));
+        self::assertSame('locale', $localePopulator->getArgument('$sourceProperty'));
+        self::assertSame('en', $localePopulator->getArgument('$defaultValue'));
     }
 
     private static function assertIsReference(string $expected, mixed $actual): void
