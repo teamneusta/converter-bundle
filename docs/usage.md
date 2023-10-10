@@ -166,7 +166,7 @@ neusta_converter:
 ```
 
 The converter will set the value of `phoneNumber` (property of the target object) to `0123456789` if
-the value of `phone` (property of the source object) is null. 
+the value of `phone` (property of the source object) is `null`.
 
 #### Mapping context
 
