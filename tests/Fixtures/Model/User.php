@@ -11,6 +11,7 @@ class User
     private string $lastname;
     private ?string $fullName;
     private int $ageInYears;
+    private string $email;
     private Address $address;
 
     /** @var array<string> */
@@ -82,6 +83,16 @@ class User
         $this->ageInYears = $ageInYears;
 
         return $this;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
     }
 
     public function getAddress(): Address

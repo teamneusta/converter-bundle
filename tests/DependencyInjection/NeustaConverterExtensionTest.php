@@ -55,6 +55,9 @@ class NeustaConverterExtensionTest extends TestCase
                     'properties' => [
                         'name' => null,
                         'ageInYears' => 'age',
+                        'email' => [
+                            'source' => 'mail',
+                        ],
                     ],
                 ],
             ],
@@ -67,7 +70,7 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
         self::assertIsArray($converter->getArgument('$populators'));
-        self::assertCount(2, $converter->getArgument('$populators'));
+        self::assertCount(3, $converter->getArgument('$populators'));
         self::assertIsReference('foobar.populator.name', $converter->getArgument('$populators')[0]);
         self::assertIsReference('foobar.populator.ageInYears', $converter->getArgument('$populators')[1]);
 
@@ -84,6 +87,13 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
+
+        // email property populator
+        $emailPopulator = $container->getDefinition('foobar.populator.email');
+        self::assertSame(PropertyMappingPopulator::class, $emailPopulator->getClass());
+        self::assertIsReference('property_accessor', $emailPopulator->getArgument('$accessor'));
+        self::assertSame('email', $emailPopulator->getArgument('$targetProperty'));
+        self::assertSame('mail', $emailPopulator->getArgument('$sourceProperty'));
     }
 
     public function test_with_mapped_context(): void
