@@ -38,8 +38,9 @@ final class ConvertingPopulator implements Populator
         $this->populator = new PropertyMappingPopulator(
             $targetPropertyName,
             $sourcePropertyName,
-            mapper: \Closure::fromCallable([$converter, 'convert']),
-            accessor: $accessor,
+            null,
+            \Closure::fromCallable([$converter, 'convert']),
+            $accessor,
         );
     }
 
