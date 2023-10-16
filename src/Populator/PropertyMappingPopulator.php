@@ -41,7 +41,7 @@ final class PropertyMappingPopulator implements Populator
     public function populate(object $target, object $source, object $ctx = null): void
     {
         try {
-            if (!empty($this->sourceProperty)) {
+            if ('' !== $this->sourceProperty) {
                 $sourcePropertyValue = $this->accessor->getValue($source, $this->sourceProperty);
             } else {
                 $sourcePropertyValue = $source;
