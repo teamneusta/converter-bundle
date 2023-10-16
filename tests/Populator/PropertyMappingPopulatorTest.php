@@ -107,6 +107,6 @@ class PropertyMappingPopulatorTest extends TestCase
 
         $populator->populate($person, $address);
 
-        self::assertEquals('Street', $person->getAddress()->getStreet());
+        self::assertSame($address, $person->getAddress());
     }
 }
