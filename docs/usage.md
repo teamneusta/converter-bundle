@@ -162,7 +162,7 @@ neusta_converter:
           # ...
           phoneNumber:
             source: phone
-            default: 0123456789
+            default: '0123456789'
 ```
 
 The converter will set the value of `phoneNumber` (property of the target object) to `0123456789` if
