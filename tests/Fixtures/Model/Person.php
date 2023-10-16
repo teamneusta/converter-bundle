@@ -14,6 +14,8 @@ class Person
 
     private ?string $group = null;
 
+    private ?string $mail = null;
+
     private ?PersonAddress $address = null;
 
     /** @var array<string> */

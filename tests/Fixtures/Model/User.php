@@ -9,8 +9,9 @@ class User
     private int $uuid;
     private string $firstname;
     private string $lastname;
-    private string $fullName;
+    private ?string $fullName;
     private int $ageInYears;
+    private string $email;
     private Address $address;
 
     /** @var array<string> */
@@ -60,12 +61,12 @@ class User
         return $this;
     }
 
-    public function getFullName(): string
+    public function getFullName(): ?string
     {
         return $this->fullName;
     }
 
-    public function setFullName(string $fullName): self
+    public function setFullName(?string $fullName): self
     {
         $this->fullName = $fullName;
 
@@ -82,6 +83,16 @@ class User
         $this->ageInYears = $ageInYears;
 
         return $this;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
     }
 
     public function getAddress(): Address

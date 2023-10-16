@@ -55,6 +55,9 @@ class NeustaConverterExtensionTest extends TestCase
                     'properties' => [
                         'name' => null,
                         'ageInYears' => 'age',
+                        'email' => [
+                            'source' => 'mail',
+                        ],
                     ],
                 ],
             ],
@@ -67,7 +70,7 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
         self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
         self::assertIsArray($converter->getArgument('$populators'));
-        self::assertCount(2, $converter->getArgument('$populators'));
+        self::assertCount(3, $converter->getArgument('$populators'));
         self::assertIsReference('foobar.populator.name', $converter->getArgument('$populators')[0]);
         self::assertIsReference('foobar.populator.ageInYears', $converter->getArgument('$populators')[1]);
 
@@ -84,6 +87,13 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
+
+        // email property populator
+        $emailPopulator = $container->getDefinition('foobar.populator.email');
+        self::assertSame(PropertyMappingPopulator::class, $emailPopulator->getClass());
+        self::assertIsReference('property_accessor', $emailPopulator->getArgument('$accessor'));
+        self::assertSame('email', $emailPopulator->getArgument('$targetProperty'));
+        self::assertSame('mail', $emailPopulator->getArgument('$sourceProperty'));
     }
 
     public function test_with_mapped_context(): void
@@ -240,6 +250,48 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
         self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
         self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
+    }
+
+    public function test_with_array_converting_populator_with_default_value(): void
+    {
+        $container = $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'properties' => [
+                        'name' => [
+                            'source' => null,
+                            'default' => 'John Doe',
+                        ],
+                        'ageInYears' => [
+                            'source' => 'age',
+                            'default' => 42,
+                        ],
+                        'locale' => [
+                            'default' => 'en',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        // name property populator
+        $namePopulator = $container->getDefinition('foobar.populator.name');
+        self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
+        self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
+        self::assertSame('John Doe', $namePopulator->getArgument('$defaultValue'));
+
+        // ageInYears property populator
+        $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
+        self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
+        self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
+        self::assertSame(42, $ageInYearsPopulator->getArgument('$defaultValue'));
+
+        // locale property populator
+        $localePopulator = $container->getDefinition('foobar.populator.locale');
+        self::assertSame('locale', $localePopulator->getArgument('$targetProperty'));
+        self::assertSame('locale', $localePopulator->getArgument('$sourceProperty'));
+        self::assertSame('en', $localePopulator->getArgument('$defaultValue'));
     }
 
     private static function assertIsReference(string $expected, mixed $actual): void

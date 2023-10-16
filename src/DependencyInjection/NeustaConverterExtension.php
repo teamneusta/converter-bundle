@@ -40,12 +40,13 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
-        foreach ($config['properties'] ?? [] as $targetProperty => $sourceProperty) {
+        foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
             $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
             $container->register($propertyPopulatorId, PropertyMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
-                    '$sourceProperty' => $sourceProperty ?? $targetProperty,
+                    '$sourceProperty' => $sourceConfig['source'] ?? $targetProperty,
+                    '$defaultValue' => $sourceConfig['default'] ?? null,
                     '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
                 ]);

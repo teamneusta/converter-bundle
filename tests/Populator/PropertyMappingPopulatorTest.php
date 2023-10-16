@@ -24,4 +24,15 @@ class PropertyMappingPopulatorTest extends TestCase
 
         self::assertEquals(37, $person->getAge());
     }
+
+    public function test_populate_default_value(): void
+    {
+        $populator = new PropertyMappingPopulator('fullName', 'fullName', 'default');
+        $user = (new User())->setFullName(null);
+        $person = new Person();
+
+        $populator->populate($person, $user);
+
+        self::assertSame('default', $person->getFullName());
+    }
 }
