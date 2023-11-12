@@ -81,20 +81,23 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
+        $targetProperty = array_key_first($config['property']);
+        $sourceProperty = $config['property'][$targetProperty];
+
         $container->register($id, $config['populator'])
             ->setPublic(true)
             ->setArguments(match ($config['populator']) {
                 ConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
-                    '$sourcePropertyName' => $config['property']['source'] ?? $config['property']['target'],
-                    '$targetPropertyName' => $config['property']['target'],
+                    '$targetPropertyName' => $targetProperty,
+                    '$sourcePropertyName' => $sourceProperty ?? $targetProperty,
                     '$accessor' => new Reference('property_accessor'),
                 ],
                 ArrayConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
-                    '$sourceArrayPropertyName' => $config['property']['source'] ?? $config['property']['target'],
-                    '$targetPropertyName' => $config['property']['target'],
-                    '$sourceArrayItemPropertyName' => $config['property']['source_array_item'],
+                    '$targetPropertyName' => $targetProperty,
+                    '$sourceArrayPropertyName' => (\is_array($sourceProperty) ? $sourceProperty['source'] ?? null : $sourceProperty) ?? $targetProperty,
+                    '$sourceArrayItemPropertyName' => $sourceProperty['source_array_item'] ?? null,
                     '$accessor' => new Reference('property_accessor'),
                 ],
                 default => throw new InvalidConfigurationException(sprintf('The populator "%s" is not supported.', $config['populator'])),

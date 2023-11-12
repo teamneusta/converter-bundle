@@ -111,16 +111,54 @@ final class Configuration implements ConfigurationInterface
                             ->end()
                             ->arrayNode('property')
                                 ->info('Mapping of source property to target property')
-                                ->children()
-                                    ->scalarNode('target')->isRequired()->cannotBeEmpty()->end()
-                                    ->scalarNode('source')->defaultNull()->end()
-                                    ->scalarNode('source_array_item')->defaultNull()->end()
-                                ->end()
+                                ->normalizeKeys(false)
+                                ->useAttributeAsKey('target')
+                                ->prototype('variable')->end()
                             ->end()
                         ->end()
                         ->validate()
-                            ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property']['source_array_item']))
-                            ->thenInvalid('The "property.source_array_item" option is only supported for array converting populators.')
+                            ->ifTrue(function (array $c) {
+                                if (ConvertingPopulator::class !== $c['populator']) {
+                                    return false;
+                                }
+
+                                if (1 !== count($c['property'])) {
+                                    return true;
+                                }
+
+                                $value = $c['property'][array_key_first($c['property'])];
+
+                                return null !== $value && !is_string($value);
+                            })
+                            ->thenInvalid('Converting populators must contain a mapping with one "<target>: ~" or "<target>: <source>" entry as "property".')
+                        ->end()
+                        ->validate()
+                            ->ifTrue(function (array $c) {
+                                if (ArrayConvertingPopulator::class !== $c['populator']) {
+                                    return false;
+                                }
+
+                                if (1 !== count($c['property'])) {
+                                    return true;
+                                }
+
+                                $value = $c['property'][array_key_first($c['property'])];
+
+                                if (null === $value || is_string($value)) {
+                                    return false;
+                                }
+
+                                if (!is_array($value) || [] === $value || 2 < count($value)) {
+                                    return true;
+                                }
+
+                                if (2 === count($value) && !array_key_exists('source', $value)) {
+                                    return true;
+                                }
+
+                                return empty($value['source_array_item']);
+                            })
+                            ->thenInvalid('Array converting populators must contain a mapping with one "<target>: ~", "<target>: <source>", "<target>: { source_array_item: <array item key> }", or "<target>: { source: <source>, source_array_item: <array item key> }" entry as "property".')
                         ->end()
                     ->end()
                 ->end()

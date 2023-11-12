@@ -21,5 +21,4 @@ neusta_converter:
     test.person.address.populator:
       converter: test.address.converter
       property:
-        target: address
-        source: address
+        address: ~
