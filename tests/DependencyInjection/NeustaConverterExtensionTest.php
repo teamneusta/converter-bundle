@@ -184,6 +184,24 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame('test', $populator->getArgument('$sourcePropertyName'));
     }
 
+    public function test_with_converting_populator_with_array_converting_populator_config(): void
+    {
+        $this->expectExceptionMessage('The "property.<target>.source_array_item" option is only supported for array converting populators.');
+
+        $this->buildContainer([
+            'populator' => [
+                'foobar' => [
+                    'converter' => GenericConverter::class,
+                    'property' => [
+                        'test' => [
+                            'source_array_item' => 'value',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
     public function test_with_array_converting_populator(): void
     {
         $container = $this->buildContainer([

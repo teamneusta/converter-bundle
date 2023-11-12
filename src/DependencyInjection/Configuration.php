@@ -113,52 +113,29 @@ final class Configuration implements ConfigurationInterface
                                 ->info('Mapping of source property to target property')
                                 ->normalizeKeys(false)
                                 ->useAttributeAsKey('target')
-                                ->prototype('variable')->end()
+                                ->arrayPrototype()
+                                    ->beforeNormalization()
+                                        ->ifNull()
+                                        ->then(fn () => ['source' => null, 'source_array_item' => null])
+                                    ->end()
+                                    ->beforeNormalization()
+                                        ->ifString()
+                                        ->then(fn (string $v) => ['source' => $v, 'source_array_item' => null])
+                                    ->end()
+                                    ->children()
+                                        ->scalarNode('source')
+                                            ->defaultValue(null)
+                                        ->end()
+                                        ->scalarNode('source_array_item')
+                                            ->defaultValue(null)
+                                        ->end()
+                                    ->end()
+                                ->end()
                             ->end()
                         ->end()
                         ->validate()
-                            ->ifTrue(function (array $c) {
-                                if (ConvertingPopulator::class !== $c['populator']) {
-                                    return false;
-                                }
-
-                                if (1 !== count($c['property'])) {
-                                    return true;
-                                }
-
-                                $value = $c['property'][array_key_first($c['property'])];
-
-                                return null !== $value && !is_string($value);
-                            })
-                            ->thenInvalid('Converting populators must contain a mapping with one "<target>: ~" or "<target>: <source>" entry as "property".')
-                        ->end()
-                        ->validate()
-                            ->ifTrue(function (array $c) {
-                                if (ArrayConvertingPopulator::class !== $c['populator']) {
-                                    return false;
-                                }
-
-                                if (1 !== count($c['property'])) {
-                                    return true;
-                                }
-
-                                $value = $c['property'][array_key_first($c['property'])];
-
-                                if (null === $value || is_string($value)) {
-                                    return false;
-                                }
-
-                                if (!is_array($value) || [] === $value || 2 < count($value)) {
-                                    return true;
-                                }
-
-                                if (2 === count($value) && !array_key_exists('source', $value)) {
-                                    return true;
-                                }
-
-                                return empty($value['source_array_item']);
-                            })
-                            ->thenInvalid('Array converting populators must contain a mapping with one "<target>: ~", "<target>: <source>", "<target>: { source_array_item: <array item key> }", or "<target>: { source: <source>, source_array_item: <array item key> }" entry as "property".')
+                            ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
+                            ->thenInvalid('The "property.<target>.source_array_item" option is only supported for array converting populators.')
                         ->end()
                     ->end()
                 ->end()

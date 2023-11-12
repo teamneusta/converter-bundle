@@ -90,13 +90,13 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
                     '$targetPropertyName' => $targetProperty,
-                    '$sourcePropertyName' => $sourceProperty ?? $targetProperty,
+                    '$sourcePropertyName' => $sourceProperty['source'] ?? $targetProperty,
                     '$accessor' => new Reference('property_accessor'),
                 ],
                 ArrayConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
                     '$targetPropertyName' => $targetProperty,
-                    '$sourceArrayPropertyName' => (\is_array($sourceProperty) ? $sourceProperty['source'] ?? null : $sourceProperty) ?? $targetProperty,
+                    '$sourceArrayPropertyName' => $sourceProperty['source'] ?? $targetProperty,
                     '$sourceArrayItemPropertyName' => $sourceProperty['source_array_item'] ?? null,
                     '$accessor' => new Reference('property_accessor'),
                 ],
