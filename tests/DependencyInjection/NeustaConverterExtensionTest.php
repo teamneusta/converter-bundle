@@ -139,7 +139,7 @@ class NeustaConverterExtensionTest extends TestCase
     public function test_with_converting_populator(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
                     'converter' => GenericConverter::class,
                     'property' => [
@@ -155,6 +155,7 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame(ConvertingPopulator::class, $populator->getClass());
         self::assertTrue($populator->isPublic());
         self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
+        self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
         self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
         self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
     }
@@ -162,8 +163,9 @@ class NeustaConverterExtensionTest extends TestCase
     public function test_with_array_converting_populator(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
+                    'populator' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
                     'property' => [
                         'targetTest' => 'sourceTest',
@@ -175,19 +177,20 @@ class NeustaConverterExtensionTest extends TestCase
         // converter
         $populator = $container->getDefinition('foobar');
 
-        self::assertSame(ConvertingPopulator::class, $populator->getClass());
+        self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
         self::assertTrue($populator->isPublic());
         self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
+        self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
         self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
+        self::assertSame('sourceTest', $populator->getArgument('$sourceArrayPropertyName'));
     }
 
     public function test_with_array_converting_populator_with_inner_property(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
-                    'class' => ArrayConvertingPopulator::class,
+                    'populator' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
                     'property' => [
                         'targetTest' => 'sourceTest',
@@ -207,9 +210,9 @@ class NeustaConverterExtensionTest extends TestCase
     public function test_with_array_converting_populator_with_inner_property_same_name(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
-                    'class' => ArrayConvertingPopulator::class,
+                    'populator' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
                     'property' => [
                         'test' => null, // in yaml one will write ~
@@ -224,16 +227,16 @@ class NeustaConverterExtensionTest extends TestCase
 
         self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
         self::assertSame('test', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('test', $populator->getArgument('$sourcePropertyName'));
+        self::assertSame('test', $populator->getArgument('$sourceArrayPropertyName'));
         self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
     }
 
     public function test_with_array_converting_populator_with_inner_property_first(): void
     {
         $container = $this->buildContainer([
-            'populators' => [
+            'populator' => [
                 'foobar' => [
-                    'class' => ArrayConvertingPopulator::class,
+                    'populator' => ArrayConvertingPopulator::class,
                     'converter' => GenericConverter::class,
                     'property' => [
                         'itemProperty' => 'value',
@@ -248,7 +251,7 @@ class NeustaConverterExtensionTest extends TestCase
 
         self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
         self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
+        self::assertSame('sourceTest', $populator->getArgument('$sourceArrayPropertyName'));
         self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
     }
 

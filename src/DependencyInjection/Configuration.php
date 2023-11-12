@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
-use Neusta\ConverterBundle\Populator;
+use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -92,15 +92,15 @@ final class Configuration implements ConfigurationInterface
     {
         $rootNode
             ->children()
-                ->arrayNode('populators')
+                ->arrayNode('populator')
                     ->info('Populator configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
                         ->children()
-                            ->scalarNode('class')
+                            ->scalarNode('populator')
                                 ->info('class of the "Populator" implementation')
-                                ->defaultValue(Populator\ConvertingPopulator::class)
+                                ->defaultValue(ConvertingPopulator::class)
                             ->end()
                             ->scalarNode('converter')
                                 ->info('Service id of the internal "Converter"')
@@ -112,13 +112,12 @@ final class Configuration implements ConfigurationInterface
                                 ->normalizeKeys(false)
                                 ->useAttributeAsKey('target')
                                 ->prototype('scalar')
-                                ->isRequired()
                             ->end()
                         ->end()
                     ->end()
                     ->validate()
-                        ->ifTrue(fn (array $c) => empty($c['converter']) && empty($c['property']))
-                        ->thenInvalid('A "converter" and "property" must be defined.')
+                        ->ifTrue(fn (array $c) => empty($c['property']))
+                        ->thenInvalid('At least one "property" must be defined.')
                     ->end()
                 ->end()
             ->end()
