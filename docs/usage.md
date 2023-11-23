@@ -295,7 +295,7 @@ There is really an object conversion behind done by `address.converter`.
 
 If you specify the `sourcePropertyName` as an empty string, the full `source` object is used for the population.
 
-Especially in addition wih the `ConvertingPopulator` this is sometimes necessary.
+Especially in connection with the `ConvertingPopulator` this is sometimes necessary.
 
 ### ArrayConvertingPopulator
 
