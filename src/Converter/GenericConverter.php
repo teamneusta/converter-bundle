@@ -9,8 +9,8 @@ use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\TargetFactory;
 
 /**
- * @template TSource of object
  * @template TTarget of object
+ * @template TSource of object
  * @template TContext of object|null
  *
  * @implements Converter<TSource, TTarget, TContext>
@@ -19,7 +19,7 @@ final class GenericConverter implements Converter
 {
     /**
      * @param TargetFactory<TTarget, TContext>             $factory
-     * @param array<Populator<TSource, TTarget, TContext>> $populators
+     * @param array<Populator<TTarget, TSource, TContext>> $populators
      */
     public function __construct(
         private TargetFactory $factory,

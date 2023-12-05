@@ -9,8 +9,8 @@ use Neusta\ConverterBundle\Converter\Strategy\ConverterSelector;
 use Neusta\ConverterBundle\Exception\ConverterException;
 
 /**
- * @template TSource of object
  * @template TTarget of object
+ * @template TSource of object
  * @template TContext of object|null
  *
  * @implements Converter<TSource, TTarget, TContext>
@@ -18,7 +18,7 @@ use Neusta\ConverterBundle\Exception\ConverterException;
 final class StrategicConverter implements Converter
 {
     /**
-     * @param array<string, Converter<TSource, TTarget, TContext>> $converters
+     * @param array<string, Converter<TTarget, TSource, TContext>> $converters
      * @param ConverterSelector<TSource, TContext>                 $selector
      */
     public function __construct(
