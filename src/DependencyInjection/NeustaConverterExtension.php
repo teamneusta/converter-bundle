@@ -9,6 +9,7 @@ use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -80,29 +81,26 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
-        $itemProperty = $config['property']['itemProperty'] ?? null;
-        unset($config['property']['itemProperty']);
-
         $targetProperty = array_key_first($config['property']);
-        $sourceProperty = $config['property'][$targetProperty] ?? $targetProperty;
+        $sourceProperty = $config['property'][$targetProperty];
 
         $container->register($id, $config['populator'])
             ->setPublic(true)
             ->setArguments(match ($config['populator']) {
                 ConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
-                    '$sourcePropertyName' => $sourceProperty,
                     '$targetPropertyName' => $targetProperty,
+                    '$sourcePropertyName' => $sourceProperty['source'] ?? $targetProperty,
                     '$accessor' => new Reference('property_accessor'),
                 ],
                 ArrayConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
-                    '$sourceArrayPropertyName' => $sourceProperty,
                     '$targetPropertyName' => $targetProperty,
-                    '$sourceArrayItemPropertyName' => $itemProperty,
+                    '$sourceArrayPropertyName' => $sourceProperty['source'] ?? $targetProperty,
+                    '$sourceArrayItemPropertyName' => $sourceProperty['source_array_item'] ?? null,
                     '$accessor' => new Reference('property_accessor'),
                 ],
-                default => [],
+                default => throw new InvalidConfigurationException(sprintf('The populator "%s" is not supported.', $config['populator'])),
             });
     }
 

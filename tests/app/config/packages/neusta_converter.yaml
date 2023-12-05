@@ -22,4 +22,3 @@ neusta_converter:
       converter: test.address.converter
       property:
         address: ~
-
