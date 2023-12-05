@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle;
 
 /**
- * @template TSource of object
  * @template TTarget of object
+ * @template TSource of object
  * @template TContext of object|null
  */
 interface Populator

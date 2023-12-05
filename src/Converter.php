@@ -7,8 +7,8 @@ namespace Neusta\ConverterBundle;
 use Neusta\ConverterBundle\Exception\ConverterException;
 
 /**
- * @template TSource of object
  * @template TTarget of object
+ * @template TSource of object
  * @template TContext of object|null
  */
 interface Converter
