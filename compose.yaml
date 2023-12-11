@@ -19,7 +19,6 @@ services:
     image: pimcore/pimcore:php8.2-latest
     volumes:
       - ./:/var/www/html/
-      - /home/ldschaak/.cache/composer:/.cache/composer
     environment:
       MYSQL_SERVER_VERSION: mariadb-10.11.4
     depends_on:
