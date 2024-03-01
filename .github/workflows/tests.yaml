@@ -27,6 +27,8 @@ jobs:
             dependencies: "highest"
           - php-version: "8.2"
             dependencies: "highest"
+          - php-version: "8.3"
+            dependencies: "highest"
 
     steps:
       - name: Git Checkout
