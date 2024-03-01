@@ -21,5 +21,5 @@ interface Converter
      *
      * @throws ConverterException
      */
-    public function convert(object $source, object $ctx = null): object;
+    public function convert(object $source, ?object $ctx = null): object;
 }

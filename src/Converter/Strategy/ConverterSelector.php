@@ -14,5 +14,5 @@ interface ConverterSelector
      * @param TSource  $source
      * @param TContext $ctx
      */
-    public function selectConverter(object $source, object $ctx = null): string;
+    public function selectConverter(object $source, ?object $ctx = null): string;
 }

@@ -12,7 +12,7 @@ use Neusta\ConverterBundle\TargetFactory;
  */
 class PersonFactory implements TargetFactory
 {
-    public function create(object $ctx = null): Person
+    public function create(?object $ctx = null): Person
     {
         return new Person();
     }

@@ -33,7 +33,7 @@ final class ConvertingPopulator implements Populator
         Converter $converter,
         string $sourcePropertyName,
         string $targetPropertyName,
-        PropertyAccessorInterface $accessor = null,
+        ?PropertyAccessorInterface $accessor = null,
     ) {
         $this->populator = new PropertyMappingPopulator(
             $targetPropertyName,
@@ -47,7 +47,7 @@ final class ConvertingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, object $ctx = null): void
+    public function populate(object $target, object $source, ?object $ctx = null): void
     {
         $this->populator->populate($target, $source, $ctx);
     }

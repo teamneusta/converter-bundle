@@ -30,9 +30,9 @@ final class ArrayPropertyMappingPopulator implements Populator
         private string $targetProperty,
         private string $sourceArrayProperty,
         private ?string $sourceArrayItemProperty = null,
-        \Closure $mapper = null,
-        PropertyAccessorInterface $arrayItemAccessor = null,
-        PropertyAccessorInterface $accessor = null,
+        ?\Closure $mapper = null,
+        ?PropertyAccessorInterface $arrayItemAccessor = null,
+        ?PropertyAccessorInterface $accessor = null,
     ) {
         $this->mapper = $mapper ?? static fn ($v) => $v;
         $this->arrayItemAccessor = $arrayItemAccessor ?? PropertyAccess::createPropertyAccessor();
@@ -42,7 +42,7 @@ final class ArrayPropertyMappingPopulator implements Populator
     /**
      * @throws PopulationException
      */
-    public function populate(object $target, object $source, object $ctx = null): void
+    public function populate(object $target, object $source, ?object $ctx = null): void
     {
         try {
             $unwrappedArray = array_map(

@@ -14,7 +14,7 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;
  */
 class AddressPopulator implements Populator
 {
-    public function populate(object $target, object $source, object $ctx = null): void
+    public function populate(object $target, object $source, ?object $ctx = null): void
     {
         $target->setStreet($source->getStreet());
         $target->setStreetNo($source->getStreetNo());

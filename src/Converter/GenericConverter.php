@@ -33,7 +33,7 @@ final class GenericConverter implements Converter
      *
      * @return TTarget
      */
-    public function convert(object $source, object $ctx = null): object
+    public function convert(object $source, ?object $ctx = null): object
     {
         $target = $this->factory->create($ctx);
 
