@@ -17,8 +17,8 @@ class User
     /** @var array<string> */
     private array $favouriteMovies;
 
-    /** @var array<Hobby> */
-    private array $hobbies;
+    /** @var array<Hobby>|null */
+    private ?array $hobbies;
 
     /** @var array<Phone> */
     private array $phones;
@@ -119,12 +119,12 @@ class User
         return $this;
     }
 
-    public function getHobbies(): array
+    public function getHobbies(): ?array
     {
         return $this->hobbies;
     }
 
-    public function setHobbies(array $hobbies): self
+    public function setHobbies(?array $hobbies): self
     {
         $this->hobbies = $hobbies;
 
