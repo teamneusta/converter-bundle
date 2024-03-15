@@ -48,7 +48,7 @@ final class ArrayPropertyMappingPopulator implements Populator
             $sourceArrayPropertyValues = $this->accessor->getValue($source, $this->sourceArrayProperty);
 
             $unwrappedArray = [];
-            if (is_array($sourceArrayPropertyValues) && [] !== $sourceArrayPropertyValues) {
+            if (\is_array($sourceArrayPropertyValues) && [] !== $sourceArrayPropertyValues) {
                 $unwrappedArray = array_map(
                     fn ($item) => null !== $this->sourceArrayItemProperty
                         ? $this->arrayItemAccessor->getValue($item, $this->sourceArrayItemProperty)
