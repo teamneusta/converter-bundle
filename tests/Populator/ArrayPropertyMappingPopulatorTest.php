@@ -46,4 +46,15 @@ class ArrayPropertyMappingPopulatorTest extends TestCase
 
         self::assertEquals(['reading', 'swimming', 'computers'], $person->getActivities());
     }
+
+    public function test_populateWithInnerProperty_is_null(): void
+    {
+        $populator = new ArrayPropertyMappingPopulator('activities', 'hobbies', 'label');
+        $user = (new User())->setHobbies(null);
+        $person = new Person();
+
+        $populator->populate($person, $user);
+
+        self::assertEmpty($person->getActivities());
+    }
 }

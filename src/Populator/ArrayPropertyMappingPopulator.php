@@ -45,12 +45,17 @@ final class ArrayPropertyMappingPopulator implements Populator
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
         try {
-            $unwrappedArray = array_map(
-                fn ($item) => null !== $this->sourceArrayItemProperty
-                    ? $this->arrayItemAccessor->getValue($item, $this->sourceArrayItemProperty)
-                    : $item,
-                $this->accessor->getValue($source, $this->sourceArrayProperty),
-            );
+            $sourceArrayPropertyValues = $this->accessor->getValue($source, $this->sourceArrayProperty);
+
+            $unwrappedArray = [];
+            if (\is_array($sourceArrayPropertyValues) && [] !== $sourceArrayPropertyValues) {
+                $unwrappedArray = array_map(
+                    fn ($item) => null !== $this->sourceArrayItemProperty
+                        ? $this->arrayItemAccessor->getValue($item, $this->sourceArrayItemProperty)
+                        : $item,
+                    $sourceArrayPropertyValues,
+                );
+            }
 
             $this->accessor->setValue(
                 $target,
