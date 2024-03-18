@@ -18,7 +18,7 @@ neusta_converter:
         fullName:
           source: fullName
           default: 'Hans Herrmann'
-          nullsafe: true
+          skip_null: true
         age?: ageInYears
 
     test.contactnumber.converter:

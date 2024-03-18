@@ -57,6 +57,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
                         'email' => [
                             'source' => 'mail',
                         ],
+                        'fullName?' => null,
                     ],
                 ],
             ],
@@ -71,12 +72,29 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
             new Reference('foobar.populator.ageInYears'),
             new Reference('foobar.populator.email'),
         ]);
+        $converter = $container->getDefinition('foobar');
+        self::assertSame(GenericConverter::class, $converter->getClass());
+        self::assertTrue($converter->isPublic());
+        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
+        self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
+        self::assertIsArray($converter->getArgument('$populators'));
+        self::assertCount(4, $converter->getArgument('$populators'));
+        self::assertIsReference('foobar.populator.name', $converter->getArgument('$populators')[0]);
+        self::assertIsReference('foobar.populator.ageInYears', $converter->getArgument('$populators')[1]);
 
         // name property populator
         $this->assertContainerBuilderHasService('foobar.populator.name', PropertyMappingPopulator::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$accessor', new Reference('property_accessor'));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$targetProperty', 'name');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$sourceProperty', 'name');
+
+        // name property populator
+        $fullNamePopulator = $container->getDefinition('foobar.populator.fullName');
+        self::assertSame(PropertyMappingPopulator::class, $fullNamePopulator->getClass());
+        self::assertIsReference('property_accessor', $fullNamePopulator->getArgument('$accessor'));
+        self::assertSame('fullName', $fullNamePopulator->getArgument('$targetProperty'));
+        self::assertSame('fullName', $fullNamePopulator->getArgument('$sourceProperty'));
+        self::assertTrue($fullNamePopulator->getArgument('$skip_null'));
 
         // ageInYears property populator
         $this->assertContainerBuilderHasService('foobar.populator.ageInYears', PropertyMappingPopulator::class);
