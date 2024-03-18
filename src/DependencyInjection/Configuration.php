@@ -56,7 +56,7 @@ final class Configuration implements ConfigurationInterface
                                 ->arrayPrototype()
                                     ->beforeNormalization()
                                         ->ifNull()
-                                        ->then(fn () => ['source' => null, 'default' => null, 'nullsafe' => null])
+                                        ->then(fn () => ['source' => null, 'default' => null, 'nullsafe' => false])
                                     ->end()
                                     ->beforeNormalization()
                                         ->ifString()
