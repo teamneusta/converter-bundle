@@ -75,24 +75,26 @@ class PropertyMappingPopulatorTest extends TestCase
         self::assertSame('Bremen', $person->getPlaceOfResidence());
     }
 
-    // This functionality will be automatically possible with Symfony 6.2 or higher.
-    // public function test_populate_with_dot_operator_and_null_safety(): void
-    // {
-    //    $populator = new PropertyMappingPopulator(
-    //        'placeOfResidence',
-    //        'address?.city',
-    //        null,
-    //        null,
-    //        null,
-    //        true
-    //    );
-    //    $user = (new User())->setAddress(null);
-    //
-    //    $person = new Person();
-    //    $person->setPlaceOfResidence('Old City');
-    //
-    //    $populator->populate($person, $user);
-    //
-    //    self::assertSame('Old City', $person->getPlaceOfResidence());
-    // }
+    /**
+     * @requires function \Symfony\Component\PropertyAccess\PropertyPath::isNullSafe
+     */
+    public function test_populate_with_dot_operator_and_null_safety(): void
+    {
+        $populator = new PropertyMappingPopulator(
+            'placeOfResidence',
+            'address?.city',
+            null,
+            null,
+            null,
+            true
+        );
+        $user = (new User())->setAddress(null);
+
+        $person = new Person();
+        $person->setPlaceOfResidence('Old City');
+
+        $populator->populate($person, $user);
+
+        self::assertSame('Old City', $person->getPlaceOfResidence());
+    }
 }
