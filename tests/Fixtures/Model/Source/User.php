@@ -97,7 +97,7 @@ class User
         $this->email = $email;
     }
 
-    public function getAddress(): Address
+    public function getAddress(): ?Address
     {
         return $this->address;
     }
