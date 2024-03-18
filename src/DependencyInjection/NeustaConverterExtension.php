@@ -45,7 +45,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
             $nullSafety = false;
             if (str_ends_with($targetProperty, '?')) {
                 $nullSafety = true;
-                $targetProperty = substr($targetProperty, 0, \strlen($targetProperty) - 1);
+                $targetProperty = substr($targetProperty, 0, -1);
             }
             $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
             $container->register($propertyPopulatorId, PropertyMappingPopulator::class)
