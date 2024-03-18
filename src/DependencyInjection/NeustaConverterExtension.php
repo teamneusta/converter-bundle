@@ -42,9 +42,9 @@ final class NeustaConverterExtension extends ConfigurableExtension
     private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
     {
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
-            $nullSafety = false;
+            $skip_null = false;
             if (str_ends_with($targetProperty, '?')) {
-                $nullSafety = true;
+                $skip_null = true;
                 $targetProperty = substr($targetProperty, 0, -1);
             }
             $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
@@ -55,7 +55,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     '$defaultValue' => $sourceConfig['default'] ?? null,
                     '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
-                    '$nullSafety' => $sourceConfig['nullsafe'] ?? $nullSafety,
+                    '$skip_null' => $sourceConfig['skip_null'] || $skip_null,
                 ]);
         }
 
