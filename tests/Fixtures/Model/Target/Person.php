@@ -18,6 +18,8 @@ class Person
 
     private ?PersonAddress $address = null;
 
+    private ?string $placeOfResidence = null;
+
     /** @var array<string> */
     private array $favouriteMovies;
 
@@ -71,6 +73,18 @@ class Person
     public function setAddress(?PersonAddress $address): self
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    public function getPlaceOfResidence(): ?string
+    {
+        return $this->placeOfResidence;
+    }
+
+    public function setPlaceOfResidence(?string $placeOfResidence): self
+    {
+        $this->placeOfResidence = $placeOfResidence;
 
         return $this;
     }

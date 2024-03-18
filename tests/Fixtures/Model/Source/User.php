@@ -12,9 +12,9 @@ class User
     private string $firstname;
     private string $lastname;
     private ?string $fullName;
-    private int $ageInYears;
+    private ?int $ageInYears;
     private string $email;
-    private Address $address;
+    private ?Address $address;
 
     /** @var array<string> */
     private array $favouriteMovies;
@@ -75,12 +75,12 @@ class User
         return $this;
     }
 
-    public function getAgeInYears(): int
+    public function getAgeInYears(): ?int
     {
         return $this->ageInYears;
     }
 
-    public function setAgeInYears($ageInYears): self
+    public function setAgeInYears(?int $ageInYears): self
     {
         $this->ageInYears = $ageInYears;
 
@@ -102,7 +102,7 @@ class User
         return $this->address;
     }
 
-    public function setAddress(Address $address): self
+    public function setAddress(?Address $address): self
     {
         $this->address = $address;
 
