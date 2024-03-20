@@ -88,7 +88,7 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertIsReference('property_accessor', $fullNamePopulator->getArgument('$accessor'));
         self::assertSame('fullName', $fullNamePopulator->getArgument('$targetProperty'));
         self::assertSame('fullName', $fullNamePopulator->getArgument('$sourceProperty'));
-        self::assertTrue($fullNamePopulator->getArgument('$skip_null'));
+        self::assertTrue($fullNamePopulator->getArgument('$skipNull'));
 
         // ageInYears property populator
         $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
