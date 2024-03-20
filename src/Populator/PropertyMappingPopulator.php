@@ -31,7 +31,7 @@ final class PropertyMappingPopulator implements Populator
         private mixed $defaultValue = null,
         ?\Closure $mapper = null,
         ?PropertyAccessorInterface $accessor = null,
-        private bool $skip_null = false,
+        private bool $skipNull = false,
     ) {
         $this->mapper = $mapper ?? static fn ($v) => $v;
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();
@@ -45,7 +45,7 @@ final class PropertyMappingPopulator implements Populator
         try {
             $value = $this->accessor->getValue($source, $this->sourceProperty) ?? $this->defaultValue;
 
-            if (!$this->skip_null || (null !== $value)) {
+            if (!$this->skipNull || (null !== $value)) {
                 $this->accessor->setValue($target, $this->targetProperty, ($this->mapper)($value, $ctx));
             }
         } catch (\Throwable $exception) {
