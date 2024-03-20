@@ -3,22 +3,25 @@
 declare(strict_types=1);
 
 use Neusta\ConverterBundle\NeustaConverterBundle;
-use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
-use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\HttpKernel\Kernel;
 
-class TestKernel extends Kernel
+final class TestKernel extends \Nyholm\BundleTest\TestKernel
 {
-    use MicroKernelTrait;
+    private ?string $testProjectDir = null;
 
-    public function registerBundles(): iterable
+    public function __construct(string $environment, bool $debug)
     {
-        yield new FrameworkBundle();
-        yield new NeustaConverterBundle();
+        parent::__construct($environment, $debug);
+
+        $this->addTestBundle(NeustaConverterBundle::class);
     }
 
     public function getProjectDir(): string
     {
-        return __DIR__;
+        return $this->testProjectDir ?? __DIR__;
+    }
+
+    public function setTestProjectDir($projectDir): void
+    {
+        $this->testProjectDir = $projectDir;
     }
 }

@@ -4,27 +4,23 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator;
 
-use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
+use TestKernel;
 
-class PropertyMappingPopulatorIntegrationTest extends KernelTestCase
+class PropertyMappingPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
-    private PropertyMappingPopulator $populator;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->populator = self::getContainer()->get('test.person.fullName.populator');
-    }
-
     public function testPopulate(): void
     {
+        self::bootKernel(['config' => function(TestKernel $kernel) {
+            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/full_name.yaml');
+        }]);
+
         $user = (new User())->setFullName('Max Mustermann');
         $person = new Person();
 
-        $this->populator->populate($person, $user);
+        self::getContainer()->get('test.person.fullName.populator')->populate($person, $user);
 
         self::assertEquals('Max Mustermann', $person->getFullName());
     }

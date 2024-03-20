@@ -5,7 +5,4 @@ parameters:
 	paths:
 		- src
 
-	symfony:
-		containerXmlPath: tests/app/var/cache/test/TestKernelTestDebugContainer.xml
-
 	checkGenericClassInNonGenericObjectType: false

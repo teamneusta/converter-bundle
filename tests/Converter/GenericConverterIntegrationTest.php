@@ -8,16 +8,20 @@ use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
+use TestKernel;
 
-class GenericConverterIntegrationTest extends KernelTestCase
+class GenericConverterIntegrationTest extends ConfigurableKernelTestCase
 {
     /** @var Converter<User, Person, GenericContext> */
     private Converter $converter;
 
     protected function setUp(): void
     {
-        parent::setUp();
+        self::bootKernel(['config' => function(TestKernel $kernel) {
+            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/person.yaml');
+        }]);
+
         $this->converter = self::getContainer()->get('test.person.converter');
     }
 
@@ -28,7 +32,7 @@ class GenericConverterIntegrationTest extends KernelTestCase
         // Test Execution
         $target = $this->converter->convert($source);
         // Test Assertion
-        self::assertEquals('Max Mustermann', $target->getFullName());
+        self::assertSame('Max Mustermann', $target->getFullName());
     }
 
     public function testConvertWithContext(): void
@@ -39,6 +43,6 @@ class GenericConverterIntegrationTest extends KernelTestCase
         // Test Execution
         $target = $this->converter->convert($source, $ctx);
         // Test Assertion
-        self::assertEquals('Max, Mustermann', $target->getFullName());
+        self::assertSame('Max, Mustermann', $target->getFullName());
     }
 }

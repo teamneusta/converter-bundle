@@ -4,24 +4,20 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator;
 
-use Neusta\ConverterBundle\Populator\ArrayPropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Hobby;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
+use TestKernel;
 
-class ArrayPropertyMappingPopulatorIntegrationTest extends KernelTestCase
+class ArrayPropertyMappingPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
-    private ArrayPropertyMappingPopulator $populator;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->populator = self::getContainer()->get('test.person.activities.populator');
-    }
-
     public function testPopulate(): void
     {
+        self::bootKernel(['config' => function(TestKernel $kernel) {
+            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/activities.yaml');
+        }]);
+
         $user = (new User())->setHobbies([
             (new Hobby())->setLabel('reading'),
             (new Hobby())->setLabel('swimming'),
@@ -29,15 +25,15 @@ class ArrayPropertyMappingPopulatorIntegrationTest extends KernelTestCase
         ]);
         $person = new Person();
 
-        $this->populator->populate($person, $user);
+        self::getContainer()->get('test.person.activities.populator')->populate($person, $user);
 
-        self::assertEquals(
+        self::assertSame(
             [
                 'reading',
                 'swimming',
                 'computers',
             ],
-            $person->getActivities()
+            $person->getActivities(),
         );
     }
 }
