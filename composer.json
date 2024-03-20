@@ -1,8 +1,8 @@
 {
   "name": "teamneusta/converter-bundle",
-  "type": "symfony-bundle",
   "description": "Allows using the Converter & Populator design pattern for transformations from one universe to another",
   "license": "MIT",
+  "type": "symfony-bundle",
   "authors": [
     {
       "name": "team neusta GmbH",
@@ -17,12 +17,6 @@
       "role": "Developer"
     }
   ],
-  "config": {
-    "sort-packages": true,
-    "allow-plugins": {
-      "phpstan/extension-installer": true
-    }
-  },
   "require": {
     "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0",
     "symfony/config": "^5.4 || ^6.2 || ^7.0",
@@ -32,7 +26,8 @@
     "symfony/property-access": "^5.4 || ^6.2 || ^7.0"
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^v3.11",
+    "ergebnis/composer-normalize": "^2.42",
+    "friendsofphp/php-cs-fixer": "^3.11",
     "jangregor/phpstan-prophecy": "^1.0",
     "phpspec/prophecy-phpunit": "^2.0",
     "phpstan/extension-installer": "^1.1",
@@ -58,26 +53,33 @@
       "tests/app/TestKernel.php"
     ]
   },
+  "config": {
+    "allow-plugins": {
+      "ergebnis/composer-normalize": true,
+      "phpstan/extension-installer": true
+    },
+    "sort-packages": true
+  },
   "scripts": {
     "cs:check": "@cs:fix --dry-run",
     "cs:check:gitlab-ci": "php-cs-fixer fix --dry-run --ansi --verbose --diff --format=gitlab > php-cs-fixer.json",
     "cs:fix": "php-cs-fixer fix --ansi --verbose --diff",
+    "deptrac:analyse": "deptrac --config-file=depfile.yaml",
+    "deptrac:analyse:visual": "deptrac --formatter=graphviz-html --output=deptrac.analyse-result.html --config-file=depfile.yaml",
     "phpstan": "phpstan analyse --ansi",
     "phpstan:gitlab-ci": "phpstan analyse --ansi --no-interaction --no-progress --error-format=gitlab > phpstan-report.json",
     "tests": "phpunit",
-    "tests:coverage:gitlab-ci": "phpunit --colors=never --coverage-text --coverage-cobertura .coverage/cobertura.xml --log-junit .coverage/junit.xml",
-    "deptrac:analyse": "deptrac --config-file=depfile.yaml",
-    "deptrac:analyse:visual": "deptrac --formatter=graphviz-html --output=deptrac.analyse-result.html --config-file=depfile.yaml"
+    "tests:coverage:gitlab-ci": "phpunit --colors=never --coverage-text --coverage-cobertura .coverage/cobertura.xml --log-junit .coverage/junit.xml"
   },
   "scripts-descriptions": {
     "cs:check": "Checks code style (but doesn't fix anything)",
     "cs:check:gitlab-ci": "Checks code style and redirects the output into a GitLab readable file",
     "cs:fix": "Checks and fixes code style",
+    "deptrac:analyse": "Analyse your dependencies and follow the pre-defined rules and layers",
+    "deptrac:analyse:visual": "Visualize your dependencies and follow the pre-defined rules and layers",
     "phpstan": "Checks for code smells",
     "phpstan:gitlab-ci": "Checks for code smells and redirects the output into a GitLab readable file",
     "tests": "Run all phpunit tests",
-    "tests:coverage:gitlab-ci": "Run all phpunit tests and create coverage reports",
-    "deptrac:analyse": "Analyse your dependencies and follow the pre-defined rules and layers",
-    "deptrac:analyse:visual": "Visualize your dependencies and follow the pre-defined rules and layers"
+    "tests:coverage:gitlab-ci": "Run all phpunit tests and create coverage reports"
   }
 }
