@@ -29,6 +29,7 @@
     "ergebnis/composer-normalize": "^2.42",
     "friendsofphp/php-cs-fixer": "^3.11",
     "jangregor/phpstan-prophecy": "^1.0",
+    "matthiasnoback/symfony-dependency-injection-test": "^5.1",
     "nyholm/symfony-bundle-test": "^3.0",
     "phpspec/prophecy-phpunit": "^2.0",
     "phpstan/extension-installer": "^1.1",
