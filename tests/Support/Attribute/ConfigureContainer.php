@@ -10,7 +10,7 @@ final class ConfigureContainer
      * @param string $config path to a config file
      */
     public function __construct(
-        private string $config,
+        private readonly string $config,
     ) {
     }
 
