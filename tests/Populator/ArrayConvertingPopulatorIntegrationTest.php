@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator;
 
+use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Phone;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
-use TestKernel;
+use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 class ArrayConvertingPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
+    #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/contact_numbers.yaml')]
     public function testPopulate(): void
     {
-        self::bootKernel(['config' => function(TestKernel $kernel) {
-            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/contact_numbers.yaml');
-        }]);
-
         $phone1 = '0171 2456543';
         $phone2 = '0172 2456543';
         $phone3 = '0421 2456543';

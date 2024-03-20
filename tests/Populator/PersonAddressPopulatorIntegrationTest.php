@@ -5,24 +5,18 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Exception\PopulationException;
+use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Address;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\UnknownType;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
-use TestKernel;
+use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
+#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/person.yaml')]
+#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/address.yaml')]
 class PersonAddressPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
-    protected function setUp(): void
-    {
-        self::bootKernel(['config' => function(TestKernel $kernel) {
-            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/person.yaml');
-            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/address.yaml');
-        }]);
-    }
-
     public function testPopulate_regular_case(): void
     {
         $user = (new User())->setAddress((new Address())

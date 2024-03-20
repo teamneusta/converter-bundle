@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator;
 
+use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Hobby;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
-use TestKernel;
+use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 class ArrayPropertyMappingPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
+    #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/activities.yaml')]
     public function testPopulate(): void
     {
-        self::bootKernel(['config' => function(TestKernel $kernel) {
-            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/activities.yaml');
-        }]);
-
         $user = (new User())->setHobbies([
             (new Hobby())->setLabel('reading'),
             (new Hobby())->setLabel('swimming'),

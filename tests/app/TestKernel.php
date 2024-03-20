@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Neusta\ConverterBundle\NeustaConverterBundle;
 
-final class TestKernel extends \Nyholm\BundleTest\TestKernel
+final class TestKernel extends Nyholm\BundleTest\TestKernel
 {
     private ?string $testProjectDir = null;
 

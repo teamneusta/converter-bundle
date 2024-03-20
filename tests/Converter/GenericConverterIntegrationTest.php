@@ -4,33 +4,20 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Converter;
 
-use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
-use TestKernel;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
+use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
+#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/person.yaml')]
 class GenericConverterIntegrationTest extends ConfigurableKernelTestCase
 {
-    /** @var Converter<User, Person, GenericContext> */
-    private Converter $converter;
-
-    protected function setUp(): void
-    {
-        self::bootKernel(['config' => function(TestKernel $kernel) {
-            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/person.yaml');
-        }]);
-
-        $this->converter = self::getContainer()->get('test.person.converter');
-    }
-
     public function testConvert(): void
     {
         // Test Fixture
         $source = (new User())->setFirstname('Max')->setLastname('Mustermann');
         // Test Execution
-        $target = $this->converter->convert($source);
+        $target = self::getContainer()->get('test.person.converter')->convert($source);
         // Test Assertion
         self::assertSame('Max Mustermann', $target->getFullName());
     }
@@ -41,7 +28,7 @@ class GenericConverterIntegrationTest extends ConfigurableKernelTestCase
         $source = (new User())->setFirstname('Max')->setLastname('Mustermann');
         $ctx = (new GenericContext())->setValue('separator', ', ');
         // Test Execution
-        $target = $this->converter->convert($source, $ctx);
+        $target = self::getContainer()->get('test.person.converter')->convert($source, $ctx);
         // Test Assertion
         self::assertSame('Max, Mustermann', $target->getFullName());
     }

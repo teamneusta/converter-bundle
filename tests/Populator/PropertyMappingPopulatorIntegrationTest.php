@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator;
 
+use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
-use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
-use TestKernel;
+use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 class PropertyMappingPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
+    #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/full_name.yaml')]
     public function testPopulate(): void
     {
-        self::bootKernel(['config' => function(TestKernel $kernel) {
-            $kernel->addTestConfig(__DIR__ . '/../Fixtures/Config/full_name.yaml');
-        }]);
-
         $user = (new User())->setFullName('Max Mustermann');
         $person = new Person();
 
