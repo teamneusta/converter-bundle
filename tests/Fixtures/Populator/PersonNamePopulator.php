@@ -6,8 +6,8 @@ namespace Neusta\ConverterBundle\Tests\Fixtures\Populator;
 
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Populator;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 
 /**
  * @implements Populator<User, Person, GenericContext>

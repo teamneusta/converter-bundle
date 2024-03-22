@@ -6,11 +6,11 @@ namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Address;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\Address;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\PersonAddress;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\UnknownType;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/person.yaml')]
