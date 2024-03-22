@@ -1,0 +1,17 @@
+neusta_converter:
+  converter:
+    test.contactnumber.converter:
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\ContactNumberFactory
+      properties:
+        phoneNumber: number
+
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\ContactNumberFactory: ~
+
+  test.person.contactnumbers.populator:
+    public: true
+    parent: 'neusta_converter.array_converting_populator'
+    arguments:
+      $converter: '@test.contactnumber.converter'
+      $sourceArrayPropertyName: 'phones'
+      $targetPropertyName: 'contactNumbers'

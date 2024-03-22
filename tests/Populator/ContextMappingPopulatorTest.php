@@ -7,8 +7,8 @@ namespace Neusta\ConverterBundle\Tests\Populator;
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use PHPUnit\Framework\TestCase;
 
 class ContextMappingPopulatorTest extends TestCase

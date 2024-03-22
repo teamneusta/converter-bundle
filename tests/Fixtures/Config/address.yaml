@@ -1,0 +1,34 @@
+neusta_converter:
+  populator:
+    test.person.address.populator:
+      converter: test.address.converter
+      property:
+        address: ~
+
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\AddressFactory: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator: ~
+
+  test.address.converter:
+    public: true
+    parent: 'neusta_converter.generic_converter'
+    arguments:
+      $factory: '@Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\AddressFactory'
+      $populators:
+        - '@Neusta\ConverterBundle\Tests\Fixtures\Populator\AddressPopulator'
+
+  test.person.wrong.source.type.populator:
+    public: true
+    parent: 'neusta_converter.converting_populator'
+    arguments:
+      $converter: '@test.address.converter'
+      $sourcePropertyName: 'fieldWithUnknownType'
+      $targetPropertyName: 'address'
+
+  test.person.wrong.converter.populator:
+    public: true
+    parent: 'neusta_converter.converting_populator'
+    arguments:
+      $converter: '@test.person.converter' # wrong converter for testing
+      $sourcePropertyName: 'address'
+      $targetPropertyName: 'address'

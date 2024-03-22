@@ -4,27 +4,31 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
+use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
-use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\TypedReference;
 
-class NeustaConverterExtensionTest extends TestCase
+class NeustaConverterExtensionTest extends AbstractExtensionTestCase
 {
+    protected function getContainerExtensions(): array
+    {
+        return [
+            new NeustaConverterExtension(),
+        ];
+    }
+
     public function test_with_generic_converter(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'converter' => [
                 'foobar' => [
                     'target_factory' => PersonFactory::class,
@@ -35,20 +39,15 @@ class NeustaConverterExtensionTest extends TestCase
             ],
         ]);
 
-        // converter
-        $converter = $container->getDefinition('foobar');
-        self::assertSame(GenericConverter::class, $converter->getClass());
-        self::assertTrue($converter->isPublic());
-        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
-        self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
-        self::assertIsArray($converter->getArgument('$populators'));
-        self::assertCount(1, $converter->getArgument('$populators'));
-        self::assertIsReference(PersonNamePopulator::class, $converter->getArgument('$populators')[0]);
+        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
+        $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [new Reference(PersonNamePopulator::class)]);
     }
 
     public function test_with_mapped_properties(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'converter' => [
                 'foobar' => [
                     'target_factory' => PersonFactory::class,
@@ -64,41 +63,37 @@ class NeustaConverterExtensionTest extends TestCase
         ]);
 
         // converter
-        $converter = $container->getDefinition('foobar');
-        self::assertSame(GenericConverter::class, $converter->getClass());
-        self::assertTrue($converter->isPublic());
-        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
-        self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
-        self::assertIsArray($converter->getArgument('$populators'));
-        self::assertCount(3, $converter->getArgument('$populators'));
-        self::assertIsReference('foobar.populator.name', $converter->getArgument('$populators')[0]);
-        self::assertIsReference('foobar.populator.ageInYears', $converter->getArgument('$populators')[1]);
+        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
+        $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [
+            new Reference('foobar.populator.name'),
+            new Reference('foobar.populator.ageInYears'),
+            new Reference('foobar.populator.email'),
+        ]);
 
         // name property populator
-        $namePopulator = $container->getDefinition('foobar.populator.name');
-        self::assertSame(PropertyMappingPopulator::class, $namePopulator->getClass());
-        self::assertIsReference('property_accessor', $namePopulator->getArgument('$accessor'));
-        self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
-        self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
+        $this->assertContainerBuilderHasService('foobar.populator.name', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$targetProperty', 'name');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$sourceProperty', 'name');
 
         // ageInYears property populator
-        $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
-        self::assertSame(PropertyMappingPopulator::class, $ageInYearsPopulator->getClass());
-        self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
-        self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
-        self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
+        $this->assertContainerBuilderHasService('foobar.populator.ageInYears', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$targetProperty', 'ageInYears');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$sourceProperty', 'age');
 
         // email property populator
-        $emailPopulator = $container->getDefinition('foobar.populator.email');
-        self::assertSame(PropertyMappingPopulator::class, $emailPopulator->getClass());
-        self::assertIsReference('property_accessor', $emailPopulator->getArgument('$accessor'));
-        self::assertSame('email', $emailPopulator->getArgument('$targetProperty'));
-        self::assertSame('mail', $emailPopulator->getArgument('$sourceProperty'));
+        $this->assertContainerBuilderHasService('foobar.populator.email', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$targetProperty', 'email');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$sourceProperty', 'mail');
     }
 
     public function test_with_mapped_context(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'converter' => [
                 'foobar' => [
                     'target_factory' => PersonFactory::class,
@@ -111,34 +106,30 @@ class NeustaConverterExtensionTest extends TestCase
         ]);
 
         // converter
-        $converter = $container->getDefinition('foobar');
-        self::assertSame(GenericConverter::class, $converter->getClass());
-        self::assertTrue($converter->isPublic());
-        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
-        self::assertIsReference(PersonFactory::class, $converter->getArgument('$factory'));
-        self::assertIsArray($converter->getArgument('$populators'));
-        self::assertCount(2, $converter->getArgument('$populators'));
-        self::assertIsReference('foobar.populator.context.name', $converter->getArgument('$populators')[0]);
-        self::assertIsReference('foobar.populator.context.ageInYears', $converter->getArgument('$populators')[1]);
+        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
+        $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [
+            new Reference('foobar.populator.context.name'),
+            new Reference('foobar.populator.context.ageInYears'),
+        ]);
 
         // name context populator
-        $namePopulator = $container->getDefinition('foobar.populator.context.name');
-        self::assertSame(ContextMappingPopulator::class, $namePopulator->getClass());
-        self::assertIsReference('property_accessor', $namePopulator->getArgument('$accessor'));
-        self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
-        self::assertSame('name', $namePopulator->getArgument('$contextProperty'));
+        $this->assertContainerBuilderHasService('foobar.populator.context.name', ContextMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.name', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.name', '$targetProperty', 'name');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.name', '$contextProperty', 'name');
 
         // ageInYears context populator
-        $ageInYearsPopulator = $container->getDefinition('foobar.populator.context.ageInYears');
-        self::assertSame(ContextMappingPopulator::class, $ageInYearsPopulator->getClass());
-        self::assertIsReference('property_accessor', $ageInYearsPopulator->getArgument('$accessor'));
-        self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
-        self::assertSame('age', $ageInYearsPopulator->getArgument('$contextProperty'));
+        $this->assertContainerBuilderHasService('foobar.populator.context.ageInYears', ContextMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$targetProperty', 'ageInYears');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
     }
 
     public function test_with_converting_populator(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'populator' => [
                 'foobar' => [
                     'converter' => GenericConverter::class,
@@ -149,20 +140,16 @@ class NeustaConverterExtensionTest extends TestCase
             ],
         ]);
 
-        // converter
-        $populator = $container->getDefinition('foobar');
-
-        self::assertSame(ConvertingPopulator::class, $populator->getClass());
-        self::assertTrue($populator->isPublic());
-        self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
-        self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
-        self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('sourceTest', $populator->getArgument('$sourcePropertyName'));
+        // populator
+        $this->assertContainerBuilderHasPublicService('foobar', ConvertingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourcePropertyName', 'sourceTest');
     }
 
     public function test_with_converting_populator_without_source_property_config(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'populator' => [
                 'foobar' => [
                     'converter' => GenericConverter::class,
@@ -173,22 +160,18 @@ class NeustaConverterExtensionTest extends TestCase
             ],
         ]);
 
-        // converter
-        $populator = $container->getDefinition('foobar');
-
-        self::assertSame(ConvertingPopulator::class, $populator->getClass());
-        self::assertTrue($populator->isPublic());
-        self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
-        self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
-        self::assertSame('test', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('test', $populator->getArgument('$sourcePropertyName'));
+        // populator
+        $this->assertContainerBuilderHasPublicService('foobar', ConvertingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourcePropertyName', 'test');
     }
 
     public function test_with_converting_populator_with_array_converting_populator_config(): void
     {
         $this->expectExceptionMessage('The "property.<target>.source_array_item" option is only supported for array converting populators.');
 
-        $this->buildContainer([
+        $this->load([
             'populator' => [
                 'foobar' => [
                     'converter' => GenericConverter::class,
@@ -204,7 +187,7 @@ class NeustaConverterExtensionTest extends TestCase
 
     public function test_with_array_converting_populator(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'populator' => [
                 'foobar' => [
                     'populator' => ArrayConvertingPopulator::class,
@@ -216,20 +199,16 @@ class NeustaConverterExtensionTest extends TestCase
             ],
         ]);
 
-        // converter
-        $populator = $container->getDefinition('foobar');
-
-        self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
-        self::assertTrue($populator->isPublic());
-        self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
-        self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
-        self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('sourceTest', $populator->getArgument('$sourceArrayPropertyName'));
+        // populator
+        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'sourceTest');
     }
 
     public function test_with_array_converting_populator_without_source_property_config(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'populator' => [
                 'foobar' => [
                     'populator' => ArrayConvertingPopulator::class,
@@ -241,20 +220,16 @@ class NeustaConverterExtensionTest extends TestCase
             ],
         ]);
 
-        // converter
-        $populator = $container->getDefinition('foobar');
-
-        self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
-        self::assertTrue($populator->isPublic());
-        self::assertInstanceOf(TypedReference::class, $populator->getArgument('$converter'));
-        self::assertSame(GenericConverter::class, (string) $populator->getArgument('$converter'));
-        self::assertSame('test', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('test', $populator->getArgument('$sourceArrayPropertyName'));
+        // populator
+        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
     }
 
     public function test_with_array_converting_populator_with_inner_property(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'populator' => [
                 'foobar' => [
                     'populator' => ArrayConvertingPopulator::class,
@@ -269,18 +244,17 @@ class NeustaConverterExtensionTest extends TestCase
             ],
         ]);
 
-        // converter
-        $populator = $container->getDefinition('foobar');
-
-        self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
-        self::assertSame('targetTest', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('sourceTest', $populator->getArgument('$sourceArrayPropertyName'));
-        self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
+        // populator
+        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'sourceTest');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
     }
 
     public function test_with_array_converting_populator_with_inner_property_and_empty_source(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'populator' => [
                 'foobar' => [
                     'populator' => ArrayConvertingPopulator::class,
@@ -295,18 +269,17 @@ class NeustaConverterExtensionTest extends TestCase
             ],
         ]);
 
-        // converter
-        $populator = $container->getDefinition('foobar');
-
-        self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
-        self::assertSame('test', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('test', $populator->getArgument('$sourceArrayPropertyName'));
-        self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
+        // populator
+        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
     }
 
     public function test_with_array_converting_populator_with_inner_property_and_missing_source_property_config(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'populator' => [
                 'foobar' => [
                     'populator' => ArrayConvertingPopulator::class,
@@ -320,18 +293,17 @@ class NeustaConverterExtensionTest extends TestCase
             ],
         ]);
 
-        // converter
-        $populator = $container->getDefinition('foobar');
-
-        self::assertSame(ArrayConvertingPopulator::class, $populator->getClass());
-        self::assertSame('test', $populator->getArgument('$targetPropertyName'));
-        self::assertSame('test', $populator->getArgument('$sourceArrayPropertyName'));
-        self::assertSame('value', $populator->getArgument('$sourceArrayItemPropertyName'));
+        // populator
+        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
     }
 
     public function test_with_array_converting_populator_with_default_value(): void
     {
-        $container = $this->buildContainer([
+        $this->load([
             'converter' => [
                 'foobar' => [
                     'target_factory' => PersonFactory::class,
@@ -353,49 +325,36 @@ class NeustaConverterExtensionTest extends TestCase
         ]);
 
         // name property populator
-        $namePopulator = $container->getDefinition('foobar.populator.name');
-        self::assertSame('name', $namePopulator->getArgument('$targetProperty'));
-        self::assertSame('name', $namePopulator->getArgument('$sourceProperty'));
-        self::assertSame('John Doe', $namePopulator->getArgument('$defaultValue'));
+        $this->assertContainerBuilderHasService('foobar.populator.name', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$targetProperty', 'name');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$sourceProperty', 'name');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$defaultValue', 'John Doe');
 
         // ageInYears property populator
-        $ageInYearsPopulator = $container->getDefinition('foobar.populator.ageInYears');
-        self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
-        self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
-        self::assertSame(42, $ageInYearsPopulator->getArgument('$defaultValue'));
+        $this->assertContainerBuilderHasService('foobar.populator.ageInYears', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$targetProperty', 'ageInYears');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$sourceProperty', 'age');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$defaultValue', 42);
 
         // locale property populator
-        $localePopulator = $container->getDefinition('foobar.populator.locale');
-        self::assertSame('locale', $localePopulator->getArgument('$targetProperty'));
-        self::assertSame('locale', $localePopulator->getArgument('$sourceProperty'));
-        self::assertSame('en', $localePopulator->getArgument('$defaultValue'));
+        $this->assertContainerBuilderHasService('foobar.populator.locale', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$targetProperty', 'locale');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$sourceProperty', 'locale');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$defaultValue', 'en');
     }
 
-    private static function assertIsReference(string $expected, mixed $actual): void
+    /**
+     * Assert that the ContainerBuilder for this test has a public service definition with the given id and class.
+     */
+    protected function assertContainerBuilderHasPublicService(string $serviceId, ?string $expectedClass = null): void
     {
-        self::assertInstanceOf(Reference::class, $actual);
-        self::assertSame($expected, (string) $actual);
-    }
-
-    private function buildContainer(array $extensionConfig): ContainerBuilder
-    {
-        $container = new ContainerBuilder(new ParameterBag([
-            'kernel.debug' => true,
-            'kernel.bundles' => ['NeustaConverterBundle' => NeustaConverterBundle::class],
-        ]));
-
-        $container->registerExtension(new NeustaConverterExtension());
-        $container->loadFromExtension('neusta_converter', $extensionConfig);
-
-        $container->getCompilerPassConfig()->setOptimizationPasses([]);
-        $container->getCompilerPassConfig()->setRemovingPasses([]);
-        $container->getCompilerPassConfig()->setAfterRemovingPasses([]);
-
-        $bundle = new NeustaConverterBundle();
-        $bundle->build($container);
-
-        $container->compile();
-
-        return $container;
+        $this->assertContainerBuilderHasService($serviceId, $expectedClass);
+        $this->assertTrue(
+            $this->container->getDefinition('foobar')->isPublic(),
+            sprintf('service definition "%s" is "public"', $serviceId),
+        );
     }
 }

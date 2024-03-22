@@ -2,7 +2,7 @@ neusta_converter:
   converter:
     test.person.converter:
 #      converter: Neusta\ConverterBundle\Converter\GenericConverter
-      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
       populators:
         - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
 #      properties:
@@ -12,13 +12,6 @@ neusta_converter:
 #        group: ~ # same property name
 #        locale: language # different property names
 
-    test.contactnumber.converter:
-      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\ContactNumberFactory
-      properties:
-        phoneNumber: number
-
-  populator:
-    test.person.address.populator:
-      converter: test.address.converter
-      property:
-        address: ~
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~

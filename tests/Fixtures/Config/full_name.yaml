@@ -1,0 +1,7 @@
+services:
+  test.person.fullName.populator:
+    public: true
+    parent: 'neusta_converter.property_mapping_populator'
+    arguments:
+      $targetProperty: 'fullName'
+      $sourceProperty: 'fullName'
