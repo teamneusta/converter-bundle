@@ -1,12 +1,12 @@
 neusta_converter:
   converter:
     test.contactnumber.converter:
-      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\ContactNumberFactory
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\ContactNumberFactory
       properties:
         phoneNumber: number
 
 services:
-  Neusta\ConverterBundle\Tests\Fixtures\Model\ContactNumberFactory: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\ContactNumberFactory: ~
 
   test.person.contactnumbers.populator:
     public: true

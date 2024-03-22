@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/person.yaml')]

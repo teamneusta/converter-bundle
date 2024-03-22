@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Tests\Fixtures\Model;
+namespace Neusta\ConverterBundle\Tests\Fixtures\Model\Source;
 
 class Hobby
 {

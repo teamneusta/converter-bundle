@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Populator\ArrayPropertyMappingPopulator;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Hobby;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Person;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\Hobby;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
