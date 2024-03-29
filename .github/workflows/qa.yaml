@@ -40,3 +40,6 @@ jobs:
         run: |
           php tests/app/bin/console cache:clear
           composer phpstan
+
+      - name: Check Symfony YAML Config
+        run: composer yaml:lint
