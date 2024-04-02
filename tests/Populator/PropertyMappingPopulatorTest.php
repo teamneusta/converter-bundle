@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\Address;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\Address;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 

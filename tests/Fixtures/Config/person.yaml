@@ -13,7 +13,7 @@ neusta_converter:
 #        locale: language # different property names
 
     test.person.converter.extended:
-      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
       properties:
         fullName:
           source: fullName
