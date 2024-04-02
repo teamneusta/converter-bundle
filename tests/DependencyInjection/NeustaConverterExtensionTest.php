@@ -57,6 +57,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
                         'email' => [
                             'source' => 'mail',
                         ],
+                        'fullName?' => null,
                     ],
                 ],
             ],
@@ -70,6 +71,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
             new Reference('foobar.populator.name'),
             new Reference('foobar.populator.ageInYears'),
             new Reference('foobar.populator.email'),
+            new Reference('foobar.populator.fullName'),
         ]);
 
         // name property populator
@@ -77,18 +79,28 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$accessor', new Reference('property_accessor'));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$targetProperty', 'name');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$sourceProperty', 'name');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$skipNull', false);
 
         // ageInYears property populator
         $this->assertContainerBuilderHasService('foobar.populator.ageInYears', PropertyMappingPopulator::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$accessor', new Reference('property_accessor'));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$targetProperty', 'ageInYears');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$sourceProperty', 'age');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$skipNull', false);
 
         // email property populator
         $this->assertContainerBuilderHasService('foobar.populator.email', PropertyMappingPopulator::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$accessor', new Reference('property_accessor'));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$targetProperty', 'email');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$sourceProperty', 'mail');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$skipNull', false);
+
+        // fullName property populator
+        $this->assertContainerBuilderHasService('foobar.populator.fullName', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$targetProperty', 'fullName');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$sourceProperty', 'fullName');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$skipNull', true);
     }
 
     public function test_with_mapped_context(): void

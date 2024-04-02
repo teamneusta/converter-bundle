@@ -18,6 +18,8 @@ class Person
 
     private ?PersonAddress $address = null;
 
+    private ?string $placeOfResidence = null;
+
     /** @var array<string> */
     private array $favouriteMovies;
 
@@ -63,6 +65,18 @@ class Person
         return $this;
     }
 
+    public function getMail(): ?string
+    {
+        return $this->mail;
+    }
+
+    public function setMail(?string $mail): self
+    {
+        $this->mail = $mail;
+
+        return $this;
+    }
+
     public function getAddress(): ?PersonAddress
     {
         return $this->address;
@@ -71,6 +85,18 @@ class Person
     public function setAddress(?PersonAddress $address): self
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    public function getPlaceOfResidence(): ?string
+    {
+        return $this->placeOfResidence;
+    }
+
+    public function setPlaceOfResidence(?string $placeOfResidence): self
+    {
+        $this->placeOfResidence = $placeOfResidence;
 
         return $this;
     }

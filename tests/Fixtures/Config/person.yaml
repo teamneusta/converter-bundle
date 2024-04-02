@@ -12,6 +12,18 @@ neusta_converter:
 #        group: ~ # same property name
 #        locale: language # different property names
 
+    test.person.converter.extended:
+      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonWithDefaultsFactory
+      properties:
+        fullName:
+          source: fullName
+          default: 'Hans Herrmann'
+        mail:
+          source: email
+          skip_null: true
+        age?: ageInYears
+
 services:
+  Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonWithDefaultsFactory: ~
   Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory: ~
   Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator: ~
