@@ -13,7 +13,7 @@ class User
     private string $lastname;
     private ?string $fullName;
     private ?int $ageInYears;
-    private string $email;
+    private ?string $email;
     private ?Address $address;
 
     /** @var array<string> */
@@ -87,14 +87,16 @@ class User
         return $this;
     }
 
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function setEmail(string $email): void
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
+
+        return $this;
     }
 
     public function getAddress(): ?Address

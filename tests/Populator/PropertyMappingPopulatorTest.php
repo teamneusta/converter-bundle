@@ -17,84 +17,79 @@ class PropertyMappingPopulatorTest extends TestCase
 
     public function test_populate(): void
     {
-        $populator = new PropertyMappingPopulator('age', 'ageInYears');
-        $user = (new User())->setAgeInYears(37);
-        $person = new Person();
+        $populator = new PropertyMappingPopulator(
+            targetProperty: 'age',
+            sourceProperty: 'ageInYears',
+        );
+        $source = (new User())->setAgeInYears(37);
+        $target = new Person();
 
-        $populator->populate($person, $user);
+        $populator->populate($target, $source);
 
-        self::assertEquals(37, $person->getAge());
+        self::assertEquals(37, $target->getAge());
     }
 
     public function test_populate_default_value(): void
     {
-        $populator = new PropertyMappingPopulator('fullName', 'fullName', 'default');
-        $user = (new User())->setFullName(null);
-        $person = new Person();
+        $populator = new PropertyMappingPopulator(
+            targetProperty: 'fullName',
+            sourceProperty: 'fullName',
+            defaultValue: 'default',
+        );
+        $source = (new User())->setFullName(null);
+        $target = new Person();
 
-        $populator->populate($person, $user);
+        $populator->populate($target, $source);
 
-        self::assertSame('default', $person->getFullName());
+        self::assertSame('default', $target->getFullName());
     }
 
-    public function test_populate_null_safety(): void
+    public function test_populate_skip_null(): void
     {
         $populator = new PropertyMappingPopulator(
-            'fullName',
-            'fullName',
-            null,
-            null,
-            null,
-            true
+            targetProperty: 'fullName',
+            sourceProperty: 'fullName',
+            skipNull: true,
         );
-        $user = (new User())->setFullName(null);
-        $person = new Person();
-        $person->setFullName('old Name');
+        $source = (new User())->setFullName(null);
+        $target = new Person();
+        $target->setFullName('old Name');
 
-        $populator->populate($person, $user);
+        $populator->populate($target, $source);
 
-        self::assertSame('old Name', $person->getFullName());
+        self::assertSame('old Name', $target->getFullName());
     }
 
-    public function test_populate_with_dot_operator(): void
+    public function test_populate_with_sub_fields(): void
     {
         $populator = new PropertyMappingPopulator(
-            'placeOfResidence',
-            'address.city',
-            null,
-            null,
-            null,
-            true
+            targetProperty: 'placeOfResidence',
+            sourceProperty: 'address.city',
         );
-        $user = (new User())->setAddress((new Address())->setCity('Bremen'));
+        $source = (new User())->setAddress((new Address())->setCity('Bremen'));
+        $target = new Person();
 
-        $person = new Person();
+        $populator->populate($target, $source);
 
-        $populator->populate($person, $user);
-
-        self::assertSame('Bremen', $person->getPlaceOfResidence());
+        self::assertSame('Bremen', $target->getPlaceOfResidence());
     }
 
     /**
      * @requires function \Symfony\Component\PropertyAccess\PropertyPath::isNullSafe
      */
-    public function test_populate_with_dot_operator_and_null_safety(): void
+    public function test_populate_skip_null_with_sub_fields_and_null_safety(): void
     {
         $populator = new PropertyMappingPopulator(
-            'placeOfResidence',
-            'address?.city',
-            null,
-            null,
-            null,
-            true
+            targetProperty: 'placeOfResidence',
+            sourceProperty: 'address?.city',
+            skipNull: true,
         );
-        $user = (new User())->setAddress(null);
+        $source = (new User())->setAddress(null);
+        $target = new Person();
+        $target->setPlaceOfResidence('Old City');
 
-        $person = new Person();
-        $person->setPlaceOfResidence('Old City');
+        $populator->populate($target, $source);
 
-        $populator->populate($person, $user);
-
-        self::assertSame('Old City', $person->getPlaceOfResidence());
+        self::assertSame('Old City', $target->getPlaceOfResidence());
     }
 }

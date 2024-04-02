@@ -10,8 +10,6 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/person.yaml')]
-#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/address.yaml')]
-#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/contact_numbers.yaml')]
 class GenericConverterIntegrationTest extends ConfigurableKernelTestCase
 {
     public function testConvert(): void

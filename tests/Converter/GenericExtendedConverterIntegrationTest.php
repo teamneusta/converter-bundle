@@ -12,11 +12,9 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/person.yaml')]
-#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/address.yaml')]
-#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/contact_numbers.yaml')]
 class GenericExtendedConverterIntegrationTest extends ConfigurableKernelTestCase
 {
-    public function testConvert_with_null_safety_property(): void
+    public function test_convert_with_skip_null(): void
     {
         /** @var Converter<User, Person, GenericContext> $converter */
         $converter = self::getContainer()->get('test.person.converter.extended');
@@ -24,12 +22,15 @@ class GenericExtendedConverterIntegrationTest extends ConfigurableKernelTestCase
         // Test Fixture
         $source = (new User())
             ->setFullName(null)
-            ->setAgeInYears(null);
+            ->setAgeInYears(null)
+            ->setEmail(null);
 
         // Test Execution
         $target = $converter->convert($source);
 
         // Test Assertion
-        self::assertEquals('Hans Herrmann', $target->getFullName());
+        self::assertSame('Hans Herrmann', $target->getFullName());
+        self::assertSame('default@test.de', $target->getMail());
+        self::assertSame(39, $target->getAge());
     }
 }
