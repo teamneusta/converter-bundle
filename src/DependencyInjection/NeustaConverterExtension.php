@@ -28,6 +28,9 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $this->converterFactories[] = $factory;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function getConfiguration(array $config, ContainerBuilder $container): Configuration
     {
         return new Configuration($this->converterFactories);
@@ -70,6 +73,9 @@ final class NeustaConverterExtension extends ConfigurableExtension
         throw new InvalidConfigurationException(sprintf('Unable to create definition for "%s" converter.', $name));
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config): void
     {
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
