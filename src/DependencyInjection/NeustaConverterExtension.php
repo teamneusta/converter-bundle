@@ -20,12 +20,18 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
 final class NeustaConverterExtension extends ConfigurableExtension
 {
-    /** @var list<ConverterFactory> */
+    /** @var array<string, ConverterFactory> */
     private array $converterFactories = [];
 
     public function addConverterFactory(ConverterFactory $factory): void
     {
-        $this->converterFactories[] = $factory;
+        $type = $factory->getType();
+
+        if (isset($this->converterFactories[$type])) {
+            throw new \InvalidArgumentException(sprintf('There is already a factory registered for the type "%s".', $type));
+        }
+
+        $this->converterFactories[$type] = $factory;
     }
 
     /**
@@ -44,39 +50,38 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2) . '/config'));
         $loader->load('services.yaml');
 
-        foreach ($mergedConfig['converters'] as $name => $converter) {
-            $this->createConverter($container, $name, $converter);
+        foreach ($mergedConfig['converters'] as $id => $converter) {
+            $this->createConverter($container, $id, $converter);
         }
 
-        foreach ($mergedConfig['converter'] as $name => $converter) {
-            $this->createDeprecatedConverter($container, $name, $converter);
+        foreach ($mergedConfig['converter'] as $id => $converter) {
+            $this->createDeprecatedConverter($container, $id, $converter);
         }
 
-        foreach ($mergedConfig['populator'] as $populatorId => $populator) {
-            $this->registerPopulatorConfiguration($populatorId, $populator, $container);
+        foreach ($mergedConfig['populator'] as $id => $populator) {
+            $this->createPopulator($container, $id, $populator);
         }
     }
 
     /**
      * @param array<string, mixed> $config
      */
-    private function createConverter(ContainerBuilder $container, string $name, array $config): void
+    private function createConverter(ContainerBuilder $container, string $id, array $config): void
     {
-        foreach ($this->converterFactories as $factory) {
-            if (!empty($config[$factory->getKey()])) {
-                $factory->create($container, $name, $config[$factory->getKey()]);
+        $type = array_key_first($config);
+        $factory = $this->converterFactories[$type] ?? throw new InvalidConfigurationException(sprintf(
+            'Unable to create a definition for the converter "%s" because the type "%s" does not exist.',
+            $id,
+            $type,
+        ));
 
-                return;
-            }
-        }
-
-        throw new InvalidConfigurationException(sprintf('Unable to create definition for "%s" converter.', $name));
+        $factory->create($container, $id, $config[$type]);
     }
 
     /**
      * @param array<string, mixed> $config
      */
-    public function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config): void
+    private function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config): void
     {
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
             $skipNull = false;
@@ -122,7 +127,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
     /**
      * @param array<string, mixed> $config
      */
-    private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
+    private function createPopulator(ContainerBuilder $container, string $id, array $config): void
     {
         $targetProperty = array_key_first($config['property']);
         $sourceProperty = $config['property'][$targetProperty];

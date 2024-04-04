@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 final class GenericConverterFactory implements ConverterFactory
 {
-    public function getKey(): string
+    public function getType(): string
     {
         return 'generic';
     }

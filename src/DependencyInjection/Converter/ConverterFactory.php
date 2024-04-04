@@ -12,7 +12,7 @@ interface ConverterFactory
     /**
      * @return non-empty-string
      */
-    public function getKey(): string;
+    public function getType(): string;
 
     public function addConfiguration(ArrayNodeDefinition $node): void;
 

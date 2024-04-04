@@ -14,15 +14,12 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    /** @var list<ConverterFactory> */
-    private array $converterFactories;
-
     /**
-     * @param list<ConverterFactory> $converterFactories
+     * @param array<string, ConverterFactory> $converterFactories
      */
-    public function __construct(array $converterFactories)
-    {
-        $this->converterFactories = $converterFactories;
+    public function __construct(
+        private readonly array $converterFactories,
+    ) {
     }
 
     public function getConfigTreeBuilder(): TreeBuilder
@@ -31,8 +28,8 @@ final class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
 
         $this->addConverterSection($rootNode);
-        $this->addPopulatorSection($rootNode);
         $this->addDeprecatedConverterSection($rootNode);
+        $this->addPopulatorSection($rootNode);
 
         return $treeBuilder;
     }
@@ -49,8 +46,8 @@ final class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
         ;
 
-        foreach ($this->converterFactories as $factory) {
-            $factory->addConfiguration($converterNodeBuilder->children()->arrayNode($factory->getKey()));
+        foreach ($this->converterFactories as $type => $factory) {
+            $factory->addConfiguration($converterNodeBuilder->children()->arrayNode($type));
         }
 
         $converterNodeBuilder
