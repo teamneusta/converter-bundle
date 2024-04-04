@@ -1,16 +1,13 @@
 neusta_converter:
   converter:
     test.person.converter:
-#      converter: Neusta\ConverterBundle\Converter\GenericConverter
+      converter: Neusta\ConverterBundle\Converter\GenericConverter
       target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
+      context:
+        group: ~ # same property name
+        locale: language # different property names
       populators:
         - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
-#      properties:
-#        fullName: ~
-#        age: ageInYears
-#      context:
-#        group: ~ # same property name
-#        locale: language # different property names
 
     test.person.converter.extended:
       target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonWithDefaultsFactory
