@@ -9,6 +9,8 @@ use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayConvertingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ConvertingPopulatorFactory;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
@@ -23,7 +25,15 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     protected function getContainerExtensions(): array
     {
         return [
-            new NeustaConverterExtension(new GenericConverterFactory()),
+            new NeustaConverterExtension(
+                [
+                    new GenericConverterFactory(),
+                ],
+                [
+                    new ConvertingPopulatorFactory(),
+                    new ArrayConvertingPopulatorFactory(),
+                ],
+            ),
         ];
     }
 
@@ -149,11 +159,13 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_converting_populator(): void
     {
         $this->load([
-            'populator' => [
+            'populators' => [
                 'foobar' => [
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'targetTest' => 'sourceTest',
+                    'converting' => [
+                        'converter' => GenericConverter::class,
+                        'property' => [
+                            'targetTest' => 'sourceTest',
+                        ],
                     ],
                 ],
             ],
@@ -169,11 +181,13 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_converting_populator_without_source_property_config(): void
     {
         $this->load([
-            'populator' => [
+            'populators' => [
                 'foobar' => [
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => null,
+                    'converting' => [
+                        'converter' => GenericConverter::class,
+                        'property' => [
+                            'test' => null,
+                        ],
                     ],
                 ],
             ],
@@ -186,33 +200,16 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourcePropertyName', 'test');
     }
 
-    public function test_with_converting_populator_with_array_converting_populator_config(): void
-    {
-        $this->expectExceptionMessage('The "property.<target>.source_array_item" option is only supported for array converting populators.');
-
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => [
-                            'source_array_item' => 'value',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-    }
-
     public function test_with_array_converting_populator(): void
     {
         $this->load([
-            'populator' => [
+            'populators' => [
                 'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'targetTest' => 'sourceTest',
+                    'array_converting' => [
+                        'converter' => GenericConverter::class,
+                        'property' => [
+                            'targetTest' => 'sourceTest',
+                        ],
                     ],
                 ],
             ],
@@ -228,12 +225,13 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_array_converting_populator_without_source_property_config(): void
     {
         $this->load([
-            'populator' => [
+            'populators' => [
                 'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => null,
+                    'array_converting' => [
+                        'converter' => GenericConverter::class,
+                        'property' => [
+                            'test' => null,
+                        ],
                     ],
                 ],
             ],
@@ -249,14 +247,15 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_array_converting_populator_with_inner_property(): void
     {
         $this->load([
-            'populator' => [
+            'populators' => [
                 'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'targetTest' => [
-                            'source' => 'sourceTest',
-                            'source_array_item' => 'value',
+                    'array_converting' => [
+                        'converter' => GenericConverter::class,
+                        'property' => [
+                            'targetTest' => [
+                                'source' => 'sourceTest',
+                                'source_array_item' => 'value',
+                            ],
                         ],
                     ],
                 ],
@@ -274,14 +273,15 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_array_converting_populator_with_inner_property_and_empty_source(): void
     {
         $this->load([
-            'populator' => [
+            'populators' => [
                 'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => [
-                            'source' => null,
-                            'source_array_item' => 'value',
+                    'array_converting' => [
+                        'converter' => GenericConverter::class,
+                        'property' => [
+                            'test' => [
+                                'source' => null,
+                                'source_array_item' => 'value',
+                            ],
                         ],
                     ],
                 ],
@@ -299,13 +299,14 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_array_converting_populator_with_inner_property_and_missing_source_property_config(): void
     {
         $this->load([
-            'populator' => [
+            'populators' => [
                 'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => [
-                            'source_array_item' => 'value',
+                    'array_converting' => [
+                        'converter' => GenericConverter::class,
+                        'property' => [
+                            'test' => [
+                                'source_array_item' => 'value',
+                            ],
                         ],
                     ],
                 ],
@@ -374,7 +375,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     {
         $this->assertContainerBuilderHasService($serviceId, $expectedClass);
         $this->assertTrue(
-            $this->container->getDefinition('foobar')->isPublic(),
+            $this->container->getDefinition($serviceId)->isPublic(),
             sprintf('service definition "%s" is "public"', $serviceId),
         );
     }

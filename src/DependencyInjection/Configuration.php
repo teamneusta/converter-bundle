@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
@@ -17,9 +18,11 @@ final class Configuration implements ConfigurationInterface
 {
     /**
      * @param array<string, ConverterFactory> $converterFactories
+     * @param array<string, PopulatorFactory> $populatorFactories
      */
     public function __construct(
         private readonly array $converterFactories,
+        private readonly array $populatorFactories,
     ) {
     }
 
@@ -31,6 +34,7 @@ final class Configuration implements ConfigurationInterface
         $this->addConverterSection($rootNode);
         $this->addDeprecatedConverterSection($rootNode);
         $this->addPopulatorSection($rootNode);
+        $this->addDeprecatedPopulatorSection($rootNode);
 
         return $treeBuilder;
     }
@@ -65,7 +69,7 @@ final class Configuration implements ConfigurationInterface
         $converterNodeBuilder = $rootNode
             ->children()
                 ->arrayNode('converter')
-                    ->setDeprecated('teamneusta/converter-bundle', '1.0', 'Please use "neusta_converter.converters" instead.')
+                    ->setDeprecated('teamneusta/converter-bundle', '1.5', 'Please use "neusta_converter.converters" instead.')
                     ->info('Converter configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
@@ -86,54 +90,54 @@ final class Configuration implements ConfigurationInterface
 
     private function addPopulatorSection(ArrayNodeDefinition $rootNode): void
     {
-        $rootNode
+        $populatorNodeBuilder = $rootNode
+            //->fixXmlConfig('populator') // Todo: only possible once deprecated config got removed
+            ->children()
+                ->arrayNode('populators')
+                    ->info('Populator configuration')
+                    ->normalizeKeys(false)
+                    ->useAttributeAsKey('name')
+                    ->requiresAtLeastOneElement()
+                    ->arrayPrototype()
+        ;
+
+        foreach ($this->populatorFactories as $type => $factory) {
+            $factory->addConfiguration($populatorNodeBuilder->children()->arrayNode($type));
+        }
+
+        $populatorNodeBuilder
+            ->validate()
+                ->ifTrue(fn ($v) => \count($v) > 1)
+                ->thenInvalid('You cannot set multiple populator types for the same populator.')
+            ->end()
+        ;
+    }
+
+    private function addDeprecatedPopulatorSection(ArrayNodeDefinition $rootNode): void
+    {
+        $populatorNodeBuilder = $rootNode
             ->children()
                 ->arrayNode('populator')
+                    ->setDeprecated('teamneusta/converter-bundle', '1.5', 'Please use "neusta_converter.populators" instead.')
                     ->info('Populator configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
-                        ->children()
-                            ->enumNode('populator')
-                                ->info('class of the "Populator" implementation')
-                                ->values([ConvertingPopulator::class, ArrayConvertingPopulator::class])
-                                ->defaultValue(ConvertingPopulator::class)
-                            ->end()
-                            ->scalarNode('converter')
-                                ->info('Service id of the internal "Converter"')
-                                ->isRequired()
-                                ->cannotBeEmpty()
-                            ->end()
-                            ->arrayNode('property')
-                                ->info('Mapping of source property to target property')
-                                ->normalizeKeys(false)
-                                ->useAttributeAsKey('target')
-                                ->arrayPrototype()
-                                    ->beforeNormalization()
-                                        ->ifNull()
-                                        ->then(fn () => ['source' => null, 'source_array_item' => null])
-                                    ->end()
-                                    ->beforeNormalization()
-                                        ->ifString()
-                                        ->then(fn (string $v) => ['source' => $v, 'source_array_item' => null])
-                                    ->end()
-                                    ->children()
-                                        ->scalarNode('source')
-                                            ->defaultValue(null)
-                                        ->end()
-                                        ->scalarNode('source_array_item')
-                                            ->defaultValue(null)
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->validate()
-                            ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
-                            ->thenInvalid('The "property.<target>.source_array_item" option is only supported for array converting populators.')
-                        ->end()
-                    ->end()
+        ;
+
+        $this->populatorFactories['array_converting']->addConfiguration($populatorNodeBuilder);
+
+        $populatorNodeBuilder
+            ->children()
+                ->enumNode('populator')
+                    ->info('class of the "Populator" implementation')
+                    ->values([ConvertingPopulator::class, ArrayConvertingPopulator::class])
+                    ->defaultValue(ConvertingPopulator::class)
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
+                ->thenInvalid('The "property.<target>.source_array_item" option is only supported for array converting populators.')
             ->end()
         ;
     }
