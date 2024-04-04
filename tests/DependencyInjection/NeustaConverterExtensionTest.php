@@ -6,12 +6,14 @@ namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
+use Neusta\ConverterBundle\Converter\Strategy\GenericConverterSelector;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Reference;
@@ -81,6 +83,35 @@ class NeustaConverterExtensionTest extends TestCase
         self::assertSame('ageInYears', $ageInYearsPopulator->getArgument('$targetProperty'));
         self::assertSame('age', $ageInYearsPopulator->getArgument('$sourceProperty'));
     }
+
+    public function test_with_selector_config(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $container = $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                    'selector' => GenericConverterSelector::class
+                ],
+            ],
+        ]);
+
+        // converter
+        $converter = $container->getDefinition('foobar');
+        self::assertSame(GenericConverter::class, $converter->getClass());
+        self::assertTrue($converter->isPublic());
+        self::assertTrue($container->hasAlias(Converter::class . ' $foobarConverter'));
+    }
+    public function test_with_insufficient_config(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $container = $this->buildContainer([
+            'converter' => [
+                'foobar' => [
+                ],
+            ],
+        ]);
+    }
+
 
     private static function assertIsReference(string $expected, mixed $actual): void
     {
