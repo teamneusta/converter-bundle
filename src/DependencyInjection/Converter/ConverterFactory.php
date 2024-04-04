@@ -14,6 +14,9 @@ interface ConverterFactory
      */
     public function getType(): string;
 
+    /**
+     * @param ArrayNodeDefinition $node Node just under `neusta_converter.converters.<id>.<type>.`
+     */
     public function addConfiguration(ArrayNodeDefinition $node): void;
 
     /**

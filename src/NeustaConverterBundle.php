@@ -6,7 +6,6 @@ namespace Neusta\ConverterBundle;
 
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class NeustaConverterBundle extends Bundle
@@ -18,13 +17,10 @@ class NeustaConverterBundle extends Bundle
         return \dirname(__DIR__);
     }
 
-    public function build(ContainerBuilder $container): void
+    public function getContainerExtension(): NeustaConverterExtension
     {
-        parent::build($container);
-
-        $extension = $container->getExtension(self::ALIAS);
-        \assert($extension instanceof NeustaConverterExtension);
-
-        $extension->addConverterFactory(new GenericConverterFactory());
+        return new NeustaConverterExtension(
+            new GenericConverterFactory(),
+        );
     }
 }

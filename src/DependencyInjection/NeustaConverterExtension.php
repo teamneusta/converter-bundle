@@ -24,6 +24,13 @@ final class NeustaConverterExtension extends ConfigurableExtension
     /** @var array<string, ConverterFactory> */
     private array $converterFactories = [];
 
+    public function __construct(ConverterFactory ...$factories)
+    {
+        foreach ($factories as $factory) {
+            $this->addConverterFactory($factory);
+        }
+    }
+
     public function addConverterFactory(ConverterFactory $factory): void
     {
         $type = $factory->getType();

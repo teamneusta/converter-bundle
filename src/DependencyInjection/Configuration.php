@@ -44,6 +44,7 @@ final class Configuration implements ConfigurationInterface
                     ->info('Converter configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
+                    ->requiresAtLeastOneElement()
                     ->arrayPrototype()
         ;
 
@@ -55,10 +56,6 @@ final class Configuration implements ConfigurationInterface
             ->validate()
                 ->ifTrue(fn ($v) => \count($v) > 1)
                 ->thenInvalid('You cannot set multiple converter types for the same converter.')
-            ->end()
-            ->validate()
-                ->ifEmpty()
-                ->thenInvalid('You must set a converter definition for the converter.')
             ->end()
         ;
     }
