@@ -8,9 +8,7 @@ use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
-use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
-use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -96,45 +94,8 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config): void
     {
-        foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
-            $skipNull = false;
-            if (str_ends_with($targetProperty, '?')) {
-                $skipNull = true;
-                $targetProperty = substr($targetProperty, 0, -1);
-            }
-            $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
-            $container->register($propertyPopulatorId, PropertyMappingPopulator::class)
-                ->setArguments([
-                    '$targetProperty' => $targetProperty,
-                    '$sourceProperty' => $sourceConfig['source'] ?? $targetProperty,
-                    '$defaultValue' => $sourceConfig['default'] ?? null,
-                    '$mapper' => null,
-                    '$accessor' => new Reference('property_accessor'),
-                    '$skipNull' => $sourceConfig['skip_null'] || $skipNull,
-                ]);
-        }
-
-        foreach ($config['context'] ?? [] as $targetProperty => $contextProperty) {
-            $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
-            $container->register($contextPopulatorId, ContextMappingPopulator::class)
-                ->setArguments([
-                    '$targetProperty' => $targetProperty,
-                    '$contextProperty' => $contextProperty ?? $targetProperty,
-                    '$mapper' => null,
-                    '$accessor' => new Reference('property_accessor'),
-                ]);
-        }
-
-        $container->registerAliasForArgument($id, Converter::class, $this->ensureSuffix($id, 'Converter'));
-        $container->register($id, $config['converter'])
-            ->setPublic(true)
-            ->setArguments([
-                '$factory' => new Reference($config['target_factory']),
-                '$populators' => array_map(
-                    static fn (string $populator) => new Reference($populator),
-                    $config['populators'],
-                ),
-            ]);
+        $this->converterFactories['generic']->create($container, $id, $config);
+        $container->getDefinition($id)->setClass($config['converter']);
     }
 
     /**
@@ -163,10 +124,5 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ],
                 default => throw new InvalidConfigurationException(sprintf('The populator "%s" is not supported.', $config['populator'])),
             });
-    }
-
-    private function ensureSuffix(string $value, string $suffix): string
-    {
-        return str_ends_with($value, $suffix) ? $value : $value . $suffix;
     }
 }

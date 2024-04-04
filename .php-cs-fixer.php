@@ -36,4 +36,7 @@ return (new PhpCsFixer\Config)
 
         // we want to leave the choice to the developer
         'php_unit_test_annotation' => false, // overwrite @Symfony:risky
+
+        // not compatible with Symfony config builder
+        'method_chaining_indentation' => false,
     ]);
