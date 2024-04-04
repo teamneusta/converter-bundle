@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
+use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
@@ -32,6 +33,11 @@ final class NeustaConverterExtension extends ConfigurableExtension
         }
 
         $this->converterFactories[$type] = $factory;
+    }
+
+    public function getAlias(): string
+    {
+        return NeustaConverterBundle::ALIAS;
     }
 
     /**

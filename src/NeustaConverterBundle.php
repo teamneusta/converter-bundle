@@ -11,6 +11,8 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class NeustaConverterBundle extends Bundle
 {
+    public const ALIAS = 'neusta_converter';
+
     public function getPath(): string
     {
         return \dirname(__DIR__);
@@ -20,7 +22,7 @@ class NeustaConverterBundle extends Bundle
     {
         parent::build($container);
 
-        $extension = $container->getExtension('neusta_converter');
+        $extension = $container->getExtension(self::ALIAS);
         \assert($extension instanceof NeustaConverterExtension);
 
         $extension->addConverterFactory(new GenericConverterFactory());

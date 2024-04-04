@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
+use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -24,7 +25,7 @@ final class Configuration implements ConfigurationInterface
 
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('neusta_converter');
+        $treeBuilder = new TreeBuilder(NeustaConverterBundle::ALIAS);
         $rootNode = $treeBuilder->getRootNode();
 
         $this->addConverterSection($rootNode);
