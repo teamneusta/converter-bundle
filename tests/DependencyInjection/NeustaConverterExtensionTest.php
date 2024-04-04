@@ -30,11 +30,13 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_generic_converter(): void
     {
         $this->load([
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'populators' => [
-                        PersonNamePopulator::class,
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'populators' => [
+                            PersonNamePopulator::class,
+                        ],
                     ],
                 ],
             ],
@@ -49,16 +51,18 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_mapped_properties(): void
     {
         $this->load([
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'properties' => [
-                        'name' => null,
-                        'ageInYears' => 'age',
-                        'email' => [
-                            'source' => 'mail',
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => null,
+                            'ageInYears' => 'age',
+                            'email' => [
+                                'source' => 'mail',
+                            ],
+                            'fullName?' => null,
                         ],
-                        'fullName?' => null,
                     ],
                 ],
             ],
@@ -107,12 +111,14 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_mapped_context(): void
     {
         $this->load([
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'name' => null,
-                        'ageInYears' => 'age',
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'context' => [
+                            'name' => null,
+                            'ageInYears' => 'age',
+                        ],
                     ],
                 ],
             ],
@@ -317,20 +323,22 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_array_converting_populator_with_default_value(): void
     {
         $this->load([
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'properties' => [
-                        'name' => [
-                            'source' => null,
-                            'default' => 'John Doe',
-                        ],
-                        'ageInYears' => [
-                            'source' => 'age',
-                            'default' => 42,
-                        ],
-                        'locale' => [
-                            'default' => 'en',
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => [
+                                'source' => null,
+                                'default' => 'John Doe',
+                            ],
+                            'ageInYears' => [
+                                'source' => 'age',
+                                'default' => 42,
+                            ],
+                            'locale' => [
+                                'default' => 'en',
+                            ],
                         ],
                     ],
                 ],
