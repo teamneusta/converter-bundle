@@ -45,25 +45,34 @@ final class ArrayPropertyMappingPopulator implements Populator
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
         try {
-            $sourceArrayPropertyValues = $this->accessor->getValue($source, $this->sourceArrayProperty);
-
-            $unwrappedArray = [];
-            if (\is_array($sourceArrayPropertyValues) && [] !== $sourceArrayPropertyValues) {
-                $unwrappedArray = array_map(
-                    fn ($item) => null !== $this->sourceArrayItemProperty
-                        ? $this->arrayItemAccessor->getValue($item, $this->sourceArrayItemProperty)
-                        : $item,
-                    $sourceArrayPropertyValues,
-                );
-            }
-
             $this->accessor->setValue(
                 $target,
                 $this->targetProperty,
-                array_map(fn ($item) => ($this->mapper)($item, $ctx), $unwrappedArray),
+                $this->unwrapAndMap($this->accessor->getValue($source, $this->sourceArrayProperty)),
             );
         } catch (\Throwable $exception) {
             throw new PopulationException($this->sourceArrayProperty, $this->targetProperty, $exception);
         }
+    }
+
+    /**
+     * @param TContext $ctx
+     *
+     * @return array<mixed>
+     */
+    private function unwrapAndMap(mixed $sourceArrayPropertyValues, ?object $ctx = null): array
+    {
+        if (!\is_array($sourceArrayPropertyValues) || [] === $sourceArrayPropertyValues) {
+            return [];
+        }
+
+        if (null === $this->sourceArrayItemProperty) {
+            return array_map(fn ($item) => ($this->mapper)($item, $ctx), $sourceArrayPropertyValues);
+        }
+
+        return array_map(
+            fn ($item) => ($this->mapper)($this->arrayItemAccessor->getValue($item, $this->sourceArrayItemProperty), $ctx),
+            $sourceArrayPropertyValues,
+        );
     }
 }
