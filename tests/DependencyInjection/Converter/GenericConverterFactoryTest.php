@@ -2,38 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Tests\DependencyInjection;
+namespace Neusta\ConverterBundle\Tests\DependencyInjection\Converter;
 
-use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
-use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
-use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayConvertingPopulatorFactory;
-use Neusta\ConverterBundle\DependencyInjection\Populator\ConvertingPopulatorFactory;
-use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
-use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\Tests\DependencyInjection\NeustaConverterExtensionTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\DependencyInjection\TypedReference;
 
-class NeustaConverterExtensionTest extends AbstractExtensionTestCase
+class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
 {
-    protected function getContainerExtensions(): array
+    protected function getConverterFactories(): array
     {
         return [
-            new NeustaConverterExtension(
-                [
-                    new GenericConverterFactory(),
-                ],
-                [
-                    new ConvertingPopulatorFactory(),
-                    new ArrayConvertingPopulatorFactory(),
-                ],
-            ),
+            new GenericConverterFactory(),
         ];
     }
 
@@ -156,171 +142,6 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
     }
 
-    public function test_with_converting_populator(): void
-    {
-        $this->load([
-            'populators' => [
-                'foobar' => [
-                    'converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'targetTest' => 'sourceTest',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourcePropertyName', 'sourceTest');
-    }
-
-    public function test_with_converting_populator_without_source_property_config(): void
-    {
-        $this->load([
-            'populators' => [
-                'foobar' => [
-                    'converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'test' => null,
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourcePropertyName', 'test');
-    }
-
-    public function test_with_array_converting_populator(): void
-    {
-        $this->load([
-            'populators' => [
-                'foobar' => [
-                    'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'targetTest' => 'sourceTest',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'sourceTest');
-    }
-
-    public function test_with_array_converting_populator_without_source_property_config(): void
-    {
-        $this->load([
-            'populators' => [
-                'foobar' => [
-                    'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'test' => null,
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
-    }
-
-    public function test_with_array_converting_populator_with_inner_property(): void
-    {
-        $this->load([
-            'populators' => [
-                'foobar' => [
-                    'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'targetTest' => [
-                                'source' => 'sourceTest',
-                                'source_array_item' => 'value',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'sourceTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
-    }
-
-    public function test_with_array_converting_populator_with_inner_property_and_empty_source(): void
-    {
-        $this->load([
-            'populators' => [
-                'foobar' => [
-                    'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'test' => [
-                                'source' => null,
-                                'source_array_item' => 'value',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
-    }
-
-    public function test_with_array_converting_populator_with_inner_property_and_missing_source_property_config(): void
-    {
-        $this->load([
-            'populators' => [
-                'foobar' => [
-                    'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'test' => [
-                                'source_array_item' => 'value',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
-    }
-
     public function test_with_array_converting_populator_with_default_value(): void
     {
         $this->load([
@@ -366,17 +187,5 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$targetProperty', 'locale');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$sourceProperty', 'locale');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$defaultValue', 'en');
-    }
-
-    /**
-     * Assert that the ContainerBuilder for this test has a public service definition with the given id and class.
-     */
-    protected function assertContainerBuilderHasPublicService(string $serviceId, ?string $expectedClass = null): void
-    {
-        $this->assertContainerBuilderHasService($serviceId, $expectedClass);
-        $this->assertTrue(
-            $this->container->getDefinition($serviceId)->isPublic(),
-            sprintf('service definition "%s" is "public"', $serviceId),
-        );
     }
 }
