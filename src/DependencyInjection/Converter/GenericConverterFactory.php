@@ -7,7 +7,6 @@ namespace Neusta\ConverterBundle\DependencyInjection\Converter;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
-use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -69,7 +68,7 @@ final class GenericConverterFactory implements ConverterFactory
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
             // Todo: This leaks the `?`: should we return the ID instead? Or make it a reference?
             $config['populators'][] = $propertyPopulatorId = rtrim("{$id}.populator.{$targetProperty}", '?');
-            $this->getPopulatorFactory($factories, array_keys($sourceConfig))
+            $factories->getFirstMatchingPopulatorFactory(array_keys($sourceConfig))
                 ->create($container, $propertyPopulatorId, ['target' => $targetProperty] + $sourceConfig);
         }
 
@@ -94,20 +93,6 @@ final class GenericConverterFactory implements ConverterFactory
                     $config['populators'],
                 ),
             ]);
-    }
-
-    /**
-     * @param list<array-key> $types
-     */
-    private function getPopulatorFactory(FactoryRegistry $factories, array $types): PopulatorFactory
-    {
-        foreach ($types as $type) {
-            if ($factory = $factories->getPopulatorFactory($type)) {
-                return $factory;
-            }
-        }
-
-        return $factories->getPropertyMappingPopulatorFactory();
     }
 
     private function ensureSuffix(string $value, string $suffix): string

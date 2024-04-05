@@ -1,10 +1,9 @@
 neusta_converter:
   populators:
     test.person.address.populator:
+      target: address
       converting:
-        target: address
-        converting:
-          converter: test.address.converter
+        converter: test.address.converter
 
 services:
   Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\AddressFactory: ~

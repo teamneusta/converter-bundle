@@ -99,14 +99,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function createPopulator(ContainerBuilder $container, string $id, array $config): void
     {
-        $type = array_key_first($config) ?? 'unknown';
-        $factory = $this->factories->getPopulatorFactory($type) ?? throw new InvalidConfigurationException(sprintf(
-            'Unable to create a definition for the populator "%s" because the type "%s" does not exist.',
-            $id,
-            $type,
-        ));
-
-        $factory->create($container, $id, $config[$type]);
+        $this->factories->getFirstMatchingPopulatorFactory(array_keys($config))->create($container, $id, $config);
     }
 
     /**

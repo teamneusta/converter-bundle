@@ -87,6 +87,20 @@ final class FactoryRegistry
     }
 
     /**
+     * @param list<array-key> $types
+     */
+    public function getFirstMatchingPopulatorFactory(array $types): PopulatorFactory
+    {
+        foreach ($types as $type) {
+            if (isset($this->populatorFactories[$type])) {
+                return $this->populatorFactories[$type];
+            }
+        }
+
+        return $this->getPropertyMappingPopulatorFactory();
+    }
+
+    /**
      * @return array<string, PropertyPopulatorFactory>
      */
     public function getPropertyPopulatorFactories(): array

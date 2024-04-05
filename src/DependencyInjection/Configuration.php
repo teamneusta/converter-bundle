@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
@@ -96,7 +97,11 @@ final class Configuration implements ConfigurationInterface
         ;
 
         foreach ($this->factories->getPopulatorFactories() as $type => $factory) {
-            $typeNodeBuilder = $populatorNodeBuilder->children()->arrayNode($type)
+            if (!$factory instanceof PropertyMappingPopulatorFactory) {
+                throw new \LogicException(sprintf('A factory of type "%s" is not supported.', $factory::class));
+            }
+
+            $typeNodeBuilder = $populatorNodeBuilder
                 ->children()
                     ->scalarNode('target')
                         ->isRequired()
@@ -111,13 +116,6 @@ final class Configuration implements ConfigurationInterface
                 $factory->addPropertyConfiguration($typeNodeBuilder->children()->arrayNode($type));
             }
         }
-
-        $populatorNodeBuilder
-            ->validate()
-                ->ifTrue(fn ($v) => \count($v) > 1)
-                ->thenInvalid('You cannot set multiple populator types for the same populator.')
-            ->end()
-        ;
     }
 
     private function addDeprecatedPopulatorSection(ArrayNodeDefinition $rootNode): void
