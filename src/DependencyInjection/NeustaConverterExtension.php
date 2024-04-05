@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
-use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
-use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
+use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
@@ -13,28 +13,15 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\TypedReference;
 use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
 final class NeustaConverterExtension extends ConfigurableExtension
 {
-    /** @var array<string, ConverterFactory> */
-    private array $converterFactories = [];
-    /** @var array<string, PopulatorFactory> */
-    private array $populatorFactories = [];
-
-    /**
-     * @param list<ConverterFactory> $converterFactories
-     * @param list<PopulatorFactory> $populatorFactories
-     */
-    public function __construct(array $converterFactories, array $populatorFactories)
-    {
-        foreach ($converterFactories as $factory) {
-            $this->addConverterFactory($factory);
-        }
-
-        foreach ($populatorFactories as $factory) {
-            $this->addPopulatorFactory($factory);
-        }
+    public function __construct(
+        private readonly FactoryRegistry $factories,
+    ) {
     }
 
     public function getAlias(): string
@@ -42,34 +29,17 @@ final class NeustaConverterExtension extends ConfigurableExtension
         return NeustaConverterBundle::ALIAS;
     }
 
+    public function getFactories(): FactoryRegistry
+    {
+        return $this->factories;
+    }
+
     /**
      * @param array<string, mixed> $config
      */
     public function getConfiguration(array $config, ContainerBuilder $container): Configuration
     {
-        return new Configuration($this->converterFactories, $this->populatorFactories);
-    }
-
-    public function addConverterFactory(ConverterFactory $factory): void
-    {
-        $type = $factory->getType();
-
-        if (isset($this->converterFactories[$type])) {
-            throw new \InvalidArgumentException(sprintf('There is already a converter factory registered for the type "%s".', $type));
-        }
-
-        $this->converterFactories[$type] = $factory;
-    }
-
-    public function addPopulatorFactory(PopulatorFactory $factory): void
-    {
-        $type = $factory->getType();
-
-        if (isset($this->populatorFactories[$type])) {
-            throw new \InvalidArgumentException(sprintf('There is already a populator factory registered for the type "%s".', $type));
-        }
-
-        $this->populatorFactories[$type] = $factory;
+        return new Configuration($this->factories);
     }
 
     /**
@@ -102,14 +72,14 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function createConverter(ContainerBuilder $container, string $id, array $config): void
     {
-        $type = array_key_first($config);
-        $factory = $this->converterFactories[$type] ?? throw new InvalidConfigurationException(sprintf(
+        $type = array_key_first($config) ?? 'unknown';
+        $factory = $this->factories->getConverterFactory($type) ?? throw new InvalidConfigurationException(sprintf(
             'Unable to create a definition for the converter "%s" because the type "%s" does not exist.',
             $id,
             $type,
         ));
 
-        $factory->create($container, $id, $config[$type]);
+        $factory->create($container, $id, $config[$type], $this->factories);
     }
 
     /**
@@ -117,7 +87,10 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config): void
     {
-        $this->converterFactories['generic']->create($container, $id, $config);
+        $genericConverterFactory = $this->factories->getConverterFactory('generic');
+        \assert($genericConverterFactory instanceof GenericConverterFactory);
+
+        $genericConverterFactory->create($container, $id, $config, $this->factories);
         $container->getDefinition($id)->setClass($config['converter']);
     }
 
@@ -126,8 +99,8 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function createPopulator(ContainerBuilder $container, string $id, array $config): void
     {
-        $type = array_key_first($config);
-        $factory = $this->populatorFactories[$type] ?? throw new InvalidConfigurationException(sprintf(
+        $type = array_key_first($config) ?? 'unknown';
+        $factory = $this->factories->getPopulatorFactory($type) ?? throw new InvalidConfigurationException(sprintf(
             'Unable to create a definition for the populator "%s" because the type "%s" does not exist.',
             $id,
             $type,
@@ -141,12 +114,26 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function createDeprecatedPopulator(ContainerBuilder $container, string $id, array $config): void
     {
-        $type = match ($config['populator']) {
-            ConvertingPopulator::class => 'converting',
-            ArrayConvertingPopulator::class => 'array_converting',
-            default => throw new InvalidConfigurationException(sprintf('The populator "%s" is not supported.', $config['populator'])),
-        };
+        $targetProperty = array_key_first($config['property']);
+        $sourceProperty = $config['property'][$targetProperty];
 
-        $this->populatorFactories[$type]->create($container, $id, $config);
+        $container->register($id, $config['populator'])
+            ->setPublic(true)
+            ->setArguments(match ($config['populator']) {
+                ConvertingPopulator::class => [
+                    '$converter' => new TypedReference($config['converter'], Converter::class),
+                    '$targetPropertyName' => $targetProperty,
+                    '$sourcePropertyName' => $sourceProperty['source'] ?? $targetProperty,
+                    '$accessor' => new Reference('property_accessor'),
+                ],
+                ArrayConvertingPopulator::class => [
+                    '$converter' => new TypedReference($config['converter'], Converter::class),
+                    '$targetPropertyName' => $targetProperty,
+                    '$sourceArrayPropertyName' => $sourceProperty['source'] ?? $targetProperty,
+                    '$sourceArrayItemPropertyName' => $sourceProperty['source_array_item'] ?? null,
+                    '$accessor' => new Reference('property_accessor'),
+                ],
+                default => throw new InvalidConfigurationException(sprintf('The populator "%s" is not supported.', $config['populator'])),
+            });
     }
 }

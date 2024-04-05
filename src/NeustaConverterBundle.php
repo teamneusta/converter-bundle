@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle;
 
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayConvertingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ConvertingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class NeustaConverterBundle extends Bundle
@@ -21,14 +23,15 @@ class NeustaConverterBundle extends Bundle
 
     public function getContainerExtension(): NeustaConverterExtension
     {
-        return new NeustaConverterExtension(
+        return new NeustaConverterExtension(new FactoryRegistry(
             [
                 new GenericConverterFactory(),
             ],
             [
+                new PropertyMappingPopulatorFactory(),
                 new ConvertingPopulatorFactory(),
                 new ArrayConvertingPopulatorFactory(),
             ],
-        );
+        ));
     }
 }

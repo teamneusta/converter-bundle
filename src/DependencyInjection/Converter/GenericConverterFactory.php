@@ -6,8 +6,9 @@ namespace Neusta\ConverterBundle\DependencyInjection\Converter;
 
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
+use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
-use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -19,7 +20,7 @@ final class GenericConverterFactory implements ConverterFactory
         return 'generic';
     }
 
-    public function addConfiguration(ArrayNodeDefinition $node): void
+    public function addConfiguration(ArrayNodeDefinition $node, FactoryRegistry $factories): void
     {
         $node
             ->fixXmlConfig('populator')
@@ -34,32 +35,6 @@ final class GenericConverterFactory implements ConverterFactory
                     ->info('Service ids of the Populator\'s')
                     ->prototype('scalar')->end()
                 ->end()
-                ->arrayNode('properties')
-                    ->info('Mapping of source properties (value) to target properties (key)')
-                    ->normalizeKeys(false)
-                    ->useAttributeAsKey('target')
-                    ->arrayPrototype()
-                        ->beforeNormalization()
-                            ->ifNull()
-                            ->then(fn () => ['source' => null, 'default' => null, 'skip_null' => false])
-                        ->end()
-                        ->beforeNormalization()
-                            ->ifString()
-                            ->then(fn (string $v) => ['source' => $v, 'default' => null, 'skip_null' => false])
-                        ->end()
-                        ->children()
-                            ->scalarNode('source')
-                                ->defaultValue(null)
-                            ->end()
-                            ->scalarNode('default')
-                                ->defaultValue(null)
-                            ->end()
-                                ->booleanNode('skip_null')
-                            ->defaultFalse()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
                 ->arrayNode('context')
                     ->info('Mapping of context properties (value) to target properties (key)')
                     ->normalizeKeys(false)
@@ -70,28 +45,32 @@ final class GenericConverterFactory implements ConverterFactory
             ->validate()
                 ->ifTrue(fn (array $c) => empty($c['populators']) && empty($c['properties']) && empty($c['context']))
                 ->thenInvalid('At least one "populator", "property" or "context" must be defined.')
-            ->end();
+            ->end()
+        ;
+
+        $propertiesNodeBuilder = $node
+            ->children()
+                ->arrayNode('properties')
+                    ->info('Mapping of source properties (value) to target properties (key)')
+                    ->normalizeKeys(false)
+                    ->useAttributeAsKey('target')
+                    ->arrayPrototype()
+        ;
+
+        $factories->getPropertyMappingPopulatorFactory()->addConfiguration($propertiesNodeBuilder);
+
+        foreach ($factories->getPropertyPopulatorFactories() as $type => $populatorFactory) {
+            $populatorFactory->addPropertyConfiguration($propertiesNodeBuilder->children()->arrayNode($type));
+        }
     }
 
-    public function create(ContainerBuilder $container, string $id, array $config): void
+    public function create(ContainerBuilder $container, string $id, array $config, FactoryRegistry $factories): void
     {
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
-            $skipNull = false;
-            if (str_ends_with($targetProperty, '?')) {
-                $skipNull = true;
-                $targetProperty = substr($targetProperty, 0, -1);
-            }
-
-            $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
-            $container->register($propertyPopulatorId, PropertyMappingPopulator::class)
-                ->setArguments([
-                    '$targetProperty' => $targetProperty,
-                    '$sourceProperty' => $sourceConfig['source'] ?? $targetProperty,
-                    '$defaultValue' => $sourceConfig['default'] ?? null,
-                    '$mapper' => null,
-                    '$accessor' => new Reference('property_accessor'),
-                    '$skipNull' => $sourceConfig['skip_null'] || $skipNull,
-                ]);
+            // Todo: This leaks the `?`: should we return the ID instead? Or make it a reference?
+            $config['populators'][] = $propertyPopulatorId = rtrim("{$id}.populator.{$targetProperty}", '?');
+            $this->getPopulatorFactory($factories, array_keys($sourceConfig))
+                ->create($container, $propertyPopulatorId, ['target' => $targetProperty] + $sourceConfig);
         }
 
         foreach ($config['context'] ?? [] as $targetProperty => $contextProperty) {
@@ -115,6 +94,20 @@ final class GenericConverterFactory implements ConverterFactory
                     $config['populators'],
                 ),
             ]);
+    }
+
+    /**
+     * @param list<array-key> $types
+     */
+    private function getPopulatorFactory(FactoryRegistry $factories, array $types): PopulatorFactory
+    {
+        foreach ($types as $type) {
+            if ($factory = $factories->getPopulatorFactory($type)) {
+                return $factory;
+            }
+        }
+
+        return $factories->getPropertyMappingPopulatorFactory();
     }
 
     private function ensureSuffix(string $value, string $suffix): string

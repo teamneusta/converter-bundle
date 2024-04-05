@@ -3,21 +3,20 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection\Populator;
 
-use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
+use Neusta\ConverterBundle\Populator\Mapper\ArrayPropertyMapper;
+use Neusta\ConverterBundle\Populator\Mapper\ConverterMapper;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\DependencyInjection\TypedReference;
 
-final class ArrayConvertingPopulatorFactory implements PopulatorFactory
+final class ArrayConvertingPopulatorFactory extends PropertyMappingPopulatorFactory implements PropertyPopulatorFactory
 {
     public function getType(): string
     {
         return 'array_converting';
     }
 
-    public function addConfiguration(ArrayNodeDefinition $node): void
+    public function addPropertyConfiguration(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
@@ -26,46 +25,23 @@ final class ArrayConvertingPopulatorFactory implements PopulatorFactory
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()
-                ->arrayNode('property')
-                    ->info('Mapping of source property to target property')
-                    ->normalizeKeys(false)
-                    ->useAttributeAsKey('target')
-                    ->arrayPrototype()
-                        ->beforeNormalization()
-                            ->ifNull()
-                            ->then(fn () => ['source' => null, 'source_array_item' => null])
-                        ->end()
-                        ->beforeNormalization()
-                            ->ifString()
-                            ->then(fn (string $v) => ['source' => $v, 'source_array_item' => null])
-                        ->end()
-                        ->children()
-                            ->scalarNode('source')
-                                ->defaultValue(null)
-                            ->end()
-                            ->scalarNode('source_array_item')
-                                ->defaultValue(null)
-                            ->end()
-                        ->end()
-                    ->end()
+                ->scalarNode('source_array_item')
+                    ->defaultValue(null)
                 ->end()
             ->end()
         ;
     }
 
-    public function create(ContainerBuilder $container, string $id, array $config): void
+    protected function getMapperDefinition(array $config): ?Definition
     {
-        $targetProperty = array_key_first($config['property']);
-        $sourceProperty = $config['property'][$targetProperty];
+        $config = $config[$this->getType()];
 
-        $container->register($id, ArrayConvertingPopulator::class)
-            ->setPublic(true)
-            ->setArguments([
-                '$converter' => new TypedReference($config['converter'], Converter::class),
-                '$targetPropertyName' => $targetProperty,
-                '$sourceArrayPropertyName' => $sourceProperty['source'] ?? $targetProperty,
-                '$sourceArrayItemPropertyName' => $sourceProperty['source_array_item'] ?? null,
-                '$accessor' => new Reference('property_accessor'),
-            ]);
+        return (new Definition(ArrayPropertyMapper::class))->setArguments([
+            '$sourceArrayItemProperty' => $config['source_array_item'] ?? null,
+            '$arrayItemAccessor' => null,
+            '$mapper' => (new Definition(ConverterMapper::class))->setArguments([
+                '$converter' => new Reference($config['converter']),
+            ]),
+        ]);
     }
 }

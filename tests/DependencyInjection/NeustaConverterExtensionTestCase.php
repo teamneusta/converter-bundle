@@ -6,8 +6,10 @@ namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayConvertingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
 
 abstract class NeustaConverterExtensionTestCase extends AbstractExtensionTestCase
 {
@@ -19,15 +21,18 @@ abstract class NeustaConverterExtensionTestCase extends AbstractExtensionTestCas
         }
 
         $populatorFactories = $this->getPopulatorFactories();
+        if (!\in_array($mandatoryFactory = new PropertyMappingPopulatorFactory(), $populatorFactories, false)) {
+            $populatorFactories[] = $mandatoryFactory;
+        }
         if (!\in_array($legacyFactory = new ArrayConvertingPopulatorFactory(), $populatorFactories, false)) {
             $populatorFactories[] = $legacyFactory;
         }
 
         return [
-            new NeustaConverterExtension(
+            new NeustaConverterExtension(new FactoryRegistry(
                 $converterFactories,
                 $populatorFactories,
-            ),
+            )),
         ];
     }
 

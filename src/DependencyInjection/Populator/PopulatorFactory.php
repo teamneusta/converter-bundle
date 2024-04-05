@@ -15,7 +15,7 @@ interface PopulatorFactory
     public function getType(): string;
 
     /**
-     * @param ArrayNodeDefinition $node Node just under `neusta_converter.populators.<id>.<type>.`
+     * @param ArrayNodeDefinition $node Node under `neusta_converter.populators.<id>.<type>.`
      */
     public function addConfiguration(ArrayNodeDefinition $node): void;
 

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection\Populator;
 
-use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayConvertingPopulatorFactory;
-use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
+use Neusta\ConverterBundle\Populator\Mapper\ArrayPropertyMapper;
+use Neusta\ConverterBundle\Populator\Mapper\ConverterMapper;
+use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\DependencyInjection\NeustaConverterExtensionTestCase;
-use Symfony\Component\DependencyInjection\TypedReference;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCase
 {
@@ -26,9 +28,10 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
             'populators' => [
                 'foobar' => [
                     'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'targetTest' => 'sourceTest',
+                        'source' => 'sourceTest',
+                        'target' => 'targetTest',
+                        'array_converting' => [
+                            'converter' => GenericConverter::class,
                         ],
                     ],
                 ],
@@ -36,10 +39,14 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         ]);
 
         // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'sourceTest');
+        // Todo: extract into base class
+        $this->assertContainerBuilderHasService('foobar', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetProperty', 'targetTest');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceProperty', 'sourceTest');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$skipNull', false);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$defaultValue', null);
+        $this->assertContainerBuilderHasServiceDefinitionWithMapperArgument(null);
     }
 
     public function test_with_array_converting_populator_without_source_property_config(): void
@@ -48,9 +55,9 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
             'populators' => [
                 'foobar' => [
                     'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'test' => null,
+                        'target' => 'test',
+                        'array_converting' => [
+                            'converter' => GenericConverter::class,
                         ],
                     ],
                 ],
@@ -58,10 +65,13 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         ]);
 
         // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
+        $this->assertContainerBuilderHasService('foobar', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetProperty', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceProperty', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$skipNull', false);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$defaultValue', null);
+        $this->assertContainerBuilderHasServiceDefinitionWithMapperArgument(null);
     }
 
     public function test_with_array_converting_populator_with_inner_property(): void
@@ -70,12 +80,11 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
             'populators' => [
                 'foobar' => [
                     'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'targetTest' => [
-                                'source' => 'sourceTest',
-                                'source_array_item' => 'value',
-                            ],
+                        'source' => 'sourceTest',
+                        'target' => 'targetTest',
+                        'array_converting' => [
+                            'converter' => GenericConverter::class,
+                            'source_array_item' => 'value',
                         ],
                     ],
                 ],
@@ -83,11 +92,13 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         ]);
 
         // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'sourceTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
+        $this->assertContainerBuilderHasService('foobar', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetProperty', 'targetTest');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceProperty', 'sourceTest');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$skipNull', false);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$defaultValue', null);
+        $this->assertContainerBuilderHasServiceDefinitionWithMapperArgument('value');
     }
 
     public function test_with_array_converting_populator_with_inner_property_and_empty_source(): void
@@ -96,12 +107,11 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
             'populators' => [
                 'foobar' => [
                     'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'test' => [
-                                'source' => null,
-                                'source_array_item' => 'value',
-                            ],
+                        'source' => null,
+                        'target' => 'test',
+                        'array_converting' => [
+                            'converter' => GenericConverter::class,
+                            'source_array_item' => 'value',
                         ],
                     ],
                 ],
@@ -109,11 +119,13 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         ]);
 
         // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
+        $this->assertContainerBuilderHasService('foobar', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetProperty', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceProperty', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$skipNull', false);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$defaultValue', null);
+        $this->assertContainerBuilderHasServiceDefinitionWithMapperArgument('value');
     }
 
     public function test_with_array_converting_populator_with_inner_property_and_missing_source_property_config(): void
@@ -122,11 +134,10 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
             'populators' => [
                 'foobar' => [
                     'array_converting' => [
-                        'converter' => GenericConverter::class,
-                        'property' => [
-                            'test' => [
-                                'source_array_item' => 'value',
-                            ],
+                        'target' => 'test',
+                        'array_converting' => [
+                            'converter' => GenericConverter::class,
+                            'source_array_item' => 'value',
                         ],
                     ],
                 ],
@@ -134,10 +145,27 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         ]);
 
         // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
+        $this->assertContainerBuilderHasService('foobar', PropertyMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$accessor', new Reference('property_accessor'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetProperty', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceProperty', 'test');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$skipNull', false);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$defaultValue', null);
+        $this->assertContainerBuilderHasServiceDefinitionWithMapperArgument('value');
+    }
+
+    private function assertContainerBuilderHasServiceDefinitionWithMapperArgument(?string $sourceArrayItemProperty): void
+    {
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument(
+            'foobar',
+            '$mapper',
+            (new Definition(ArrayPropertyMapper::class))->setArguments([
+                '$sourceArrayItemProperty' => $sourceArrayItemProperty,
+                '$arrayItemAccessor' => null,
+                '$mapper' => (new Definition(ConverterMapper::class))->setArguments([
+                    '$converter' => new Reference(GenericConverter::class),
+                ]),
+            ]),
+        );
     }
 }

@@ -23,17 +23,17 @@ final class PropertyMappingPopulator implements Populator
     private PropertyAccessorInterface $accessor;
 
     /**
-     * @param \Closure(mixed, TContext=):mixed|null $mapper
+     * @param callable(mixed, TContext=):mixed|null $mapper
      */
     public function __construct(
         private string $targetProperty,
         private string $sourceProperty,
         private mixed $defaultValue = null,
-        ?\Closure $mapper = null,
+        ?callable $mapper = null,
         ?PropertyAccessorInterface $accessor = null,
         private bool $skipNull = false,
     ) {
-        $this->mapper = $mapper ?? static fn ($v) => $v;
+        $this->mapper = $mapper ? $mapper(...) : static fn ($v) => $v;
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();
     }
 

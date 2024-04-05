@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
-use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
-use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
@@ -16,13 +15,8 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    /**
-     * @param array<string, ConverterFactory> $converterFactories
-     * @param array<string, PopulatorFactory> $populatorFactories
-     */
     public function __construct(
-        private readonly array $converterFactories,
-        private readonly array $populatorFactories,
+        private readonly FactoryRegistry $factories,
     ) {
     }
 
@@ -52,8 +46,8 @@ final class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
         ;
 
-        foreach ($this->converterFactories as $type => $factory) {
-            $factory->addConfiguration($converterNodeBuilder->children()->arrayNode($type));
+        foreach ($this->factories->getConverterFactories() as $type => $factory) {
+            $factory->addConfiguration($converterNodeBuilder->children()->arrayNode($type), $this->factories);
         }
 
         $converterNodeBuilder
@@ -76,7 +70,7 @@ final class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
         ;
 
-        $this->converterFactories['generic']->addConfiguration($converterNodeBuilder);
+        $this->factories->getConverterFactory('generic')?->addConfiguration($converterNodeBuilder, $this->factories);
 
         $converterNodeBuilder
             ->children()
@@ -101,8 +95,21 @@ final class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
         ;
 
-        foreach ($this->populatorFactories as $type => $factory) {
-            $factory->addConfiguration($populatorNodeBuilder->children()->arrayNode($type));
+        foreach ($this->factories->getPopulatorFactories() as $type => $factory) {
+            $typeNodeBuilder = $populatorNodeBuilder->children()->arrayNode($type)
+                ->children()
+                    ->scalarNode('target')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                ->end()
+            ;
+
+            $factory->addConfiguration($typeNodeBuilder);
+
+            if ($factory instanceof PropertyPopulatorFactory) {
+                $factory->addPropertyConfiguration($typeNodeBuilder->children()->arrayNode($type));
+            }
         }
 
         $populatorNodeBuilder
@@ -115,7 +122,7 @@ final class Configuration implements ConfigurationInterface
 
     private function addDeprecatedPopulatorSection(ArrayNodeDefinition $rootNode): void
     {
-        $populatorNodeBuilder = $rootNode
+        $rootNode
             ->children()
                 ->arrayNode('populator')
                     ->setDeprecated('teamneusta/converter-bundle', '1.5', 'Please use "neusta_converter.populators" instead.')
@@ -123,21 +130,47 @@ final class Configuration implements ConfigurationInterface
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
-        ;
-
-        $this->populatorFactories['array_converting']->addConfiguration($populatorNodeBuilder);
-
-        $populatorNodeBuilder
-            ->children()
-                ->enumNode('populator')
-                    ->info('class of the "Populator" implementation')
-                    ->values([ConvertingPopulator::class, ArrayConvertingPopulator::class])
-                    ->defaultValue(ConvertingPopulator::class)
+                        ->children()
+                            ->enumNode('populator')
+                                ->info('class of the "Populator" implementation')
+                                ->values([ConvertingPopulator::class, ArrayConvertingPopulator::class])
+                                ->defaultValue(ConvertingPopulator::class)
+                            ->end()
+                            ->scalarNode('converter')
+                                ->info('Service id of the internal "Converter"')
+                                ->isRequired()
+                                ->cannotBeEmpty()
+                            ->end()
+                            ->arrayNode('property')
+                                ->info('Mapping of source property to target property')
+                                ->normalizeKeys(false)
+                                ->useAttributeAsKey('target')
+                                ->arrayPrototype()
+                                    ->beforeNormalization()
+                                        ->ifNull()
+                                        ->then(fn () => ['source' => null, 'source_array_item' => null])
+                                    ->end()
+                                    ->beforeNormalization()
+                                        ->ifString()
+                                        ->then(fn (string $v) => ['source' => $v, 'source_array_item' => null])
+                                    ->end()
+                                    ->children()
+                                        ->scalarNode('source')
+                                            ->defaultValue(null)
+                                        ->end()
+                                        ->scalarNode('source_array_item')
+                                            ->defaultValue(null)
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->validate()
+                            ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
+                            ->thenInvalid('The "property.<target>.source_array_item" option is only supported for array converting populators.')
+                        ->end()
+                    ->end()
                 ->end()
-            ->end()
-            ->validate()
-                ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
-                ->thenInvalid('The "property.<target>.source_array_item" option is only supported for array converting populators.')
             ->end()
         ;
     }
