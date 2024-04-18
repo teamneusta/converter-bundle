@@ -1,8 +1,7 @@
 neusta_converter:
   converter:
     test.person.converter:
-      converter: Neusta\ConverterBundle\Converter\GenericConverter
-      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
       context:
         group: ~ # same property name
         locale: language # different property names

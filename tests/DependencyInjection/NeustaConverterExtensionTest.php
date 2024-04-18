@@ -16,6 +16,7 @@ use Neusta\ConverterBundle\Target\GenericTargetFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\TypedReference;
 
@@ -64,6 +65,23 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
         $this->assertContainerBuilderHasService('foobar.target_factory', GenericTargetFactory::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference('foobar.target_factory'));
+    }
+
+    public function test_with_generic_target_factory_exceptional_case(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Target type (class) UnknownClass does not exist.');
+
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target' => 'UnknownClass',
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
     }
 
     public function test_with_mapped_properties(): void
