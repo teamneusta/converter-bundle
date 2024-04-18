@@ -91,12 +91,11 @@ neusta_converter:
         # additional populators may follow
 ```
 
-To put things together, register the factory and populator as services:
+To put things together, register the populator as services:
 
 ```yaml
 # config/services.yaml
 services:
-  YourNamespace\PersonFactory: ~
   YourNamespace\PersonNamePopulator: ~
 ```
 
@@ -107,7 +106,7 @@ And then declare the following converter in your package config:
 neusta_converter:
   converter:
     person.converter:
-      target_factory: YourNamespace\PersonFactory
+      target: YourNamespace\Person
       populators:
         - YourNamespace\PersonNamePopulator
         # additional populators may follow
@@ -132,7 +131,7 @@ You can use it in your converter config via the `properties` keyword:
 neusta_converter:
   converter:
     person.converter:
-      # ...
+      target: YourNamespace\Person
       properties:
         email: ~
         phoneNumber: phone
@@ -160,7 +159,7 @@ neusta_converter:
     converter:
       person.converter:
         properties:
-          # ...
+          target: YourNamespace\Person
           phoneNumber:
             source: phone
             default: '0123456789'
@@ -182,7 +181,7 @@ You can use it in your converter config via the `context` keyword:
 neusta_converter:
   converter:
     person.converter:
-      # ...
+      target: YourNamespace\Person
       context:
         group: ~
         locale: language
