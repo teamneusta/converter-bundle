@@ -112,11 +112,13 @@ neusta_converter:
         # additional populators may follow
 ```
 
-> Note: You can use a custom implementation of the `Converter` interface via the `converter` keyword.
-> Its constructor must contain the two parameters `TargetFactory $factory` and `array $populators`.
+> [!TIP]
+> You can use a custom implementation of the `Converter` interface via the `converter` keyword.
+> Its constructor *must* contain *exactly* the two parameters `TargetFactory $factory` and `array $populators`.
 
-> Note: You can use a custom implementation of the `TargetTypeFactory` interface via the `target_factory` keyword,
-> if you have special needs when creating the target object.
+> [!TIP]
+> You can use a custom implementation of the `TargetTypeFactory` interface via the `target_factory` keyword
+> if you have special requirements when creating the target object.
 
 #### Mapping properties
 
@@ -149,9 +151,10 @@ and
 
 with `phone` (property of the source object).
 
-> Note: the source and the target property must be of the same type for this to work.
+> [!IMPORTANT]
+> The source and the target property must be of the same type for this to work.
 
-In order to set a default value for a property, you can use the `default` keyword:
+To set a default value for a property, you can use the `default` keyword:
 
 ```yaml
 # config/packages/neusta_converter.yaml
@@ -199,7 +202,8 @@ and
 
 with `language` (property of the context object).
 
-> Note: the context and the target property must be of the same type for this to work.
+> [!IMPORTANT]
+> The context and the target property must be of the same type for this to work.
 
 ### Conversion
 
