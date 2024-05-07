@@ -1,7 +1,6 @@
 ## Usage
 
-After the bundle is activated, you can directly use it by implementing a factory and a populator for your target and
-source types.
+After the bundle is activated, you can directly use it by implementing populators for your target and source types.
 
 Imagine your source type is `User`:
 
@@ -41,31 +40,6 @@ Separation of Concerns.
 
 You should use the Converter-and-Populator-pattern. But how?!
 
-Implement the following three artifacts:
-
-### Factory
-
-Implement a comfortable factory for your target type:
-
-```php
-use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\TargetFactory;
-
-/**
- * @implements TargetFactory<Person, GenericContext>
- */
-class PersonFactory implements TargetFactory
-{
-    public function create(?object $ctx = null): Person
-    {
-        return new Person();
-    }
-}
-```
-
-Skip thinking about the converter context at the moment. It will help you...
-maybe not now but in a few weeks. You will see.
-
 ### Populators
 
 Implement one or several populators:
@@ -91,14 +65,37 @@ As you can see, implementation here is quite simple - just concatenation of two 
 But however transformation will become more and more complex, it should be done in a testable,
 separated Populator or in several of them.
 
+Skip thinking about the converter context at the moment. It will help you...
+maybe not now but in a few weeks. You will see.
+
 ### Configuration
 
-To put things together, register the factory and populator as services:
+First register the populator as a service:
 
 ```yaml
 # config/services.yaml
 services:
-  YourNamespace\PersonFactory: ~
+  YourNamespace\PersonNamePopulator: ~
+```
+
+Then declare the following converter in your package config:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  converter:
+    person.converter:
+      target: YourNamespace\Person
+      populators:
+        - YourNamespace\PersonNamePopulator
+        # additional populators may follow
+```
+
+To put things together, register the populator as services:
+
+```yaml
+# config/services.yaml
+services:
   YourNamespace\PersonNamePopulator: ~
 ```
 
@@ -109,7 +106,7 @@ And then declare the following converter in your package config:
 neusta_converter:
   converter:
     person.converter:
-      target_factory: YourNamespace\PersonFactory
+      target: YourNamespace\Person
       populators:
         - YourNamespace\PersonNamePopulator
         # additional populators may follow
@@ -117,6 +114,9 @@ neusta_converter:
 
 > Note: You can use a custom implementation of the `Converter` interface via the `converter` keyword.
 > Its constructor must contain the two parameters `TargetFactory $factory` and `array $populators`.
+
+> Note: You can use a custom implementation of the `TargetTypeFactory` interface via the `target_factory` keyword,
+> if you have special needs when creating the target object.
 
 #### Mapping properties
 
@@ -131,7 +131,7 @@ You can use it in your converter config via the `properties` keyword:
 neusta_converter:
   converter:
     person.converter:
-      # ...
+      target: YourNamespace\Person
       properties:
         email: ~
         phoneNumber: phone
@@ -159,7 +159,7 @@ neusta_converter:
     converter:
       person.converter:
         properties:
-          # ...
+          target: YourNamespace\Person
           phoneNumber:
             source: phone
             default: '0123456789'
@@ -181,7 +181,7 @@ You can use it in your converter config via the `context` keyword:
 neusta_converter:
   converter:
     person.converter:
-      # ...
+      target: YourNamespace\Person
       context:
         group: ~
         locale: language

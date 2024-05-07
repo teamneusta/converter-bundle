@@ -12,8 +12,11 @@ use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\Target\GenericTargetFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\TypedReference;
 
@@ -43,6 +46,77 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [new Reference(PersonNamePopulator::class)]);
+    }
+
+    public function test_with_generic_target_factory(): void
+    {
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target' => Person::class,
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
+
+        // converter
+        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
+        $this->assertContainerBuilderHasService('foobar.target_factory', GenericTargetFactory::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference('foobar.target_factory'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.target_factory', '$type', Person::class);
+    }
+
+    public function test_with_generic_target_factory_for_unknown_type(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The target type "UnknownClass" does not exist.');
+
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target' => 'UnknownClass',
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_without_target_and_target_factory(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Either "target" or "target_factory" must be defined.');
+
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_target_and_target_factory(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Either "target" or "target_factory" must be defined, but not both.');
+
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target' => Person::class,
+                    'target_factory' => PersonFactory::class,
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
     }
 
     public function test_with_mapped_properties(): void
