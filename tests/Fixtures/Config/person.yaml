@@ -1,6 +1,29 @@
 neusta_converter:
-  converter:
+  converters:
     test.person.converter:
+      generic:
+        target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
+        context:
+          group: ~ # same property name
+          locale: language # different property names
+        populators:
+          - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
+
+    test.person.converter.extended:
+      generic:
+        target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonWithDefaultsFactory
+        properties:
+          fullName:
+            source: fullName
+            default: 'Hans Herrmann'
+          mail:
+            source: email
+            skip_null: true
+          age?: ageInYears
+
+  # deprecated
+  converter:
+    legacy.test.person.converter:
       converter: Neusta\ConverterBundle\Converter\GenericConverter
       target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
       context:
@@ -9,7 +32,7 @@ neusta_converter:
       populators:
         - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
 
-    test.person.converter.extended:
+    legacy.test.person.converter.extended:
       target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonWithDefaultsFactory
       properties:
         fullName:

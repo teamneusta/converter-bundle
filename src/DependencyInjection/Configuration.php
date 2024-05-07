@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
+use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -13,80 +16,68 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
+    public function __construct(
+        private readonly FactoryRegistry $factories,
+    ) {
+    }
+
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('neusta_converter');
+        $treeBuilder = new TreeBuilder(NeustaConverterBundle::ALIAS);
         $rootNode = $treeBuilder->getRootNode();
 
         $this->addConverterSection($rootNode);
+        $this->addDeprecatedConverterSection($rootNode);
         $this->addPopulatorSection($rootNode);
+        $this->addDeprecatedPopulatorSection($rootNode);
 
         return $treeBuilder;
     }
 
     private function addConverterSection(ArrayNodeDefinition $rootNode): void
     {
-        $rootNode
+        $converterNodeBuilder = $rootNode
+            //->fixXmlConfig('converter') // Todo: only possible once deprecated config got removed
+            ->children()
+                ->arrayNode('converters')
+                    ->info('Converter configuration')
+                    ->normalizeKeys(false)
+                    ->useAttributeAsKey('name')
+                    ->requiresAtLeastOneElement()
+                    ->arrayPrototype()
+        ;
+
+        foreach ($this->factories->getConverterFactories() as $type => $factory) {
+            $factory->addConfiguration($converterNodeBuilder->children()->arrayNode($type), $this->factories);
+        }
+
+        $converterNodeBuilder
+            ->validate()
+                ->ifTrue(fn ($v) => \count($v) > 1)
+                ->thenInvalid('You cannot set multiple converter types for the same converter.')
+            ->end()
+        ;
+    }
+
+    private function addDeprecatedConverterSection(ArrayNodeDefinition $rootNode): void
+    {
+        $converterNodeBuilder = $rootNode
             ->children()
                 ->arrayNode('converter')
+                    ->setDeprecated('teamneusta/converter-bundle', '1.5', 'Please use "neusta_converter.converters" instead.')
                     ->info('Converter configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
-                        ->fixXmlConfig('populator')
-                        ->fixXmlConfig('property', 'properties')
-                        ->children()
-                            ->scalarNode('converter')
-                                ->info('Class name of the "Converter" implementation')
-                                ->defaultValue(GenericConverter::class)
-                            ->end()
-                            ->scalarNode('target_factory')
-                                ->info('Service id of the "TargetFactory"')
-                                ->isRequired()
-                                ->cannotBeEmpty()
-                            ->end()
-                            ->arrayNode('populators')
-                                ->info('Service ids of the "Populator"s')
-                                ->prototype('scalar')->end()
-                            ->end()
-                            ->arrayNode('properties')
-                                ->info('Mapping of source properties (value) to target properties (key)')
-                                ->normalizeKeys(false)
-                                ->useAttributeAsKey('target')
-                                ->arrayPrototype()
-                                    ->beforeNormalization()
-                                        ->ifNull()
-                                        ->then(fn () => ['source' => null, 'default' => null, 'skip_null' => false])
-                                    ->end()
-                                    ->beforeNormalization()
-                                        ->ifString()
-                                        ->then(fn (string $v) => ['source' => $v, 'default' => null, 'skip_null' => false])
-                                    ->end()
-                                    ->children()
-                                        ->scalarNode('source')
-                                            ->defaultValue(null)
-                                        ->end()
-                                        ->scalarNode('default')
-                                            ->defaultValue(null)
-                                        ->end()
-                                        ->booleanNode('skip_null')
-                                            ->defaultFalse()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                            ->arrayNode('context')
-                                ->info('Mapping of context properties (value) to target properties (key)')
-                                ->normalizeKeys(false)
-                                ->useAttributeAsKey('target')
-                                ->prototype('scalar')->end()
-                            ->end()
-                        ->end()
-                        ->validate()
-                            ->ifTrue(fn (array $c) => empty($c['populators']) && empty($c['properties']) && empty($c['context']))
-                            ->thenInvalid('At least one "populator", "property" or "context" must be defined.')
-                        ->end()
-                    ->end()
+        ;
+
+        $this->factories->getConverterFactory('generic')?->addConfiguration($converterNodeBuilder, $this->factories);
+
+        $converterNodeBuilder
+            ->children()
+                ->scalarNode('converter')
+                    ->info('Class name of the Converter implementation')
+                    ->defaultValue(GenericConverter::class)
                 ->end()
             ->end()
         ;
@@ -94,9 +85,45 @@ final class Configuration implements ConfigurationInterface
 
     private function addPopulatorSection(ArrayNodeDefinition $rootNode): void
     {
+        $populatorNodeBuilder = $rootNode
+            //->fixXmlConfig('populator') // Todo: only possible once deprecated config got removed
+            ->children()
+                ->arrayNode('populators')
+                    ->info('Populator configuration')
+                    ->normalizeKeys(false)
+                    ->useAttributeAsKey('name')
+                    ->requiresAtLeastOneElement()
+                    ->arrayPrototype()
+        ;
+
+        foreach ($this->factories->getPopulatorFactories() as $type => $factory) {
+            if (!$factory instanceof PropertyMappingPopulatorFactory) {
+                throw new \LogicException(sprintf('A factory of type "%s" is not supported.', $factory::class));
+            }
+
+            $typeNodeBuilder = $populatorNodeBuilder
+                ->children()
+                    ->scalarNode('target')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                ->end()
+            ;
+
+            $factory->addConfiguration($typeNodeBuilder);
+
+            if ($factory instanceof PropertyPopulatorFactory) {
+                $factory->addPropertyConfiguration($typeNodeBuilder->children()->arrayNode($type));
+            }
+        }
+    }
+
+    private function addDeprecatedPopulatorSection(ArrayNodeDefinition $rootNode): void
+    {
         $rootNode
             ->children()
                 ->arrayNode('populator')
+                    ->setDeprecated('teamneusta/converter-bundle', '1.5', 'Please use "neusta_converter.populators" instead.')
                     ->info('Populator configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
