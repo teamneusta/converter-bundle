@@ -9,6 +9,7 @@ neusta_converter:
         - Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator
 
     test.person.converter.extended:
+      converter: Neusta\ConverterBundle\Converter\GenericConverter
       target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonWithDefaultsFactory
       properties:
         fullName:

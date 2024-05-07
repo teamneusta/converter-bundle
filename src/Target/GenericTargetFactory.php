@@ -9,7 +9,7 @@ use Neusta\ConverterBundle\TargetFactory;
 /**
  * @template T of object
  *
- * @implements TargetFactory<T, object>
+ * @implements TargetFactory<T, object|null>
  */
 final class GenericTargetFactory implements TargetFactory
 {
@@ -18,6 +18,9 @@ final class GenericTargetFactory implements TargetFactory
 
     /**
      * @param class-string<T> $type
+     *
+     * @throws \ReflectionException
+     * @throws \InvalidArgumentException
      */
     public function __construct(string $type)
     {
@@ -32,6 +35,9 @@ final class GenericTargetFactory implements TargetFactory
         }
     }
 
+    /**
+     * @throws \LogicException
+     */
     public function create(?object $ctx = null): object
     {
         try {

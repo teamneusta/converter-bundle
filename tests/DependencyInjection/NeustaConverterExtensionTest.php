@@ -65,17 +65,52 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
         $this->assertContainerBuilderHasService('foobar.target_factory', GenericTargetFactory::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference('foobar.target_factory'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.target_factory', '$type', Person::class);
     }
 
-    public function test_with_generic_target_factory_exceptional_case(): void
+    public function test_with_generic_target_factory_for_unknown_type(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Target type (class) UnknownClass does not exist.');
+        $this->expectExceptionMessage('The target type "UnknownClass" does not exist.');
 
         $this->load([
             'converter' => [
                 'foobar' => [
                     'target' => 'UnknownClass',
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_without_target_and_target_factory(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Either "target" or "target_factory" must be defined.');
+
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'populators' => [
+                        PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_target_and_target_factory(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Either "target" or "target_factory" must be defined, but not both.');
+
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target' => Person::class,
+                    'target_factory' => PersonFactory::class,
                     'populators' => [
                         PersonNamePopulator::class,
                     ],
