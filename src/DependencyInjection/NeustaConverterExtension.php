@@ -29,7 +29,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $loader->load('services.yaml');
 
         foreach ($mergedConfig['converter'] as $converterId => $converter) {
-            $this->registerConverterConfiguration($converterId, $converter, $container);
+            $this->registerConverterConfiguration($converterId, $converter, $container, $mergedConfig['converterSuffix']);
         }
 
         foreach ($mergedConfig['populator'] as $populatorId => $populator) {
@@ -40,7 +40,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
     /**
      * @param array<string, mixed> $config
      */
-    private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
+    private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container, ?string $converterSuffix): void
     {
         $targetFactoryId = $config['target_factory'] ?? "{$id}.target_factory";
         if (!isset($config['target_factory'])) {
@@ -77,7 +77,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ]);
         }
 
-        $container->registerAliasForArgument($id, Converter::class, $this->appendSuffix($id, 'Converter'));
+        $container->registerAliasForArgument($id, Converter::class, $this->appendSuffix($id, $converterSuffix ?? ''));
         $container->register($id, $config['converter'])
             ->setPublic(true)
             ->setArguments([

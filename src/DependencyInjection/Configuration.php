@@ -28,6 +28,10 @@ final class Configuration implements ConfigurationInterface
     {
         $rootNode
             ->children()
+                ->scalarNode('converterSuffix')
+                    ->info('consolidated suffix for all converters')
+                    ->defaultValue('')
+                ->end()
                 ->arrayNode('converter')
                     ->info('Converter configuration')
                     ->normalizeKeys(false)
