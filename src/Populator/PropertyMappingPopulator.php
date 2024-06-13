@@ -43,13 +43,9 @@ final class PropertyMappingPopulator implements Populator
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
         try {
-            if ('$this' !== $this->sourceProperty) {
-                $sourcePropertyValue = $this->accessor->getValue($source, $this->sourceProperty);
-            } else {
-                $sourcePropertyValue = $source;
-            }
-
-            $value = $sourcePropertyValue ?? $this->defaultValue;
+            $value = '$this' !== $this->sourceProperty
+            ? $this->accessor->getValue($source, $this->sourceProperty) ?? $this->defaultValue
+            : $source;
 
             if (!$this->skipNull || (null !== $value)) {
                 $this->accessor->setValue($target, $this->targetProperty, ($this->mapper)($value, $ctx));
