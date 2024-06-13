@@ -220,8 +220,7 @@ Conversion done.
 
 ## Special Populators
 
-After working a while with the converter pattern, you will notice that many scenarios in the population are very
-similar.
+After working a while with the converter pattern, you will notice that many scenarios in the population are very similar.
 If the source property can be copied directly to the target property, but only the names of the properties change,
 the same populator could be reused over and over again.
 
