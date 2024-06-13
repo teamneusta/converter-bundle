@@ -6,9 +6,9 @@ namespace Neusta\ConverterBundle\Tests\Populator;
 
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\Address;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\PersonAddress;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\PersonAddress;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
@@ -96,7 +96,7 @@ class PropertyMappingPopulatorTest extends TestCase
 
     public function test_populate_whole_source_object(): void
     {
-        $populator = new PropertyMappingPopulator('address', '');
+        $populator = new PropertyMappingPopulator('address', '$this');
         $address = (new PersonAddress())
             ->setStreet('Street')
             ->setStreetNo('1')
