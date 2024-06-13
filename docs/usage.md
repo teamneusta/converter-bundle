@@ -75,7 +75,7 @@ First register the populator as a service:
 ```yaml
 # config/services.yaml
 services:
-    YourNamespace\PersonNamePopulator: ~
+  YourNamespace\PersonNamePopulator: ~
 ```
 
 Then declare the following converter in your package config:
@@ -83,12 +83,12 @@ Then declare the following converter in your package config:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-    converter:
-        person.converter:
-            target: YourNamespace\Person
-            populators:
-                - YourNamespace\PersonNamePopulator
-                # additional populators may follow
+  converter:
+    person.converter:
+      target: YourNamespace\Person
+      populators:
+        - YourNamespace\PersonNamePopulator
+        # additional populators may follow
 ```
 
 To put things together, register the populator as services:
@@ -96,7 +96,7 @@ To put things together, register the populator as services:
 ```yaml
 # config/services.yaml
 services:
-    YourNamespace\PersonNamePopulator: ~
+  YourNamespace\PersonNamePopulator: ~
 ```
 
 And then declare the following converter in your package config:
@@ -104,12 +104,12 @@ And then declare the following converter in your package config:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-    converter:
-        person.converter:
-            target: YourNamespace\Person
-            populators:
-                - YourNamespace\PersonNamePopulator
-                # additional populators may follow
+  converter:
+    person.converter:
+      target: YourNamespace\Person
+      populators:
+        - YourNamespace\PersonNamePopulator
+        # additional populators may follow
 ```
 
 > [!TIP]
@@ -131,12 +131,12 @@ You can use it in your converter config via the `properties` keyword:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-    converter:
-        person.converter:
-            target: YourNamespace\Person
-            properties:
-                email: ~
-                phoneNumber: phone
+  converter:
+    person.converter:
+      target: YourNamespace\Person
+      properties:
+        email: ~
+        phoneNumber: phone
 ```
 
 Which will populate
@@ -159,13 +159,13 @@ To set a default value for a property, you can use the `default` keyword:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-    converter:
-        person.converter:
-            properties:
-                target: YourNamespace\Person
-                phoneNumber:
-                    source: phone
-                    default: '0123456789'
+  converter:
+    person.converter:
+      properties:
+        target: YourNamespace\Person
+        phoneNumber:
+          source: phone
+          default: '0123456789'
 ```
 
 The converter will set the value of `phoneNumber` (property of the target object) to `0123456789` if
@@ -182,12 +182,12 @@ You can use it in your converter config via the `context` keyword:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-    converter:
-        person.converter:
-            target: YourNamespace\Person
-            context:
-                group: ~
-                locale: language
+  converter:
+    person.converter:
+      target: YourNamespace\Person
+      context:
+        group: ~
+        locale: language
 ```
 
 Which will populate
@@ -272,22 +272,22 @@ Therefore, we have a `ConvertingPopulator` which can be used as follows:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-    converter:
-        person.converter:
-            # ...
-            populators:
-                - person.address.populator
+  converter:
+    person.converter:
+      # ...
+      populators:
+        - person.address.populator
 
-        address.converter:
-        # ...
+    address.converter:
+      # ...
 
 # ...
 person.address.populator:
-    class: Neusta\ConverterBundle\Populator\ConvertingPopulator
-    arguments:
-        $converter: '@address.converter'
-        $sourcePropertyName: 'address'
-        $targetPropertyName: 'address'
+  class: Neusta\ConverterBundle\Populator\ConvertingPopulator
+  arguments:
+    $converter: '@address.converter'
+    $sourcePropertyName: 'address'
+    $targetPropertyName: 'address'
 ```
 
 Be aware - that both properties have the same name should not lead you think they have the same type.
@@ -356,22 +356,22 @@ Now you have to declare the following populator:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-    converter:
-        person.converter:
-            # ...
-            populators:
-                - person.addresses.populator
+  converter:
+    person.converter:
+      # ...
+      populators:
+        - person.addresses.populator
 
-        address.converter:
-        # ...
+    address.converter:
+      # ...
 
 # ...
 person.addresses.populator:
-    class: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
-    arguments:
-        $converter: '@address.converter'
-        $sourcePropertyName: 'addresses'
-        $targetPropertyName: 'addresses'
+  class: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
+  arguments:
+    $converter: '@address.converter'
+    $sourcePropertyName: 'addresses'
+    $targetPropertyName: 'addresses'
 ```
 
 There is no new converter but a different populator implementation for this.
