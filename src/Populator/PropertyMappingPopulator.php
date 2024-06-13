@@ -44,8 +44,8 @@ final class PropertyMappingPopulator implements Populator
     {
         try {
             $value = '$this' !== $this->sourceProperty
-            ? $this->accessor->getValue($source, $this->sourceProperty) ?? $this->defaultValue
-            : $source;
+                ? $this->accessor->getValue($source, $this->sourceProperty) ?? $this->defaultValue
+                : $source;
 
             if (!$this->skipNull || (null !== $value)) {
                 $this->accessor->setValue($target, $this->targetProperty, ($this->mapper)($value, $ctx));
