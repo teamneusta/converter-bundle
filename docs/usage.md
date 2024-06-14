@@ -290,6 +290,28 @@ person.address.populator:
     $targetPropertyName: 'address'
 ```
 
+Of course you can also use our bundle-specific configuration for this Populator:
+```yaml
+neusta_converter:
+  converter:
+      person.converter:
+          # ...
+          populators:
+              - person.addresses.populator
+
+      address.converter:
+      # ...
+
+  person.addresses.populator:
+    populator: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
+    property:
+        converter: address.converter
+        address:
+            source: address
+        # it would also be allowed to write this instead:
+        #address: address  
+```
+
 Be aware - that both properties have the same name should not lead you think they have the same type.
 There is really an object conversion behind done by `address.converter`.
 
@@ -366,14 +388,33 @@ neusta_converter:
       # ...
 
 # ...
-person.addresses.populator:
-  class: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
-  arguments:
-    $converter: '@address.converter'
-    $sourcePropertyName: 'addresses'
-    $targetPropertyName: 'addresses'
+  person.addresses.populator:
+    class: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
+    arguments:
+      $converter: '@address.converter'
+      $sourcePropertyName: 'addresses'
+      $targetPropertyName: 'addresses'
 ```
 
+Of course you can also use our bundle-specific configuration for this Populator:
+```yaml
+neusta_converter:
+  converter:
+      person.converter:
+          # ...
+          populators:
+              - person.addresses.populator
+
+      address.converter:
+      # ...
+
+  person.addresses.populator:
+    populator: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
+    property:
+        converter: address.converter
+        addresses:
+            source: adresses
+```
 There is no new converter but a different populator implementation for this.
 
 ## Context
