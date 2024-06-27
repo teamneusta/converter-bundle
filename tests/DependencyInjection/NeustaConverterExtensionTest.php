@@ -32,6 +32,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_generic_converter(): void
     {
         $this->load([
+            'converterSuffix' => 'Converter',
             'converter' => [
                 'foobar' => [
                     'target_factory' => PersonFactory::class,
@@ -122,6 +123,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_mapped_properties(): void
     {
         $this->load([
+            'converterSuffix' => 'Converter',
             'converter' => [
                 'foobar' => [
                     'target_factory' => PersonFactory::class,
@@ -180,6 +182,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
     public function test_with_mapped_context(): void
     {
         $this->load([
+            'converterSuffix' => 'Converter',
             'converter' => [
                 'foobar' => [
                     'target_factory' => PersonFactory::class,
