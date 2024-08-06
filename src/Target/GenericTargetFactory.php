@@ -27,11 +27,11 @@ final class GenericTargetFactory implements TargetFactory
         $this->type = new \ReflectionClass($type);
 
         if (!$this->type->isInstantiable()) {
-            throw new \InvalidArgumentException(sprintf('Target class "%s" is not instantiable.', $type));
+            throw new \InvalidArgumentException(\sprintf('Target class "%s" is not instantiable.', $type));
         }
 
         if ($this->type->getConstructor()?->getNumberOfRequiredParameters()) {
-            throw new \InvalidArgumentException(sprintf('Target class "%s" has required constructor parameters.', $type));
+            throw new \InvalidArgumentException(\sprintf('Target class "%s" has required constructor parameters.', $type));
         }
     }
 
@@ -43,7 +43,7 @@ final class GenericTargetFactory implements TargetFactory
         try {
             return $this->type->newInstance();
         } catch (\ReflectionException $e) {
-            throw new \LogicException(sprintf('Cannot create new instance of "%s" because: %s', $this->type->getName(), $e->getMessage()), 0, $e);
+            throw new \LogicException(\sprintf('Cannot create new instance of "%s" because: %s', $this->type->getName(), $e->getMessage()), 0, $e);
         }
     }
 }

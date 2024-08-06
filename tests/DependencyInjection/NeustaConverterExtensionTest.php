@@ -440,7 +440,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasService($serviceId, $expectedClass);
         $this->assertTrue(
             $this->container->getDefinition('foobar')->isPublic(),
-            sprintf('service definition "%s" is "public"', $serviceId),
+            \sprintf('service definition "%s" is "public"', $serviceId),
         );
     }
 }
