@@ -13,6 +13,12 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
+    private $additionalNodes = [];
+
+    public function addNode(callable $nodeConfigurator)
+    {
+        $this->additionalNodes[] = $nodeConfigurator;
+    }
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('neusta_converter');
@@ -20,6 +26,10 @@ final class Configuration implements ConfigurationInterface
 
         $this->addConverterSection($rootNode);
         $this->addPopulatorSection($rootNode);
+
+        foreach ($this->additionalNodes as $nodeConfigurator) {
+            $nodeConfigurator($rootNode->children());
+        }
 
         return $treeBuilder;
     }
