@@ -39,6 +39,6 @@ final class StrategicConverter implements Converter
         if (\array_key_exists($selectedConverterKey, $this->converters)) {
             return $this->converters[$selectedConverterKey]->convert($source, $ctx);
         }
-        throw new ConverterException(sprintf('No converter found for key <%s>', $selectedConverterKey));
+        throw new ConverterException(\sprintf('No converter found for key <%s>', $selectedConverterKey));
     }
 }

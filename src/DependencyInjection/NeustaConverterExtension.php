@@ -113,7 +113,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     '$sourceArrayItemPropertyName' => $sourceProperty['source_array_item'] ?? null,
                     '$accessor' => new Reference('property_accessor'),
                 ],
-                default => throw new InvalidConfigurationException(sprintf('The populator "%s" is not supported.', $config['populator'])),
+                default => throw new InvalidConfigurationException(\sprintf('The populator "%s" is not supported.', $config['populator'])),
             });
     }
 
