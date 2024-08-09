@@ -376,6 +376,22 @@ person.addresses.populator:
 
 There is no new converter but a different populator implementation for this.
 
+### PropertyMappingPopulator & ArrayPropertyMappingPopulator
+
+#### Closure based upon your converter
+
+If you need a Closure which is based upon this Converter (e.g. for PropertyMappingPopulation) you can declare it in this
+way and use it in the `PropertyMappingPopulator` configuration as argument for `$mapper`:
+
+```yaml
+converter.closure.factory:
+  class: \Closure
+  factory: [ '\Closure', 'fromCallable' ]
+  arguments:
+    - '@my.converter'
+    - 'convert'
+```
+
 ## Context
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.
