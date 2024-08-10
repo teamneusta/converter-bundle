@@ -387,9 +387,7 @@ way and use it in the `PropertyMappingPopulator` configuration as argument for `
 converter.closure.factory:
   class: \Closure
   factory: [ '\Closure', 'fromCallable' ]
-  arguments:
-    - '@my.converter'
-    - 'convert'
+  arguments: [ '@my.converter', 'convert' ]
 ```
 
 ## Context
