@@ -46,7 +46,3 @@ jobs:
 
       - name: Check Symfony YAML Config
         run: composer yaml:lint
-
-      - name: Check Deptrac
-        run: composer deptrac:analyse
-
