@@ -45,4 +45,4 @@ jobs:
           dependency-versions: ${{ matrix.dependencies }}
 
       - name: Execute tests
-        run: composer tests:coverage:gitlab-ci
+        run: composer tests:coverage:ci-pipeline
