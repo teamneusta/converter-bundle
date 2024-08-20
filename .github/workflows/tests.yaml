@@ -45,4 +45,6 @@ jobs:
           dependency-versions: ${{ matrix.dependencies }}
 
       - name: Execute tests
-        run: composer tests:coverage:ci-pipeline
+        run: |
+          composer tests:coverage:ci-pipeline
+          php check_coverage.php
