@@ -91,27 +91,6 @@ neusta_converter:
         # additional populators may follow
 ```
 
-To put things together, register the populator as services:
-
-```yaml
-# config/services.yaml
-services:
-  YourNamespace\PersonNamePopulator: ~
-```
-
-And then declare the following converter in your package config:
-
-```yaml
-# config/packages/neusta_converter.yaml
-neusta_converter:
-  converter:
-    person.converter:
-      target: YourNamespace\Person
-      populators:
-        - YourNamespace\PersonNamePopulator
-        # additional populators may follow
-```
-
 > [!TIP]
 > You can use a custom implementation of the `Converter` interface via the `converter` keyword.
 > Its constructor *must* contain *exactly* the two parameters `TargetFactory $factory` and `array $populators`.
