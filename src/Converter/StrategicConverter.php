@@ -23,7 +23,7 @@ final class StrategicConverter implements Converter
      */
     public function __construct(
         private array $converters,
-        private ConverterSelector $selector
+        private ConverterSelector $selector,
     ) {
     }
 
