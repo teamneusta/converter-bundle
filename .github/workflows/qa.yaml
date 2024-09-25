@@ -41,5 +41,8 @@ jobs:
           php tests/app/bin/console cache:clear
           composer phpstan
 
+      - name: Check Deptrac
+        run: composer deptrac:analyse
+
       - name: Check Symfony YAML Config
         run: composer yaml:lint
