@@ -140,8 +140,8 @@ To set a default value for a property, you can use the `default` keyword:
 neusta_converter:
   converter:
     person.converter:
+      target: YourNamespace\Person
       properties:
-        target: YourNamespace\Person
         phoneNumber:
           source: phone
           default: '0123456789'
