@@ -34,6 +34,7 @@ final class ConvertingPopulator implements Populator
         string $sourcePropertyName,
         string $targetPropertyName,
         ?PropertyAccessorInterface $accessor = null,
+        bool $skipNull = false
     ) {
         $this->populator = new PropertyMappingPopulator(
             $targetPropertyName,
@@ -41,6 +42,7 @@ final class ConvertingPopulator implements Populator
             null,
             \Closure::fromCallable([$converter, 'convert']),
             $accessor,
+            $skipNull
         );
     }
 
