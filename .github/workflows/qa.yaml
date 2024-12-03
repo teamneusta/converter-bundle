@@ -34,7 +34,7 @@ jobs:
         run: composer normalize --ansi --dry-run
 
       - name: Check CS-Fixer
-        run: composer cs:check
+        run: PHP_CS_FIXER_IGNORE_ENV="true" composer cs:check
 
       - name: Check PHPStan
         run: |
