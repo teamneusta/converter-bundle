@@ -38,6 +38,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          coverage: xdebug
+
+      - name: Setup PHP problem matcher
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+
+      - name: Setup PHPUnit problem matcher
+        uses: mheap/phpunit-matcher-action@v1
 
       - name: Install dependencies
         uses: ramsey/composer-install@v3
@@ -45,4 +53,6 @@ jobs:
           dependency-versions: ${{ matrix.dependencies }}
 
       - name: Execute tests
-        run: composer tests
+        run: |
+          composer tests:coverage:ci
+          php .check-coverage.php

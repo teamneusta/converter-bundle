@@ -36,14 +36,10 @@ final class GenericTargetFactory implements TargetFactory
     }
 
     /**
-     * @throws \LogicException
+     * @throws \ReflectionException
      */
     public function create(?object $ctx = null): object
     {
-        try {
-            return $this->type->newInstance();
-        } catch (\ReflectionException $e) {
-            throw new \LogicException(\sprintf('Cannot create new instance of "%s" because: %s', $this->type->getName(), $e->getMessage()), 0, $e);
-        }
+        return $this->type->newInstance();
     }
 }
