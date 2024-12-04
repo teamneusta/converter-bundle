@@ -30,7 +30,7 @@ final class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('converterSuffix')
                     ->info('consolidated suffix for all converters')
-                    ->defaultValue('')
+                    ->defaultValue('Converter')
                 ->end()
                 ->arrayNode('converter')
                     ->info('Converter configuration')
