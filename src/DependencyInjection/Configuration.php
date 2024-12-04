@@ -28,7 +28,7 @@ final class Configuration implements ConfigurationInterface
     {
         $rootNode
             ->children()
-                ->scalarNode('converterSuffix')
+                ->scalarNode('converter_suffix')
                     ->info('consolidated suffix for all converters')
                     ->defaultValue('Converter')
                 ->end()
