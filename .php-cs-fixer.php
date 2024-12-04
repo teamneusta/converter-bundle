@@ -7,6 +7,7 @@
  */
 
 return (new PhpCsFixer\Config)
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setFinder((new PhpCsFixer\Finder)
         ->in([
             __DIR__ . '/src',
