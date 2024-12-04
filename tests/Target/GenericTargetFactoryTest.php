@@ -7,27 +7,28 @@ use PHPUnit\Framework\TestCase;
 
 class GenericTargetFactoryTest extends TestCase
 {
-    private GenericTargetFactory $factory;
-
     /**
      * @test
      */
     public function create_regular_case(): void
     {
-        $this->factory = new GenericTargetFactory(TestTarget::class);
-        $result = $this->factory->create();
+        $factory = new GenericTargetFactory(TestTarget::class);
 
-        self::assertSame(1, $result->getValue());
+        self::assertInstanceOf(TestTarget::class, $factory->create());
     }
 
     /**
      * @test
      */
-    public function create_with_non_instnatiable_case(): void
+    public function create_with_non_instantiable_case(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Neusta\\ConverterBundle\\Tests\\Target\\TestNonInstantiableTarget" is not instantiable.');
-        $this->factory = new GenericTargetFactory(TestNonInstantiableTarget::class);
+        $this->expectExceptionMessage(\sprintf(
+            'Target class "%s" is not instantiable',
+            TestNonInstantiableTarget::class,
+        ));
+
+        new GenericTargetFactory(TestNonInstantiableTarget::class);
     }
 
     /**
@@ -36,40 +37,26 @@ class GenericTargetFactoryTest extends TestCase
     public function create_with_constructor_params_case(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Neusta\\ConverterBundle\\Tests\\Target\\TestWithConstructorParamsTarget" has required constructor parameters');
-        $this->factory = new GenericTargetFactory(TestWithConstructorParamsTarget::class);
+        $this->expectExceptionMessage(\sprintf(
+            'Target class "%s" has required constructor parameters',
+            TestWithConstructorParamsTarget::class,
+        ));
+
+        new GenericTargetFactory(TestWithConstructorParamsTarget::class);
     }
 }
 
 class TestTarget
 {
-    private int $value;
-
-    public function __construct()
-    {
-        $this->value = 1;
-    }
-
-    public function getValue(): int
-    {
-        return $this->value;
-    }
 }
 
-class TestNonInstantiableTarget
+abstract class TestNonInstantiableTarget
 {
-    private int $value;
-
-    private function __construct()
-    {
-        $this->value = 1;
-    }
 }
 
 class TestWithConstructorParamsTarget
 {
-    public function __construct(
-        private int $value,
-    ) {
+    public function __construct($value)
+    {
     }
 }

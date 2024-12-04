@@ -23,6 +23,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
+          coverage: none
+          tools: cs2pr
 
       - name: Validate composer.json
         run: composer validate --ansi --strict
@@ -34,12 +36,12 @@ jobs:
         run: composer normalize --ansi --dry-run
 
       - name: Check CS-Fixer
-        run: PHP_CS_FIXER_IGNORE_ENV="true" composer cs:check
+        run: PHP_CS_FIXER_IGNORE_ENV="true" composer cs:check:ci | cs2pr
 
       - name: Check PHPStan
         run: |
           php tests/app/bin/console cache:clear
-          composer phpstan
+          composer phpstan:ci
 
       - name: Check Deptrac
         run: composer deptrac:analyse
