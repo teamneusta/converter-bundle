@@ -1,0 +1,23 @@
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Condition\AgeCondition:
+    public: true
+    arguments:
+      $minAge: 18
+
+  test.person.fullName.conditional.condition:
+    class: Closure
+    factory: [ '@Neusta\ConverterBundle\Tests\Fixtures\Condition\AgeCondition', 'checkCondition' ]
+
+  test.person.fullName.populator:
+    public: true
+    parent: 'neusta_converter.property_mapping_populator'
+    arguments:
+      $targetProperty: 'fullName'
+      $sourceProperty: 'fullName'
+
+  test.person.fullName.conditional.populator:
+    public: true
+    class: Neusta\ConverterBundle\Populator\ConditionalPopulator
+    arguments:
+      $populator: '@test.person.fullName.populator'
+      $condition: '@test.person.fullName.conditional.condition'

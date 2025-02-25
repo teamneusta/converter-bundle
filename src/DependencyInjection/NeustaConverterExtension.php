@@ -8,6 +8,7 @@ use Neusta\ConverterBundle\Command\DebugCommand;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
+use Neusta\ConverterBundle\Populator\ConditionalPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
@@ -129,10 +130,53 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ],
                 default => throw new InvalidConfigurationException(\sprintf('The populator "%s" is not supported.', $config['populator'])),
             });
+
+        if (isset($config['condition'])) {
+            $this->registerConditionalPopulatorConfiguration($config['condition'], $id, $container);
+        }
     }
 
     private function appendSuffix(string $value, string $suffix): string
     {
         return str_ends_with($value, $suffix) ? $value : $value . $suffix;
+    }
+
+    /**
+     * @param array<string, mixed> $condition
+     */
+    private function registerConditionalPopulatorConfiguration($condition, string $id, ContainerBuilder $container): void
+    {
+        $conditionConfig = $condition;
+
+        $conditionalPopulatorId = $id . '.conditional';
+
+        $expressionLanguageRef = new Reference('expression_language');
+        $conditionClosure = function ($target, $source, $ctx) use ($conditionConfig, $expressionLanguageRef) {
+            if (isset($conditionConfig['property'])) {
+                $objectToCheck = 'target' === $conditionConfig['property_source'] ? $target : $source;
+                $accessor = new Reference('property_accessor');
+
+                return property_exists($objectToCheck, $conditionConfig['property'])
+                    && $accessor->getValue($objectToCheck, $conditionConfig['property']) === $conditionConfig['expected_value']; // @phpstan-ignore-line
+            }
+            if (isset($conditionConfig['expression'])) {
+                return $expressionLanguageRef->evaluate($conditionConfig['expression'], [ // @phpstan-ignore-line
+                    'source' => $source,
+                    'target' => $target,
+                    'context' => $ctx,
+                ]);
+            }
+
+            return false;
+        };
+
+        $container->register($conditionalPopulatorId, ConditionalPopulator::class)
+            ->setPublic(true)
+            ->setArguments([
+                '$populator' => new Reference($id), // Original-Populator
+                '$condition' => $conditionClosure,
+            ]);
+
+        $container->setAlias($id, $conditionalPopulatorId)->setPublic(true);
     }
 }

@@ -384,6 +384,30 @@ converter.closure.factory:
   arguments: [ '@my.converter', 'convert' ]
 ```
 
+### Conditional Populators
+
+Sometimes you want to populate but not in any case but under special circumstances. Therefore we offer the `ConditionalPopulator`.
+
+This populator allows you to define a condition under which the population - implemented in an other populator - should be done.
+So, decoration pattern is used here:
+
+```yaml
+my.conditional.populator:
+    public: true
+    class: Neusta\ConverterBundle\Populator\ConditionalPopulator
+    arguments:
+        $populator: '@my.populator'
+        $condition: '@my.condition'
+```
+
+The condition is a Closure which could e.g. be created by the `ClosureFactory`:
+
+```yaml
+my.condition:
+    class: Closure
+    factory: [ '@My\Condition', 'checkCondition' ]
+```
+
 ## Context
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.
