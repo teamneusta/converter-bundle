@@ -24,6 +24,7 @@ class GenericConverterIntegrationTest extends ConfigurableKernelTestCase
         // Test Assertion
         self::assertInstanceOf(Person::class, $target);
         self::assertSame('Max Mustermann', $target->getFullName());
+        self::assertSame('mail@me.com', $target->getMail());
     }
 
     public function testConvertWithContext(): void
