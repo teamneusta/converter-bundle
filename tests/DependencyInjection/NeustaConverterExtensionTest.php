@@ -12,7 +12,7 @@ use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Neusta\ConverterBundle\Target\GenericTargetFactory;
+use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
@@ -53,7 +53,9 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->load([
             'converter' => [
                 'foobar' => [
-                    'target' => Person::class,
+                    'target' => [
+                        'class' => Person::class,
+                    ],
                     'populators' => [
                         PersonNamePopulator::class,
                     ],
@@ -63,7 +65,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
 
         // converter
         $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
-        $this->assertContainerBuilderHasService('foobar.target_factory', GenericTargetFactory::class);
+        $this->assertContainerBuilderHasService('foobar.target_factory', GenericTargetWithPropertiesFactory::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference('foobar.target_factory'));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.target_factory', '$type', Person::class);
     }
@@ -76,7 +78,9 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->load([
             'converter' => [
                 'foobar' => [
-                    'target' => 'UnknownClass',
+                    'target' => [
+                        'class' => 'UnknownClass',
+                    ],
                     'populators' => [
                         PersonNamePopulator::class,
                     ],
@@ -109,7 +113,9 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->load([
             'converter' => [
                 'foobar' => [
-                    'target' => Person::class,
+                    'target' => [
+                        'class' => Person::class,
+                    ],
                     'target_factory' => PersonFactory::class,
                     'populators' => [
                         PersonNamePopulator::class,

@@ -85,7 +85,11 @@ Then declare the following converter in your package config:
 neusta_converter:
   converter:
     person.converter:
-      target: YourNamespace\Person
+      target: 
+        class: YourNamespace\Person
+        # optionally pre-initialized values for target properties
+        properties:
+            email: 'mail@me.com'
       populators:
         - YourNamespace\PersonNamePopulator
         # additional populators may follow
@@ -98,6 +102,14 @@ neusta_converter:
 > [!TIP]
 > You can use a custom implementation of the `TargetTypeFactory` interface via the `target_factory` keyword
 > if you have special requirements when creating the target object.
+
+> [!TIP]
+> You can simply write `target: YourNameSpace\Person` instead of 
+> ```
+> target: 
+>     class: YourNameSpace\Person
+> ```
+> and it will be transformed before normalization but in that case you can not define initialization properties.
 
 #### Mapping properties
 
@@ -112,7 +124,8 @@ You can use it in your converter config via the `properties` keyword:
 neusta_converter:
   converter:
     person.converter:
-      target: YourNamespace\Person
+      target: 
+        class: YourNamespace\Person
       properties:
         email: ~
         phoneNumber: phone
@@ -140,7 +153,8 @@ To set a default value for a property, you can use the `default` keyword:
 neusta_converter:
   converter:
     person.converter:
-      target: YourNamespace\Person
+      target: 
+        class: YourNamespace\Person
       properties:
         phoneNumber:
           source: phone
@@ -163,7 +177,8 @@ You can use it in your converter config via the `context` keyword:
 neusta_converter:
   converter:
     person.converter:
-      target: YourNamespace\Person
+      target: 
+        class: YourNamespace\Person
       context:
         group: ~
         locale: language
