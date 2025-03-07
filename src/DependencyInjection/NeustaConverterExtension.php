@@ -105,6 +105,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     '$targetPropertyName' => $targetProperty,
                     '$sourcePropertyName' => $sourceProperty['source'] ?? $targetProperty,
                     '$accessor' => new Reference('property_accessor'),
+                    '$skipNull' => $config['property']['skip_null'],
                 ],
                 ArrayConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),
@@ -112,6 +113,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     '$sourceArrayPropertyName' => $sourceProperty['source'] ?? $targetProperty,
                     '$sourceArrayItemPropertyName' => $sourceProperty['source_array_item'] ?? null,
                     '$accessor' => new Reference('property_accessor'),
+                    '$skipNull' => $config['property']['skip_null'],
                 ],
                 default => throw new InvalidConfigurationException(\sprintf('The populator "%s" is not supported.', $config['populator'])),
             });

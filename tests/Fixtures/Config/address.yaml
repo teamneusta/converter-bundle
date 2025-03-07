@@ -3,7 +3,9 @@ neusta_converter:
     test.person.address.populator:
       converter: test.address.converter
       property:
-        address: ~
+        source: 'address'
+        source_array_item: null
+        skip_null: true
 
 services:
   Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\AddressFactory: ~
