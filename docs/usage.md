@@ -386,10 +386,12 @@ converter.closure.factory:
 
 ### Conditional Populators
 
-Sometimes you want to populate but not in any case but under special circumstances. Therefore we offer the `ConditionalPopulator`.
+Sometimes you want to populate but not in any case but under special circumstances. 
+Therefore, we offer the `ConditionalPopulator`.
 
-This populator allows you to define a condition under which the population - implemented in an other populator - should be done.
-So, decoration pattern is used here:
+This populator allows you to define a condition under which the population -
+implemented in another populator - should be done.
+So, the decoration pattern is used here:
 
 ```yaml
 my.conditional.populator:
@@ -400,7 +402,7 @@ my.conditional.populator:
         $condition: '@my.condition'
 ```
 
-The condition is a Closure which could e.g. be created by the `ClosureFactory`:
+The condition is a Closure that could e.g., be created by the `ClosureFactory`:
 
 ```yaml
 my.condition:
