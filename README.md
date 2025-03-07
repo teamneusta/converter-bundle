@@ -8,7 +8,6 @@ A default implementation of the Converter & Populator design pattern.
 
    ```shell
    composer require teamneusta/converter-bundle
-   ```
 
 2. **Enable the bundle**
 

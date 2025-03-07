@@ -1,10 +1,7 @@
 neusta_converter:
   converter:
     test.person.converter:
-      target:
-        class: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
-        properties:
-          mail: 'mail@me.com'
+      target: 'Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person'
       context:
         group: ~ # same property name
         locale: language # different property names
