@@ -136,18 +136,11 @@ final class NeustaConverterExtension extends ConfigurableExtension
         }
     }
 
-    private function appendSuffix(string $value, string $suffix): string
-    {
-        return str_ends_with($value, $suffix) ? $value : $value . $suffix;
-    }
-
     /**
-     * @param array<string, mixed> $condition
+     * @param array<string, mixed> $conditionConfig
      */
-    private function registerConditionalPopulatorConfiguration($condition, string $id, ContainerBuilder $container): void
+    private function registerConditionalPopulatorConfiguration(array $conditionConfig, string $id, ContainerBuilder $container): void
     {
-        $conditionConfig = $condition;
-
         $conditionalPopulatorId = $id . '.conditional';
 
         $expressionLanguageRef = new Reference('expression_language');
@@ -178,5 +171,10 @@ final class NeustaConverterExtension extends ConfigurableExtension
             ]);
 
         $container->setAlias($id, $conditionalPopulatorId)->setPublic(true);
+    }
+
+    private function appendSuffix(string $value, string $suffix): string
+    {
+        return str_ends_with($value, $suffix) ? $value : $value . $suffix;
     }
 }

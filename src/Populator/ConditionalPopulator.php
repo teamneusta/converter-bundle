@@ -11,10 +11,11 @@ use Neusta\ConverterBundle\Populator;
  * @template TTarget of object
  * @template TContext of object|null
  */
-class ConditionalPopulator implements Populator
+final class ConditionalPopulator implements Populator
 {
     /**
-     * @param Populator<TSource, TTarget, TContext> $populator
+     * @param Populator<TSource, TTarget, TContext>     $populator
+     * @param \Closure(TTarget, TSource, TContext):bool $condition
      */
     public function __construct(
         private Populator $populator,
