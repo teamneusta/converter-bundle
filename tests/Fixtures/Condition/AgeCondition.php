@@ -11,8 +11,8 @@ class AgeCondition
     ) {
     }
 
-    public function checkCondition(): \Closure
+    public function __invoke($target, $source, $ctx): bool
     {
-        return fn ($target, $source, $ctx) => $source->getAgeInYears() >= $this->minAge;
+        return $source->getAgeInYears() >= $this->minAge;
     }
 }
