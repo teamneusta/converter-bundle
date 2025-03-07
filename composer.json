@@ -79,7 +79,7 @@
     "tests": "phpunit",
     "tests:coverage:ci": "phpunit --teamcity --coverage-cobertura .coverage/cobertura.xml",
     "twig:cs": "twigcs templates/",
-    "yaml:lint": "yaml-lint config tests/Fixtures/Config"
+    "yaml:lint": "yaml-lint --parse-tags config tests/Fixtures/Config"
   },
   "scripts-descriptions": {
     "cs:check": "Checks code style (but doesn't fix anything)",
