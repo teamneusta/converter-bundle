@@ -110,6 +110,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     '$targetPropertyName' => $targetProperty,
                     '$sourcePropertyName' => $sourceProperty['source'] ?? $targetProperty,
                     '$accessor' => new Reference('property_accessor'),
+                    '$skipNull' => $sourceProperty['skip_null'],
                 ],
                 ArrayConvertingPopulator::class => [
                     '$converter' => new TypedReference($config['converter'], Converter::class),

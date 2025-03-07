@@ -31,6 +31,18 @@ class PersonAddressPopulatorIntegrationTest extends ConfigurableKernelTestCase
         self::assertSame('24', $person->getAddress()->getStreetNo());
     }
 
+    public function testPopulate_null_case(): void
+    {
+        $user = (new User())->setAddress(null);
+        $personAddress = new PersonAddress();
+        $personAddress->setCity('No city');
+        $person = (new Person())->setAddress($personAddress);
+
+        self::getContainer()->get('test.person.address.populator')->populate($person, $user);
+
+        self::assertSame('No city', $person->getAddress()->getCity());
+    }
+
     public function testPopulate_wrong_source_type(): void
     {
         $user = (new User())->setFieldWithUnknownType(new UnknownType());
