@@ -3,6 +3,14 @@ services:
     autowire: false
     autoconfigure: false
 
+  neusta_converter.expression_language:
+    class: Symfony\Component\ExpressionLanguage\ExpressionLanguage
+    arguments: ['@?cache.neusta_converter_expression_language']
+
+  cache.neusta_converter_expression_language:
+    parent: cache.system
+    tags: ['cache.pool']
+
   ############################################################
   # Command
   ############################################################

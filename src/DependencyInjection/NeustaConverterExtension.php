@@ -8,6 +8,8 @@ use Neusta\ConverterBundle\Command\DebugCommand;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
+use Neusta\ConverterBundle\Populator\Condition\ExpressionCondition;
+use Neusta\ConverterBundle\Populator\Condition\PropertyCondition;
 use Neusta\ConverterBundle\Populator\ConditionalPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
@@ -17,6 +19,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\TypedReference;
@@ -132,45 +135,41 @@ final class NeustaConverterExtension extends ConfigurableExtension
             });
 
         if (isset($config['condition'])) {
-            $this->registerConditionalPopulatorConfiguration($config['condition'], $id, $container);
+            $this->registerConditionalPopulatorConfiguration($id, $config['condition'], $container);
         }
     }
 
     /**
-     * @param array<string, mixed> $conditionConfig
+     * @param array<string, mixed> $config
      */
-    private function registerConditionalPopulatorConfiguration(array $conditionConfig, string $id, ContainerBuilder $container): void
+    private function registerConditionalPopulatorConfiguration(string $populatorId, array $config, ContainerBuilder $container): void
     {
-        $conditionalPopulatorId = $id . '.conditional';
+        $conditionalPopulatorId = $populatorId . '.conditional';
 
-        $expressionLanguageRef = new Reference('expression_language');
-        $conditionClosure = function ($target, $source, $ctx) use ($conditionConfig, $expressionLanguageRef) {
-            if (isset($conditionConfig['property'])) {
-                $objectToCheck = 'target' === $conditionConfig['property_source'] ? $target : $source;
-                $accessor = new Reference('property_accessor');
-
-                return property_exists($objectToCheck, $conditionConfig['property'])
-                    && $accessor->getValue($objectToCheck, $conditionConfig['property']) === $conditionConfig['expected_value']; // @phpstan-ignore-line
-            }
-            if (isset($conditionConfig['expression'])) {
-                return $expressionLanguageRef->evaluate($conditionConfig['expression'], [ // @phpstan-ignore-line
-                    'source' => $source,
-                    'target' => $target,
-                    'context' => $ctx,
-                ]);
-            }
-
-            return false;
+        $condition = match (true) {
+            isset($config['property']) => (new Definition(PropertyCondition::class))
+                ->setArguments([
+                    '$propertyName' => $config['property'],
+                    '$propertyBase' => $config['property_base'],
+                    '$expectedValue' => $config['expected_value'],
+                    '$accessor' => new Reference('property_accessor'),
+                ]),
+            isset($config['expression']) => (new Definition(ExpressionCondition::class))
+                ->setArguments([
+                    '$expressionLanguage' => new Reference('neusta_converter.expression_language'),
+                    '$expression' => $config['expression'],
+                ]),
+            default => throw new InvalidConfigurationException('The condition must be either a property or an expression.'),
         };
 
         $container->register($conditionalPopulatorId, ConditionalPopulator::class)
-            ->setPublic(true)
+            ->setDecoratedService($populatorId)
             ->setArguments([
-                '$populator' => new Reference($id), // Original-Populator
-                '$condition' => $conditionClosure,
+                '$populator' => new Reference($conditionalPopulatorId . '.inner'),
+                '$condition' => (new Definition(\Closure::class))
+                    ->setFactory([\Closure::class, 'fromCallable'])
+                    ->addArgument([$condition, '__invoke']),
             ]);
-
-        $container->setAlias($id, $conditionalPopulatorId)->setPublic(true);
     }
 
     private function appendSuffix(string $value, string $suffix): string
