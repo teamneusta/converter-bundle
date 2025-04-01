@@ -4,6 +4,19 @@ services:
     autoconfigure: false
 
   ############################################################
+  # Command
+  ############################################################
+  Neusta\ConverterBundle\Command\ShowConvertersPopulatorsCommand:
+    arguments:
+      $registry: '@Neusta\ConverterBundle\Dump\InspectedServicesRegistry'
+      $twig: '@twig'
+    tags:
+      - { name: 'console.command' }
+
+  Neusta\ConverterBundle\Dump\InspectedServicesRegistry:
+    public: true
+
+  ############################################################
   # Generic Converter
   ############################################################
   neusta_converter.generic_converter:
