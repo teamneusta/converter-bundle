@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection\Compiler;
 
 use Neusta\ConverterBundle\Dump\InspectedServicesRegistry;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -20,11 +21,13 @@ class ServiceInspectorPass implements CompilerPassInterface
         $registry = $container->findDefinition(InspectedServicesRegistry::class);
 
         foreach ($container->getDefinitions() as $id => $definition) {
-            $class = $definition->getClass() ?? 'unknown';
+            $class = $definition instanceof ChildDefinition
+                ? $container->findDefinition($definition->getParent())->getClass()
+                : $definition->getClass();
 
             $arguments = $this->handleArguments($definition->getArguments());
 
-            $registry->addMethodCall('add', [$id, $class, $arguments]);
+            $registry->addMethodCall('add', [$id, $class ?? 'unknown', $arguments]);
         }
     }
 
