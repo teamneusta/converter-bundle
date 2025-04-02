@@ -22,16 +22,12 @@ use Neusta\ConverterBundle\TargetFactory;
  */
 final class InspectedServicesRegistry
 {
-    private const KEY_CONVERTERS = 'converters';
-    private const KEY_POPULATORS = 'populators';
-    private const KEY_FACTORIES = 'factories';
-
-    /** @var array<string, array<string, ServiceType>> */
-    private array $services = [
-        self::KEY_CONVERTERS => [],
-        self::KEY_POPULATORS => [],
-        self::KEY_FACTORIES => [],
-    ];
+    /** @var array<string, ServiceType> */
+    private array $converters = [];
+    /** @var array<string, ServiceType> */
+    private array $populators = [];
+    /** @var array<string, ServiceType> */
+    private array $factories = [];
 
     /**
      * @param class-string  $class
@@ -42,17 +38,17 @@ final class InspectedServicesRegistry
         try {
             $reflection = new \ReflectionClass($class);
             if ($reflection->implementsInterface(Converter::class)) {
-                $this->services[self::KEY_CONVERTERS][$id] = [
+                $this->converters[$id] = [
                     'class' => $class,
                     'arguments' => $arguments,
                 ];
             } elseif ($reflection->implementsInterface(Populator::class)) {
-                $this->services[self::KEY_POPULATORS][$id] = [
+                $this->populators[$id] = [
                     'class' => $class,
                     'arguments' => $arguments,
                 ];
             } elseif ($reflection->implementsInterface(TargetFactory::class)) {
-                $this->services[self::KEY_FACTORIES][$id] = [
+                $this->factories[$id] = [
                     'class' => $class,
                     'arguments' => $arguments,
                 ];
@@ -67,7 +63,7 @@ final class InspectedServicesRegistry
      */
     public function allConverters(): array
     {
-        return $this->services[self::KEY_CONVERTERS];
+        return $this->converters;
     }
 
     /**
@@ -75,7 +71,7 @@ final class InspectedServicesRegistry
      */
     public function allFactories(): array
     {
-        return $this->services[self::KEY_FACTORIES];
+        return $this->factories;
     }
 
     /**
@@ -83,6 +79,6 @@ final class InspectedServicesRegistry
      */
     public function allPopulators(): array
     {
-        return $this->services[self::KEY_POPULATORS];
+        return $this->populators;
     }
 }
