@@ -10,9 +10,9 @@ use Neusta\ConverterBundle\TargetFactory;
 
 class InspectedServicesRegistry
 {
-    public const KEY_CONVERTERS = 'converters';
-    public const KEY_POPULATORS = 'populators';
-    public const KEY_FACTORIES = 'factories';
+    private const KEY_CONVERTERS = 'converters';
+    private const KEY_POPULATORS = 'populators';
+    private const KEY_FACTORIES = 'factories';
 
     /** @var array<string, array<string, array<string, string|array<mixed>>>> */
     private array $services = [
@@ -45,7 +45,7 @@ class InspectedServicesRegistry
                     'arguments' => $arguments,
                 ];
             }
-        } catch (\ReflectionException $e) {
+        } catch (\ReflectionException) {
             // nothing to do
         }
     }

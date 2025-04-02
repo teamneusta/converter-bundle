@@ -10,14 +10,13 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class NeustaConverterBundle extends Bundle
 {
-    public function build(ContainerBuilder $container)
-    {
-        parent::build($container);
-        $container->addCompilerPass(new ServiceInspectorPass());
-    }
-
     public function getPath(): string
     {
         return \dirname(__DIR__);
+    }
+
+    public function build(ContainerBuilder $container): void
+    {
+        $container->addCompilerPass(new ServiceInspectorPass());
     }
 }
