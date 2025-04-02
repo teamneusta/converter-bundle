@@ -21,7 +21,7 @@ final class ShowConvertersPopulatorsCommand extends Command
 {
     public function __construct(
         private readonly InspectedServicesRegistry $registry,
-        private readonly TwigEnvironment $twig,
+        private readonly ?TwigEnvironment $twig,
     ) {
         parent::__construct();
     }
@@ -49,6 +49,10 @@ final class ShowConvertersPopulatorsCommand extends Command
         $htmlPath = $input->getOption('html');
 
         if ($htmlPath) {
+            if (null === $this->twig) {
+                throw new \LogicException('You cannot use the "neusta_converter:show" command if the Twig Bundle is not available. Try running "composer require symfony/twig-bundle".');
+            }
+
             $html = $this->twig->render('@NeustaConverter/debug/service_inspector.html.twig', [
                 'services' => array_merge($this->registry->allConverters(), $this->registry->allPopulators(), $this->registry->allFactories()),
             ]);
