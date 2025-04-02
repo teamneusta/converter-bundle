@@ -9,7 +9,7 @@ services:
   Neusta\ConverterBundle\Command\ShowConvertersPopulatorsCommand:
     arguments:
       $registry: '@Neusta\ConverterBundle\Dump\InspectedServicesRegistry'
-      $twig: '@twig'
+      $twig: '@?twig'
     tags:
       - { name: 'console.command' }
 

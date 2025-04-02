@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection;
 
+use Neusta\ConverterBundle\Command\ShowConvertersPopulatorsCommand;
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Dump\InspectedServicesRegistry;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
@@ -12,6 +14,7 @@ use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
@@ -34,6 +37,11 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
         foreach ($mergedConfig['populator'] as $populatorId => $populator) {
             $this->registerPopulatorConfiguration($populatorId, $populator, $container);
+        }
+
+        if (!$container::willBeAvailable('symfony/console', Application::class, ['teamneusta/converter-bundle'])) {
+            $container->removeDefinition(ShowConvertersPopulatorsCommand::class);
+            $container->removeDefinition(InspectedServicesRegistry::class);
         }
     }
 
