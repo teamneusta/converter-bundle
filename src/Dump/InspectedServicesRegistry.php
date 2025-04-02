@@ -8,13 +8,25 @@ use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\TargetFactory;
 
-class InspectedServicesRegistry
+/**
+ * @internal
+ *
+ * @phpstan-type ServiceType array{
+ *     class: string,
+ *     arguments: ServiceArgumentsType,
+ * }
+ * @phpstan-type ServiceArgumentsType array<int|string, array{
+ *     type: string,
+ *     value: scalar|array<mixed>,
+ * }>
+ */
+final class InspectedServicesRegistry
 {
     private const KEY_CONVERTERS = 'converters';
     private const KEY_POPULATORS = 'populators';
     private const KEY_FACTORIES = 'factories';
 
-    /** @var array<string, array<string, array<string, string|array<mixed>>>> */
+    /** @var array<string, array<string, ServiceType>> */
     private array $services = [
         self::KEY_CONVERTERS => [],
         self::KEY_POPULATORS => [],
@@ -22,8 +34,8 @@ class InspectedServicesRegistry
     ];
 
     /**
-     * @param class-string                           $class
-     * @param array<int|string, string|array<mixed>> $arguments
+     * @param class-string  $class
+     * @param ServiceArgumentsType $arguments
      */
     public function add(string $id, string $class, array $arguments): void
     {
@@ -51,7 +63,7 @@ class InspectedServicesRegistry
     }
 
     /**
-     * @return array<string, array<string, string|array<mixed>>>
+     * @return array<string, ServiceType>
      */
     public function allConverters(): array
     {
@@ -59,7 +71,7 @@ class InspectedServicesRegistry
     }
 
     /**
-     * @return array<string, array<string, string|array<mixed>>>
+     * @return array<string, ServiceType>
      */
     public function allFactories(): array
     {
@@ -67,7 +79,7 @@ class InspectedServicesRegistry
     }
 
     /**
-     * @return array<string, array<string, string|array<mixed>>>
+     * @return array<string, ServiceType>
      */
     public function allPopulators(): array
     {

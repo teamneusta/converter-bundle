@@ -10,7 +10,10 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-class ServiceInspectorPass implements CompilerPassInterface
+/**
+ * @phpstan-import-type ServiceArgumentsType from InspectedServicesRegistry
+ */
+final class ServiceInspectorPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
@@ -32,9 +35,9 @@ class ServiceInspectorPass implements CompilerPassInterface
     }
 
     /**
-     * @param array<string|int, string|Reference|array<mixed>> $inputArguments
+     * @param array<int|string, mixed|array<mixed>> $inputArguments
      *
-     * @return array<string|int, string|Reference|array<mixed>>
+     * @return ServiceArgumentsType
      */
     private function handleArguments(array $inputArguments): array
     {
