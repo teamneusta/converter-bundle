@@ -89,11 +89,11 @@ final class ShowConvertersPopulatorsCommand extends Command
     private function writeArgumentsArray(array $arguments, OutputInterface $output, int $level): void
     {
         foreach ($arguments as $key => $argument) {
-            if (\is_array($argument)) {
-                $output->writeln(str_repeat('  ', $level) . "- <info>$key</info>:");
-                $this->writeArgumentsArray($argument, $output, $level + 1);
+            if (\is_array($argument['value'])) {
+                $output->writeln(str_repeat('  ', $level) . "- <info>{$key}</info>:");
+                $this->writeArgumentsArray($argument['value'], $output, $level + 1);
             } else {
-                $output->writeln(str_repeat('  ', $level) . "- <info>$key</info>: <comment>$argument</comment>");
+                $output->writeln(str_repeat('  ', $level) . "- <info>{$key}</info>: <comment>{$argument['value']}</comment>");
             }
         }
     }
