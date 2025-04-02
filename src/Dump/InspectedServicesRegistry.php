@@ -30,32 +30,39 @@ final class InspectedServicesRegistry
     private array $factories = [];
 
     /**
-     * @param class-string  $class
-     * @param ServiceArgumentsType $arguments
+     * @param class-string<Converter> $class
+     * @param ServiceArgumentsType    $arguments
      */
-    public function add(string $id, string $class, array $arguments): void
+    public function addConverter(string $id, string $class, array $arguments): void
     {
-        try {
-            $reflection = new \ReflectionClass($class);
-            if ($reflection->implementsInterface(Converter::class)) {
-                $this->converters[$id] = [
-                    'class' => $class,
-                    'arguments' => $arguments,
-                ];
-            } elseif ($reflection->implementsInterface(Populator::class)) {
-                $this->populators[$id] = [
-                    'class' => $class,
-                    'arguments' => $arguments,
-                ];
-            } elseif ($reflection->implementsInterface(TargetFactory::class)) {
-                $this->factories[$id] = [
-                    'class' => $class,
-                    'arguments' => $arguments,
-                ];
-            }
-        } catch (\ReflectionException) {
-            // nothing to do
-        }
+        $this->converters[$id] = [
+            'class' => $class,
+            'arguments' => $arguments,
+        ];
+    }
+
+    /**
+     * @param class-string<Populator> $class
+     * @param ServiceArgumentsType    $arguments
+     */
+    public function addPopulator(string $id, string $class, array $arguments): void
+    {
+        $this->populators[$id] = [
+            'class' => $class,
+            'arguments' => $arguments,
+        ];
+    }
+
+    /**
+     * @param class-string<TargetFactory> $class
+     * @param ServiceArgumentsType        $arguments
+     */
+    public function addTargetFactory(string $id, string $class, array $arguments): void
+    {
+        $this->factories[$id] = [
+            'class' => $class,
+            'arguments' => $arguments,
+        ];
     }
 
     /**
