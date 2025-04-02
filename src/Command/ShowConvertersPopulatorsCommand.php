@@ -12,6 +12,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Twig\Environment as TwigEnvironment;
 
+/**
+ * @phpstan-import-type ServiceType from InspectedServicesRegistry
+ * @phpstan-import-type ServiceArgumentsType from InspectedServicesRegistry
+ */
 #[AsCommand(name: 'neusta_converter:show', description: 'show converters, populators and factories')]
 final class ShowConvertersPopulatorsCommand extends Command
 {
@@ -70,7 +74,7 @@ final class ShowConvertersPopulatorsCommand extends Command
     }
 
     /**
-     * @param iterable<string, array<string|int, string|array<mixed>>> $services
+     * @param iterable<string, ServiceType> $services
      */
     private function describeServices(iterable $services, OutputInterface $output): void
     {
@@ -78,13 +82,13 @@ final class ShowConvertersPopulatorsCommand extends Command
             $class = $service['class'];
             $output->writeln("🔧 <info>{$id}</info>: <comment>{$class}</comment>");
 
-            $this->writeArgumentsArray($service['arguments'], $output, 1); // @phpstan-ignore-line
+            $this->writeArgumentsArray($service['arguments'], $output, 1);
             $output->writeln('');
         }
     }
 
     /**
-     * @param array<string|int, string|array<mixed>> $arguments
+     * @param ServiceArgumentsType $arguments
      */
     private function writeArgumentsArray(array $arguments, OutputInterface $output, int $level): void
     {
