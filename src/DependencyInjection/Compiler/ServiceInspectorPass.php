@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\DependencyInjection\Compiler;
 
+use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Dump\InspectedServicesRegistry;
+use Neusta\ConverterBundle\Populator;
+use Neusta\ConverterBundle\TargetFactory;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -24,13 +27,27 @@ final class ServiceInspectorPass implements CompilerPassInterface
         $registry = $container->findDefinition(InspectedServicesRegistry::class);
 
         foreach ($container->getDefinitions() as $id => $definition) {
-            $class = $definition instanceof ChildDefinition
-                ? $container->findDefinition($definition->getParent())->getClass()
-                : $definition->getClass();
+            $arguments = $definition->getArguments();
 
-            $arguments = $this->handleArguments($definition->getArguments());
+            while ((null === $class = $definition->getClass()) && $definition instanceof ChildDefinition) {
+                $definition = $container->findDefinition($definition->getParent());
+            }
 
-            $registry->addMethodCall('add', [$id, $class ?? 'unknown', $arguments]);
+            if (null === $class) {
+                continue;
+            }
+
+            if (!$reflection = $container->getReflectionClass($class, false)) {
+                continue;
+            }
+
+            if ($reflection->implementsInterface(Converter::class)) {
+                $registry->addMethodCall('addConverter', [$id, $class, $this->handleArguments($arguments)]);
+            } elseif ($reflection->implementsInterface(Populator::class)) {
+                $registry->addMethodCall('addPopulator', [$id, $class, $this->handleArguments($arguments)]);
+            } elseif ($reflection->implementsInterface(TargetFactory::class)) {
+                $registry->addMethodCall('TargetFactory', [$id, $class, $this->handleArguments($arguments)]);
+            }
         }
     }
 
