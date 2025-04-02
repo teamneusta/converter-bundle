@@ -35,36 +35,27 @@ class ServiceInspectorPass implements CompilerPassInterface
      */
     private function handleArguments(array $inputArguments): array
     {
-        $arguments = [];
-        foreach ($inputArguments as $argumentName => $argumentValue) {
-            if ($argumentValue instanceof Reference) {
-                $arguments[$argumentName] = [
-                    'value' => '@' . (string) $argumentValue,
-                    'type' => 'reference',
-                ];
-            } elseif (\is_scalar($argumentValue)) {
-                $arguments[$argumentName] = [
-                    'value' => $argumentValue,
-                    'type' => 'scalar',
-                ];
-            } elseif (\is_array($argumentValue)) {
-                $arguments[$argumentName] = [
-                    'value' => $this->handleArguments($argumentValue),
-                    'type' => 'array',
-                ];
-            } elseif (\is_object($argumentValue)) {
-                $arguments[$argumentName] = [
-                    'value' => 'object(' . $argumentValue::class . ')',
-                    'type' => 'object',
-                ];
-            } else {
-                $arguments[$argumentName] = [
-                    'value' => 'unknown',
-                    'type' => 'unknown',
-                ];
-            }
-        }
-
-        return $arguments;
+        return array_map(fn ($argument) => match (true) {
+            $argument instanceof Reference => [
+                'type' => 'reference',
+                'value' => '@' . $argument,
+            ],
+            \is_scalar($argument) => [
+                'type' => 'scalar',
+                'value' => $argument,
+            ],
+            \is_array($argument) => [
+                'type' => 'array',
+                'value' => $this->handleArguments($argument),
+            ],
+            \is_object($argument) => [
+                'type' => 'object',
+                'value' => 'object(' . $argument::class . ')',
+            ],
+            default => [
+                'type' => 'unknown',
+                'value' => 'unknown',
+            ],
+        }, $inputArguments);
     }
 }

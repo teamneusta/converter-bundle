@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Twig\Environment as TwigEnvironment;
 
 #[AsCommand(name: 'neusta_converter:show', description: 'show converters, populators and factories')]
-class ShowConvertersPopulatorsCommand extends Command
+final class ShowConvertersPopulatorsCommand extends Command
 {
     public function __construct(
         private readonly InspectedServicesRegistry $registry,
@@ -30,7 +30,7 @@ class ShowConvertersPopulatorsCommand extends Command
                 This command displays a structured list of all tagged services
                 that act as converters, factories or populators – including their constructor arguments.
 
-                Optionally, you can generate a static HTML documentation using the --html option:
+                Optionally, you can generate static HTML documentation using the --html option:
 
                 bin/console neusta_converter:show --html=var/converter.html
 
@@ -50,7 +50,7 @@ class ShowConvertersPopulatorsCommand extends Command
             ]);
 
             file_put_contents($htmlPath, $html);
-            $output->writeln("✅ HTML-Datei gespeichert: $htmlPath");
+            $output->writeln("✅ HTML-Datei gespeichert: {$htmlPath}");
 
             return Command::SUCCESS;
         }
@@ -76,9 +76,7 @@ class ShowConvertersPopulatorsCommand extends Command
     {
         foreach ($services as $id => $service) {
             $class = $service['class'];
-            if (\is_string($class)) {
-                $output->writeln("🔧 <info>$id</info>: <comment>$class</comment>");
-            }
+            $output->writeln("🔧 <info>{$id}</info>: <comment>{$class}</comment>");
 
             $this->writeArgumentsArray($service['arguments'], $output, 1); // @phpstan-ignore-line
             $output->writeln('');
