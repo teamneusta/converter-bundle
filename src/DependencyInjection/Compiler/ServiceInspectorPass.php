@@ -27,31 +27,37 @@ final class ServiceInspectorPass implements CompilerPassInterface
         $registry = $container->findDefinition(InspectedServicesRegistry::class);
 
         foreach ($container->getDefinitions() as $id => $definition) {
-            $arguments = $definition->getArguments();
-
-            while ((null === $class = $definition->getClass()) && $definition instanceof ChildDefinition) {
-                $definition = $container->findDefinition($definition->getParent());
-            }
-
-            if (null === $class) {
+            if (!$reflection = $this->getClassReflection($container, $definition)) {
                 continue;
             }
-
-            if (!$reflection = $container->getReflectionClass($class, false)) {
-                continue;
-            }
-
-            $serviceInfo = (new Definition(ServiceInfo::class))
-                ->setArguments([$class, $this->handleArguments($arguments)]);
 
             if ($reflection->implementsInterface(Converter::class)) {
-                $registry->addMethodCall('addConverter', [$id, $serviceInfo]);
+                $registry->addMethodCall('addConverter', [$id, $this->getServiceInfo($definition, $reflection)]);
             } elseif ($reflection->implementsInterface(Populator::class)) {
-                $registry->addMethodCall('addPopulator', [$id, $serviceInfo]);
+                $registry->addMethodCall('addPopulator', [$id, $this->getServiceInfo($definition, $reflection)]);
             } elseif ($reflection->implementsInterface(TargetFactory::class)) {
-                $registry->addMethodCall('addTargetFactory', [$id, $serviceInfo]);
+                $registry->addMethodCall('addTargetFactory', [$id, $this->getServiceInfo($definition, $reflection)]);
             }
         }
+    }
+
+    private function getClassReflection(ContainerBuilder $container, Definition $definition): ?\ReflectionClass
+    {
+        while ((null === $class = $definition->getClass()) && $definition instanceof ChildDefinition) {
+            $definition = $container->findDefinition($definition->getParent());
+        }
+
+        if (null === $class) {
+            return null;
+        }
+
+        return $container->getReflectionClass($class, false);
+    }
+
+    private function getServiceInfo(Definition $definition, \ReflectionClass $classReflection): Definition
+    {
+        return (new Definition(ServiceInfo::class))
+            ->setArguments([$classReflection->name, $this->getArgumentInfo($definition->getArguments())]);
     }
 
     /**
@@ -59,13 +65,13 @@ final class ServiceInspectorPass implements CompilerPassInterface
      *
      * @return array<Definition>
      */
-    private function handleArguments(array $arguments): array
+    private function getArgumentInfo(array $arguments): array
     {
         return array_map(
             fn ($argument) => (new Definition(ServiceArgumentInfo::class))->setArguments(match (true) {
                 $argument instanceof Reference => ['reference', '@' . $argument],
                 \is_scalar($argument) => ['scalar', $argument],
-                \is_array($argument) => ['array', $this->handleArguments($argument)],
+                \is_array($argument) => ['array', $this->getArgumentInfo($argument)],
                 \is_object($argument) => ['object', 'object(' . $argument::class . ')'],
                 default => ['unknown', 'unknown'],
             }),
