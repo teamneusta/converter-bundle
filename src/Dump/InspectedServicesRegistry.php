@@ -4,69 +4,35 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Dump;
 
-use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Populator;
-use Neusta\ConverterBundle\TargetFactory;
-
 /**
  * @internal
- *
- * @phpstan-type ServiceType array{
- *     class: string,
- *     arguments: ServiceArgumentsType,
- * }
- * @phpstan-type ServiceArgumentsType array<int|string, array{
- *     type: string,
- *     value: scalar|array<mixed>,
- * }>
  */
 final class InspectedServicesRegistry
 {
-    /** @var array<string, ServiceType> */
+    /** @var array<string, ServiceInfo> */
     private array $converters = [];
-    /** @var array<string, ServiceType> */
+    /** @var array<string, ServiceInfo> */
     private array $populators = [];
-    /** @var array<string, ServiceType> */
+    /** @var array<string, ServiceInfo> */
     private array $factories = [];
 
-    /**
-     * @param class-string<Converter> $class
-     * @param ServiceArgumentsType    $arguments
-     */
-    public function addConverter(string $id, string $class, array $arguments): void
+    public function addConverter(string $id, ServiceInfo $service): void
     {
-        $this->converters[$id] = [
-            'class' => $class,
-            'arguments' => $arguments,
-        ];
+        $this->converters[$id] = $service;
+    }
+
+    public function addPopulator(string $id, ServiceInfo $service): void
+    {
+        $this->populators[$id] = $service;
+    }
+
+    public function addTargetFactory(string $id, ServiceInfo $service): void
+    {
+        $this->factories[$id] = $service;
     }
 
     /**
-     * @param class-string<Populator> $class
-     * @param ServiceArgumentsType    $arguments
-     */
-    public function addPopulator(string $id, string $class, array $arguments): void
-    {
-        $this->populators[$id] = [
-            'class' => $class,
-            'arguments' => $arguments,
-        ];
-    }
-
-    /**
-     * @param class-string<TargetFactory> $class
-     * @param ServiceArgumentsType        $arguments
-     */
-    public function addTargetFactory(string $id, string $class, array $arguments): void
-    {
-        $this->factories[$id] = [
-            'class' => $class,
-            'arguments' => $arguments,
-        ];
-    }
-
-    /**
-     * @return array<string, ServiceType>
+     * @return array<string, ServiceInfo>
      */
     public function allConverters(): array
     {
@@ -74,7 +40,7 @@ final class InspectedServicesRegistry
     }
 
     /**
-     * @return array<string, ServiceType>
+     * @return array<string, ServiceInfo>
      */
     public function allFactories(): array
     {
@@ -82,7 +48,7 @@ final class InspectedServicesRegistry
     }
 
     /**
-     * @return array<string, ServiceType>
+     * @return array<string, ServiceInfo>
      */
     public function allPopulators(): array
     {
