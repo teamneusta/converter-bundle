@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Command;
 
 use Neusta\ConverterBundle\Dump\InspectedServicesRegistry;
+use Neusta\ConverterBundle\Dump\ServiceArgumentInfo;
+use Neusta\ConverterBundle\Dump\ServiceInfo;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,10 +14,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Twig\Environment as TwigEnvironment;
 
-/**
- * @phpstan-import-type ServiceType from InspectedServicesRegistry
- * @phpstan-import-type ServiceArgumentsType from InspectedServicesRegistry
- */
 #[AsCommand(name: 'neusta_converter:show', description: 'show converters, populators and factories')]
 final class ShowConvertersPopulatorsCommand extends Command
 {
@@ -78,30 +76,30 @@ final class ShowConvertersPopulatorsCommand extends Command
     }
 
     /**
-     * @param iterable<string, ServiceType> $services
+     * @param iterable<string, ServiceInfo> $services
      */
     private function describeServices(iterable $services, OutputInterface $output): void
     {
         foreach ($services as $id => $service) {
-            $class = $service['class'];
+            $class = $service->class;
             $output->writeln("🔧 <info>{$id}</info>: <comment>{$class}</comment>");
 
-            $this->writeArgumentsArray($service['arguments'], $output, 1);
+            $this->writeArgumentsArray($service->arguments, $output, 1);
             $output->writeln('');
         }
     }
 
     /**
-     * @param ServiceArgumentsType $arguments
+     * @param array<ServiceArgumentInfo> $arguments
      */
     private function writeArgumentsArray(array $arguments, OutputInterface $output, int $level): void
     {
         foreach ($arguments as $key => $argument) {
-            if (\is_array($argument['value'])) {
+            if (\is_array($argument->value)) {
                 $output->writeln(str_repeat('  ', $level) . "- <info>{$key}</info>:");
-                $this->writeArgumentsArray($argument['value'], $output, $level + 1);
+                $this->writeArgumentsArray($argument->value, $output, $level + 1);
             } else {
-                $output->writeln(str_repeat('  ', $level) . "- <info>{$key}</info>: <comment>{$argument['value']}</comment>");
+                $output->writeln(str_repeat('  ', $level) . "- <info>{$key}</info>: <comment>{$argument->value}</comment>");
             }
         }
     }
