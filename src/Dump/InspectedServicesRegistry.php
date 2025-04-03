@@ -16,19 +16,14 @@ final class InspectedServicesRegistry
     /** @var array<string, ServiceInfo> */
     private array $factories = [];
 
-    public function addConverter(string $id, ServiceInfo $service): void
+    public function add(string $type, string $id, ServiceInfo $service): void
     {
-        $this->converters[$id] = $service;
-    }
-
-    public function addPopulator(string $id, ServiceInfo $service): void
-    {
-        $this->populators[$id] = $service;
-    }
-
-    public function addTargetFactory(string $id, ServiceInfo $service): void
-    {
-        $this->factories[$id] = $service;
+        match ($type) {
+            'converter' => $this->converters[$id] = $service,
+            'populator' => $this->populators[$id] = $service,
+            'factory' => $this->factories[$id] = $service,
+            default => throw new \InvalidArgumentException(\sprintf('Unknown type "%s".', $type)),
+        };
     }
 
     /**
