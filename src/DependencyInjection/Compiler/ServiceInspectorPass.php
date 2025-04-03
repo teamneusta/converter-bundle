@@ -31,12 +31,15 @@ final class ServiceInspectorPass implements CompilerPassInterface
                 continue;
             }
 
-            if ($reflection->implementsInterface(Converter::class)) {
-                $registry->addMethodCall('addConverter', [$id, $this->getServiceInfo($definition, $reflection)]);
-            } elseif ($reflection->implementsInterface(Populator::class)) {
-                $registry->addMethodCall('addPopulator', [$id, $this->getServiceInfo($definition, $reflection)]);
-            } elseif ($reflection->implementsInterface(TargetFactory::class)) {
-                $registry->addMethodCall('addTargetFactory', [$id, $this->getServiceInfo($definition, $reflection)]);
+            $type = match (true) {
+                $reflection->implementsInterface(Converter::class) => 'converter',
+                $reflection->implementsInterface(Populator::class) => 'populator',
+                $reflection->implementsInterface(TargetFactory::class) => 'factory',
+                default => null,
+            };
+
+            if ($type) {
+                $registry->addMethodCall('add', [$type, $id, $this->getServiceInfo($definition, $reflection)]);
             }
         }
     }
