@@ -56,8 +56,19 @@ final class ServiceInspectorPass implements CompilerPassInterface
 
     private function getServiceInfo(Definition $definition, \ReflectionClass $classReflection): Definition
     {
+        $parametersReflection = $classReflection->getConstructor()?->getParameters();
+
+        $argumentsInfo = [];
+        foreach ($this->getArgumentInfo($definition->getArguments()) as $idOrName => $argument) {
+            if (\is_int($idOrName) && $parametersReflection) {
+                $argumentsInfo['$' . $parametersReflection[$idOrName]->name] = $argument;
+            } else {
+                $argumentsInfo[$idOrName] = $argument;
+            }
+        }
+
         return (new Definition(ServiceInfo::class))
-            ->setArguments([$classReflection->name, $this->getArgumentInfo($definition->getArguments())]);
+            ->setArguments([$classReflection->name, $argumentsInfo]);
     }
 
     /**
