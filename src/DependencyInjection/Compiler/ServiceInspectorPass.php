@@ -63,26 +63,11 @@ final class ServiceInspectorPass implements CompilerPassInterface
     {
         return array_map(
             fn ($argument) => (new Definition(ServiceArgumentInfo::class))->setArguments(match (true) {
-                $argument instanceof Reference => [
-                    '$type' => 'reference',
-                    '$value' => '@' . $argument,
-                ],
-                \is_scalar($argument) => [
-                    '$type' => 'scalar',
-                    '$value' => $argument,
-                ],
-                \is_array($argument) => [
-                    '$type' => 'array',
-                    '$value' => $this->handleArguments($argument),
-                ],
-                \is_object($argument) => [
-                    '$type' => 'object',
-                    '$value' => 'object(' . $argument::class . ')',
-                ],
-                default => [
-                    '$type' => 'unknown',
-                    '$value' => 'unknown',
-                ],
+                $argument instanceof Reference => ['reference', '@' . $argument],
+                \is_scalar($argument) => ['scalar', $argument],
+                \is_array($argument) => ['array', $this->handleArguments($argument)],
+                \is_object($argument) => ['object', 'object(' . $argument::class . ')'],
+                default => ['unknown', 'unknown'],
             }),
             $arguments,
         );
