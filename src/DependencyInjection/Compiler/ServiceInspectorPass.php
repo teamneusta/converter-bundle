@@ -84,7 +84,7 @@ final class ServiceInspectorPass implements CompilerPassInterface
                 \is_scalar($argument) => ['scalar', $argument],
                 \is_array($argument) => ['array', $this->getArgumentInfo($argument)],
                 \is_object($argument) => ['object', 'object(' . $argument::class . ')'],
-                default => ['unknown', 'unknown'],
+                default => ['unknown', get_debug_type($argument)],
             }),
             $arguments,
         );
