@@ -38,8 +38,8 @@
                 </div>
 
                 <div class="header-box header-box--info">
-                    <div class="welcome"><?xml version="1.0" encoding="utf-8"?>
-                        <div> Welcome <span class="user-name">Pimconaut</span></div>
+                    <div class="welcome">
+                        <div>Welcome <span class="user-name">Pimconaut</span></div>
                         <div class="welcome_user-circle">
                             <svg class="welcome_user" fill="#fff" width="800px" height="800px"
                                  viewBox="0 -0.3 47.6 47.6"
@@ -86,7 +86,7 @@
 
                 <div class="body-container">
 
-                    <h2 class="body-headline"><?xml version="1.0" encoding="utf-8"?>
+                    <h2 class="body-headline">
                         <svg class="book" fill="#000000" width="40px" height="40px" viewBox="0 0 14 14" role="img"
                              focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -99,12 +99,14 @@
                     <div class="chip-container">
                         <label class="chip-label" for="chips-filter">Filtern nach:</label>
                         <div class="chips">
-                            <button id="chips-filter" class="chip-button chip-converters"><i
-                                    class="material-icons">hive</i>Converters
+                            <button id="chips-filter" class="chip-button chip-converters">
+                                <i class="material-icons">hive</i>Converters
                             </button>
-                            <button class="chip-button chip-populator"><i class="material-icons">tsunami</i>Populators
+                            <button class="chip-button chip-populator">
+                                <i class="material-icons">tsunami</i>Populators
                             </button>
-                            <button class="chip-button chip-factories"><i class="material-icons">token</i>Factories
+                            <button class="chip-button chip-factories">
+                                <i class="material-icons">token</i>Factories
                             </button>
                         </div>
                     </div>
@@ -118,26 +120,11 @@
                             <details class="accordion-item">
                                 <summary id="{{ id }}">{{ id }}</summary>
                                 <div class="accordion-content">
-                                    <p><strong>Klasse:</strong> <code>{{ service['class'] }}</code></p>
-                                    {% for name, argument in service['arguments'] %}
+                                    <p><strong>Klasse:</strong> <code>{{ service.class }}</code></p>
+                                    {% for name, argument in service.arguments %}
                                         <dl>
                                             <dt>{{ name }}</dt>
-                                            {% if argument['type'] == 'array' %}
-                                                {% for argumentName, argumentValue in argument['value'] %}
-                                                    <dd><code>{{ argumentName }}
-                                                            : {% if argumentValue['value'] starts with '@' %}
-                                                                <a href="#{{ argumentValue['value']|slice(1) }}">{{ argumentValue['value'] }}</a>
-                                                            {% else %}
-                                                                {{ argumentValue['value'] }}
-                                                            {% endif %}</code></dd>
-                                                {% endfor %}
-                                            {% elseif argument['type'] == 'reference' %}
-                                                <dd><code><a
-                                                            href="#{{ argument['value']|slice(1) }}">{{ argument['value'] }}</a></code>
-                                                </dd>
-                                            {% else %}
-                                                <dd><code>{{ argument['value'] }}</code></dd>
-                                            {% endif %}
+                                            {{ _self.render_argument(argument) }}
                                         </dl>
                                     {% endfor %}
                                 </div>
@@ -149,3 +136,25 @@
         </div>
     </div>
 {% endblock %}
+
+{% macro render_argument(argument, name) %}
+    <dd>
+        <code>
+            {{ name is not empty ? name ~ ':' }}
+
+            {% if argument.type == 'array' %}
+                {% for argumentName, argumentValue in argument.value %}
+                    <dl>
+                        {{ _self.render_argument(argumentValue, argumentName) }}
+                    </dl>
+                {% endfor %}
+            {% else %}
+                {% if argument.value starts with '@' %}
+                    <a href="#{{ argument.value|slice(1) }}">{{ argument.value }}</a>
+                {% else %}
+                    {{ argument.value }}
+                {% endif %}
+            {% endif %}
+        </code>
+    </dd>
+{% endmacro %}
