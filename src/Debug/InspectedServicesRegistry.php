@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Dump;
+namespace Neusta\ConverterBundle\Debug;
 
 /**
  * @internal
