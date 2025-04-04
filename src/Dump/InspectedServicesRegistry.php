@@ -29,7 +29,7 @@ final class InspectedServicesRegistry
     /**
      * @return array<string, ServiceInfo>
      */
-    public function allConverters(): array
+    public function converters(): array
     {
         return $this->converters;
     }
@@ -37,16 +37,16 @@ final class InspectedServicesRegistry
     /**
      * @return array<string, ServiceInfo>
      */
-    public function allFactories(): array
+    public function populators(): array
     {
-        return $this->factories;
+        return $this->populators;
     }
 
     /**
      * @return array<string, ServiceInfo>
      */
-    public function allPopulators(): array
+    public function factories(): array
     {
-        return $this->populators;
+        return $this->factories;
     }
 }
