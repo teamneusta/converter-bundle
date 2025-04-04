@@ -13,8 +13,7 @@ services:
     tags:
       - { name: 'console.command' }
 
-  Neusta\ConverterBundle\Dump\InspectedServicesRegistry:
-    public: true
+  Neusta\ConverterBundle\Dump\InspectedServicesRegistry: ~
 
   ############################################################
   # Generic Converter
