@@ -48,11 +48,15 @@ final class ShowConvertersPopulatorsCommand extends Command
 
         if ($htmlPath) {
             if (null === $this->twig) {
-                throw new \LogicException('You cannot use the "neusta_converter:show" command if the Twig Bundle is not available. Try running "composer require symfony/twig-bundle".');
+                throw new \LogicException(sprintf(
+                    'You cannot use the "%s" command if the Twig Bundle is not available. ' .
+                    'Try running "composer require symfony/twig-bundle".',
+                    $this->getName(),
+                ));
             }
 
             $html = $this->twig->render('@NeustaConverter/debug/service_inspector.html.twig', [
-                'services' => array_merge($this->registry->allConverters(), $this->registry->allPopulators(), $this->registry->allFactories()),
+                'services' => array_merge($this->registry->converters(), $this->registry->populators(), $this->registry->factories()),
             ]);
 
             file_put_contents($htmlPath, $html);
@@ -62,15 +66,15 @@ final class ShowConvertersPopulatorsCommand extends Command
         }
 
         $output->writeln('<info>🎯 Converter:</info>');
-        $this->describeServices($this->registry->allConverters(), $output);
+        $this->describeServices($this->registry->converters(), $output);
 
         $output->writeln('');
         $output->writeln('<info>🎯 Factories:</info>');
-        $this->describeServices($this->registry->allFactories(), $output);
+        $this->describeServices($this->registry->factories(), $output);
 
         $output->writeln('');
         $output->writeln('<info>🎯 Populatoren:</info>');
-        $this->describeServices($this->registry->allPopulators(), $output);
+        $this->describeServices($this->registry->populators(), $output);
 
         return Command::SUCCESS;
     }
@@ -81,8 +85,7 @@ final class ShowConvertersPopulatorsCommand extends Command
     private function describeServices(iterable $services, OutputInterface $output): void
     {
         foreach ($services as $id => $service) {
-            $class = $service->class;
-            $output->writeln("🔧 <info>{$id}</info>: <comment>{$class}</comment>");
+            $output->writeln("🔧 <info>{$id}</info>: <comment>{$service->class}</comment>");
 
             $this->writeArgumentsArray($service->arguments, $output, 1);
             $output->writeln('');
@@ -94,12 +97,12 @@ final class ShowConvertersPopulatorsCommand extends Command
      */
     private function writeArgumentsArray(array $arguments, OutputInterface $output, int $level): void
     {
-        foreach ($arguments as $key => $argument) {
+        foreach ($arguments as $name => $argument) {
             if (\is_array($argument->value)) {
-                $output->writeln(str_repeat('  ', $level) . "- <info>{$key}</info>:");
+                $output->writeln(str_repeat('  ', $level) . "- <info>{$name}</info>:");
                 $this->writeArgumentsArray($argument->value, $output, $level + 1);
             } else {
-                $output->writeln(str_repeat('  ', $level) . "- <info>{$key}</info>: <comment>{$argument->value}</comment>");
+                $output->writeln(str_repeat('  ', $level) . "- <info>{$name}</info>: <comment>{$argument->value}</comment>");
             }
         }
     }
