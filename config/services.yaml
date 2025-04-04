@@ -6,7 +6,7 @@ services:
   ############################################################
   # Command
   ############################################################
-  Neusta\ConverterBundle\Command\ShowConvertersPopulatorsCommand:
+  Neusta\ConverterBundle\Command\DebugCommand:
     arguments:
       $registry: '@Neusta\ConverterBundle\Debug\InspectedServicesRegistry'
       $twig: '@?twig'
