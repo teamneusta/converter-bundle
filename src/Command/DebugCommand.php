@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Command;
 
-use Neusta\ConverterBundle\Debug\InspectedServicesRegistry;
+use Neusta\ConverterBundle\Debug\DebugInfo;
 use Neusta\ConverterBundle\Debug\ServiceArgumentInfo;
 use Neusta\ConverterBundle\Debug\ServiceInfo;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,7 +18,7 @@ use Twig\Environment as TwigEnvironment;
 final class DebugCommand extends Command
 {
     public function __construct(
-        private readonly InspectedServicesRegistry $registry,
+        private readonly DebugInfo $debugInfo,
         private readonly ?TwigEnvironment $twig,
     ) {
         parent::__construct();
@@ -44,9 +44,9 @@ final class DebugCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $converters = $this->registry->converters();
-        $factories = $this->registry->factories();
-        $populators = $this->registry->populators();
+        $converters = $this->debugInfo->converters();
+        $factories = $this->debugInfo->factories();
+        $populators = $this->debugInfo->populators();
 
         if ($out = $input->getOption('out')) {
             if (null === $this->twig) {

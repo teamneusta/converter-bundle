@@ -8,12 +8,12 @@ services:
   ############################################################
   Neusta\ConverterBundle\Command\DebugCommand:
     arguments:
-      $registry: '@Neusta\ConverterBundle\Debug\InspectedServicesRegistry'
+      $debugInfo: '@Neusta\ConverterBundle\Debug\DebugInfo'
       $twig: '@?twig'
     tags:
       - { name: 'console.command' }
 
-  Neusta\ConverterBundle\Debug\InspectedServicesRegistry: ~
+  Neusta\ConverterBundle\Debug\DebugInfo: ~
 
   ############################################################
   # Generic Converter

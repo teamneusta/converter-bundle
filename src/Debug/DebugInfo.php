@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle\Debug;
 /**
  * @internal
  */
-final class InspectedServicesRegistry
+final class DebugInfo
 {
     /** @var array<string, ServiceInfo> */
     private array $converters = [];

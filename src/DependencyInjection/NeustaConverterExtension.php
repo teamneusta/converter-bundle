@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Command\DebugCommand;
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Debug\InspectedServicesRegistry;
+use Neusta\ConverterBundle\Debug\DebugInfo;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
@@ -41,7 +41,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
         if (!$container::willBeAvailable('symfony/console', Application::class, ['teamneusta/converter-bundle'])) {
             $container->removeDefinition(DebugCommand::class);
-            $container->removeDefinition(InspectedServicesRegistry::class);
+            $container->removeDefinition(DebugInfo::class);
         }
     }
 

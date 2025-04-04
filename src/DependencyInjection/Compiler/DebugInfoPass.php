@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection\Compiler;
 
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Debug\InspectedServicesRegistry;
+use Neusta\ConverterBundle\Debug\DebugInfo;
 use Neusta\ConverterBundle\Debug\ServiceArgumentInfo;
 use Neusta\ConverterBundle\Debug\ServiceInfo;
 use Neusta\ConverterBundle\Populator;
@@ -16,15 +16,15 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-final class ServiceInspectorPass implements CompilerPassInterface
+final class DebugInfoPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->has(InspectedServicesRegistry::class)) {
+        if (!$container->has(DebugInfo::class)) {
             return;
         }
 
-        $registry = $container->findDefinition(InspectedServicesRegistry::class);
+        $debugInfo = $container->findDefinition(DebugInfo::class);
 
         foreach ($container->getDefinitions() as $id => $definition) {
             if (!$reflection = $this->getClassReflection($container, $definition)) {
@@ -39,7 +39,7 @@ final class ServiceInspectorPass implements CompilerPassInterface
             };
 
             if ($type) {
-                $registry->addMethodCall('add', [$type, $id, $this->getServiceInfo($definition, $reflection)]);
+                $debugInfo->addMethodCall('add', [$type, $id, $this->getServiceInfo($definition, $reflection)]);
             }
         }
     }
