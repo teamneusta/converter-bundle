@@ -50,7 +50,7 @@ final class DebugCommand extends Command
 
         if ($out = $input->getOption('out')) {
             if (null === $this->twig) {
-                throw new \LogicException(sprintf(
+                throw new \LogicException(\sprintf(
                     'You cannot use the "%s" command if the Twig Bundle is not available. ' .
                     'Try running "composer require symfony/twig-bundle".',
                     $this->getName(),
