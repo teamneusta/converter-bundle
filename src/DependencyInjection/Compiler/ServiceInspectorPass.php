@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection\Compiler;
 
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Dump\InspectedServicesRegistry;
-use Neusta\ConverterBundle\Dump\ServiceArgumentInfo;
-use Neusta\ConverterBundle\Dump\ServiceInfo;
+use Neusta\ConverterBundle\Debug\InspectedServicesRegistry;
+use Neusta\ConverterBundle\Debug\ServiceArgumentInfo;
+use Neusta\ConverterBundle\Debug\ServiceInfo;
 use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\TargetFactory;
 use Symfony\Component\DependencyInjection\ChildDefinition;

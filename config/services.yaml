@@ -8,12 +8,12 @@ services:
   ############################################################
   Neusta\ConverterBundle\Command\ShowConvertersPopulatorsCommand:
     arguments:
-      $registry: '@Neusta\ConverterBundle\Dump\InspectedServicesRegistry'
+      $registry: '@Neusta\ConverterBundle\Debug\InspectedServicesRegistry'
       $twig: '@?twig'
     tags:
       - { name: 'console.command' }
 
-  Neusta\ConverterBundle\Dump\InspectedServicesRegistry: ~
+  Neusta\ConverterBundle\Debug\InspectedServicesRegistry: ~
 
   ############################################################
   # Generic Converter

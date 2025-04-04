@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Command;
 
-use Neusta\ConverterBundle\Dump\InspectedServicesRegistry;
-use Neusta\ConverterBundle\Dump\ServiceArgumentInfo;
-use Neusta\ConverterBundle\Dump\ServiceInfo;
+use Neusta\ConverterBundle\Debug\InspectedServicesRegistry;
+use Neusta\ConverterBundle\Debug\ServiceArgumentInfo;
+use Neusta\ConverterBundle\Debug\ServiceInfo;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

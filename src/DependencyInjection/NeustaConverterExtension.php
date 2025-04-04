@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Command\ShowConvertersPopulatorsCommand;
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Dump\InspectedServicesRegistry;
+use Neusta\ConverterBundle\Debug\InspectedServicesRegistry;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
