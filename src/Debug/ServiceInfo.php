@@ -16,6 +16,7 @@ final class ServiceInfo
     public function __construct(
         public readonly string $type,
         public readonly string $class,
+        public readonly string $type,
         public readonly array $arguments,
     ) {
     }
