@@ -5,7 +5,9 @@
     <title>{% block title %}Service Inspector{% endblock %}</title>
 
     {# Fonts & Icons #}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     {# Inline CSS (kann auch ausgelagert werden) #}
@@ -69,13 +71,13 @@
             }
 
             code {
-                color: #ffffff;;
+                color: #131313;;
                 font-weight: 800;
-                font-size: .8rem;
+                font-size: .99rem;
                 margin-left: auto;
                 padding: 5px 10px;
                 display: block;
-                background-color: #821d72;
+                /*background-color: #821d72;*/
             }
 
             code a {
@@ -261,6 +263,36 @@
                 transform: translateY(-50%);
             }
 
+            /* Farben für Accordion-Typen */
+            summary.type-converter {
+                background-color: #00968783;
+            }
+            details[open] summary.type-converter {
+                background-color: #009688;
+            }
+
+            summary.type-populator {
+                background-color: #e91e6287;
+            }
+            details[open] summary.type-populator {
+                background-color: #E91E63;
+            }
+
+            summary.type-factory {
+                background-color: #3f51b58c;
+            }
+            details[open] summary.type-factory {
+                background-color: #3F51B5;
+            }
+
+            /* Optional: default fallback für unbekannte Typen */
+            summary:not([class*="type-"]) {
+                background-color: #282829;
+            }
+            details[open] summary:not([class*="type-"]) {
+                background-color: #053c57;
+            }
+
             details[open] summary::before {
                 content: 'expand_less';
             }
@@ -321,6 +353,14 @@
                 background-color: #3f51b58c;
             }
 
+            .chip-sort-name {
+                background-color: #3f94b5;
+            }
+
+            .chip-sort-type {
+                background-color: #3f94b5;
+            }
+
             .chip-converters:hover,
             .chip-converters.active {
                 background-color: #009688;
@@ -339,6 +379,18 @@
                 outline-color: #3F51B5;
             }
 
+            .chip-sort-name:hover,
+            .chip-sort-name.active {
+                background-color: #3f94b5;
+                outline-color: #3f94b5;
+            }
+
+            .chip-sort-type:hover,
+            .chip-sort-type.active {
+                background-color: #3f94b5;
+                outline-color: #3f94b5;
+            }
+
             .chip-label {
                 display: block;
                 font-size: 14px;
@@ -346,7 +398,49 @@
                 margin-bottom: 10px;
             }
 
+            .chip-reset {
+                background-color: #ccc;
+            }
 
+            .chip-reset:hover {
+                background-color: #aaa;
+                color: white;
+            }
+
+            .argument-table,
+            .argument-subtable {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+                font-size: 0.9rem;
+            }
+
+            .argument-table th,
+            .argument-table td,
+            .argument-subtable td {
+                border: 1px solid #ccc;
+                padding: 6px 10px;
+                text-align: left;
+            }
+
+            .argument-table tbody tr:nth-child(even),
+            .argument-subtable tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            .argument-table tbody tr:nth-child(odd),
+            .argument-subtable tr:nth-child(odd) {
+                background-color: #ffffff;
+            }
+
+            .argument-table th {
+                background-color: #eeeeee;
+                font-weight: 600;
+            }
+
+            .argument-subtable {
+                margin: 5px 0;
+            }
         </style>
     {% endblock %}
 </head>
@@ -355,102 +449,7 @@
 {% block body %}{% endblock %}
 
 {% block scripts %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            // Alle Chip Buttons selektieren
-            const buttons = document.querySelectorAll('.chip-button');
-
-            buttons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Überprüfen, ob der Button bereits die 'active' Klasse hat
-                    if (button.classList.contains('active')) {
-                        // Wenn der Button die 'active' Klasse hat, entferne sie
-                        button.classList.remove('active');
-                    } else {
-                        // Wenn der Button keine 'active' Klasse hat, entferne sie von allen Buttons und füge sie dem geklickten Button hinzu
-                        buttons.forEach(btn => btn.classList.remove('active'));
-                        button.classList.add('active');
-                    }
-                });
-            });
-
-            // Neues Datum-Objekt erstellen
-            const heute = new Date();
-
-            // Datum formatieren (z. B. "01. April 2025")
-            const options = {day: '2-digit', month: 'long', year: 'numeric'};
-            const formatiertesDatum = heute.toLocaleDateString("de-DE", options);
-
-            // In das HTML-Element einfügen
-            document.getElementById("datum").textContent = formatiertesDatum;
-        });
-
-        function filterAccordion() {
-            let input = document.getElementById("search").value.toLowerCase();
-            let details = document.querySelectorAll(".accordion-item");
-
-            details.forEach(detail => {
-                let summary = detail.querySelector("summary").textContent.toLowerCase();
-
-                if (summary.includes(input)) {
-                    detail.style.display = "block";
-                } else {
-                    detail.style.display = "none";
-                }
-            });
-        }
-
-        function updateAccordionCount() {
-            const count = document.querySelectorAll('.accordion-item').length;
-            document.getElementById('accordion-count').textContent = `Totale Services: ${count}`;
-        }
-
-        function countPrefixes() {
-            // Hole alle summary-Elemente innerhalb der .accordion-item
-            const summaryElements = document.querySelectorAll('.accordion-item summary');
-
-            // Zähler für jedes Präfix
-            const prefixCounts = {
-                pimcore: 0,
-                trinity: 0,
-                headless: 0,
-                other: 0
-            };
-
-            // Durchlaufe alle summary-Elemente
-            summaryElements.forEach(summary => {
-                // Extrahiere die id
-                const id = summary.id;
-                let prefix = '';
-
-                // Überprüfe auf exakte Übereinstimmung des Präfixes
-                if (id.startsWith('neusta_pimcore')) {
-                    prefix = 'pimcore';
-                } else if (id.startsWith('neusta_trinity')) {
-                    prefix = 'trinity';
-                } else if (id.startsWith('neusta_headless')) {
-                    prefix = 'headless';
-                } else {
-                    prefix = 'other'; // Alles andere geht in "Sonstiges"
-                }
-
-                // Falls das Präfix in unserem Zähler existiert, erhöhe den Wert
-                if (prefixCounts[prefix] !== undefined) {
-                    prefixCounts[prefix]++;
-                }
-            });
-
-            // Aktualisiere die Anzeige für jedes Präfix
-            document.getElementById('pimcore-count').textContent = `Pimcore: ${prefixCounts.pimcore}`;
-            document.getElementById('trinity-count').textContent = `Trinity: ${prefixCounts.trinity}`;
-            document.getElementById('headless-count').textContent = `Headless: ${prefixCounts.headless}`;
-            document.getElementById('other-count').textContent = `Sonstiges: ${prefixCounts.other}`;
-        }
-
-        updateAccordionCount();
-        countPrefixes();
-    </script>
+    <script src="../../public/js/service-inspector.js"></script>
 {% endblock %}
 </body>
 </html>
