@@ -80,6 +80,18 @@ document.addEventListener("DOMContentLoaded", function () {
     // LIVE-SUCHE
     searchInput.addEventListener("keyup", filterAccordion);
 
+    document.querySelectorAll('.class-copy').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const className = btn.getAttribute('data-class');
+            navigator.clipboard.writeText(className).then(() => {
+                btn.innerHTML = '<i class="material-icons">check</i>';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="material-icons">content_copy</i>';
+                }, 1500);
+            });
+        });
+    });
+
     function getTypeFromClass(classList) {
         if (classList.contains('chip-converters')) return 'converter';
         if (classList.contains('chip-populator')) return 'populator';
