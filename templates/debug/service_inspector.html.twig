@@ -118,7 +118,7 @@
                     <div class="accordion">
                         {% for id, service in services %}
                             <details class="accordion-item">
-                                <summary id="{{ id }}">{{ id }}</summary>
+                                <summary id="{{ id }}" type="{{ service.type }}">{{ id }}</summary>
                                 <div class="accordion-content">
                                     <p><strong>Klasse:</strong> <code>{{ service.class }}</code></p>
                                     {% for name, argument in service.arguments %}

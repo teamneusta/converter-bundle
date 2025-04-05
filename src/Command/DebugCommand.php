@@ -44,10 +44,6 @@ final class DebugCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $converters = $this->debugInfo->converters();
-        $factories = $this->debugInfo->factories();
-        $populators = $this->debugInfo->populators();
-
         if ($out = $input->getOption('out')) {
             if (null === $this->twig) {
                 throw new \LogicException(\sprintf(
@@ -58,7 +54,7 @@ final class DebugCommand extends Command
             }
 
             $html = $this->twig->render('@NeustaConverter/debug/service_inspector.html.twig', [
-                'services' => array_merge($converters, $populators, $factories),
+                'services' => $this->debugInfo->services(),
             ]);
 
             file_put_contents($out, $html);
@@ -66,6 +62,10 @@ final class DebugCommand extends Command
 
             return Command::SUCCESS;
         }
+
+        $converters = $this->debugInfo->services('converter');
+        $factories = $this->debugInfo->services('factory');
+        $populators = $this->debugInfo->services('populator');
 
         if ($converters) {
             $output->writeln('<info>🎯 Converter:</info>');

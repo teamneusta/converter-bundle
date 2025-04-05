@@ -10,43 +10,18 @@ namespace Neusta\ConverterBundle\Debug;
 final class DebugInfo
 {
     /** @var array<string, ServiceInfo> */
-    private array $converters = [];
-    /** @var array<string, ServiceInfo> */
-    private array $populators = [];
-    /** @var array<string, ServiceInfo> */
-    private array $factories = [];
+    private array $services = [];
 
-    public function add(string $type, string $id, ServiceInfo $service): void
+    public function add(string $id, ServiceInfo $service): void
     {
-        match ($type) {
-            'converter' => $this->converters[$id] = $service,
-            'populator' => $this->populators[$id] = $service,
-            'factory' => $this->factories[$id] = $service,
-            default => throw new \InvalidArgumentException(\sprintf('Unknown type "%s".', $type)),
-        };
+        $this->services[$id] = $service;
     }
 
     /**
      * @return array<string, ServiceInfo>
      */
-    public function converters(): array
+    public function services(?string $type = null): array
     {
-        return $this->converters;
-    }
-
-    /**
-     * @return array<string, ServiceInfo>
-     */
-    public function populators(): array
-    {
-        return $this->populators;
-    }
-
-    /**
-     * @return array<string, ServiceInfo>
-     */
-    public function factories(): array
-    {
-        return $this->factories;
+        return $type === null ? $this->services : array_filter($this->services, fn($service) => $type === $service->type);
     }
 }
