@@ -100,7 +100,15 @@
                                         <thead>
                                         <tr>
                                             <th>Klasse</th>
-                                            <th><code>{{ service.class }}</code></th>
+                                            <th>
+                                                <code class="class-link">
+{#                                                    <a href="{{ _self.class_gitlab_link(service.class) }}" target="_blank" class="class-link">#}
+                                                    {{ service.class }}
+                                                </code>
+                                                <button class="class-copy" data-class="{{ service.class }}" title="Copy class name">
+                                                    <i class="material-icons">content_copy</i>
+                                                </button>
+                                            </th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -121,6 +129,12 @@
         </div>
     </div>
 {% endblock %}
+
+{#{% macro class_gitlab_link(className) %}#}
+{#    {% set baseUrl = 'https://gitlab.example.com/your-group/your-repo/-/blob/main/src/' %}#}
+{#    {% set relativePath = className|replace({'\\': '/'}) ~ '.php' %}#}
+{#    {{ baseUrl ~ relativePath|replace({'Neusta/': ''}) }}#}
+{#{% endmacro %}#}
 
 {% macro render_argument_cell(argument) %}
     {% import _self as self %}
