@@ -1,0 +1,29 @@
+{% set symfony_logo_path = '../../public/icon/symfony_black.svg' %}
+{% set symfony_brand_path = '../../public/icon/brand-symfony.svg' %}
+{% set neusta_logo_path = '../../public/icon/logo_neusta.svg' %}
+
+<div class="header-container">
+    <div class="header-box">
+        <img src="{{ symfony_logo_path }}" alt="Symfony Logo"/>
+        <h1>Converter - Populator - Pattern</h1>
+        <p>
+            Hier sehen Sie eine Übersicht aller Konverter, Populatoren und Ziel-Fabriken, die in Ihrer Plattform
+            deklariert wurden. Dies soll Ihnen helfen, verkettete Aufrufe wie „Converter → Populator → Converter“ zu
+            verstehen.
+        </p>
+        <img src="{{ neusta_logo_path }}" alt="neusta Logo" class="logo-neusta" />
+    </div>
+    <div class="header-box header-box--info">
+        <div class="welcome">
+            <div>Welcome <span class="user-name">Symfonians</span></div>
+            <img src="{{ symfony_brand_path }}" alt="Symfony Logo"/>
+        </div>
+        <div class="date" id="datum"></div>
+        <div class="service-items service-items-total" id="accordion-count"></div>
+        <div id="prefix-count"></div>
+        <div class="service-items" id="pimcore-count">Pimcore: 0</div>
+        <div class="service-items" id="trinity-count">Trinity: 0</div>
+        <div class="service-items" id="headless-count">Headless: 0</div>
+        <div class="service-items" id="other-count">Other: 0</div>
+    </div>
+</div>

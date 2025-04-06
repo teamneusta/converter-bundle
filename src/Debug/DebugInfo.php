@@ -24,4 +24,12 @@ final class DebugInfo
     {
         return $type === null ? $this->services : array_filter($this->services, fn($service) => $type === $service->type);
     }
+
+    public function serviceById(string $id): ?ServiceInfo
+    {
+        if (array_key_exists($id, $this->services)) {
+            return $this->services[$id];
+        }
+        return null;
+    }
 }

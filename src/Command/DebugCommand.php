@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Command;
 
+use Neusta\ConverterBundle\Debug\Builder\ChartInfoBuilder;
 use Neusta\ConverterBundle\Debug\DebugInfo;
 use Neusta\ConverterBundle\Debug\ServiceArgumentInfo;
 use Neusta\ConverterBundle\Debug\ServiceInfo;
@@ -19,6 +20,7 @@ final class DebugCommand extends Command
 {
     public function __construct(
         private readonly DebugInfo $debugInfo,
+        private readonly ChartInfoBuilder $chartInfoBuilder,
         private readonly ?TwigEnvironment $twig,
     ) {
         parent::__construct();
@@ -55,6 +57,7 @@ final class DebugCommand extends Command
 
             $html = $this->twig->render('@NeustaConverter/debug/service_inspector.html.twig', [
                 'services' => $this->debugInfo->services(),
+                'chartInfo' => $this->chartInfoBuilder->buildFromDebugInfo($this->debugInfo),
             ]);
 
             file_put_contents($out, $html);

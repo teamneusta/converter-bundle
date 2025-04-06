@@ -28,6 +28,7 @@
   "require-dev": {
     "ergebnis/composer-normalize": "^2.42",
     "friendsofphp/php-cs-fixer": "^3.60",
+    "friendsoftwig/twigcs": "^6.5",
     "jangregor/phpstan-prophecy": "^2.1",
     "matthiasnoback/symfony-dependency-injection-test": "^5.1",
     "nyholm/symfony-bundle-test": "^3.0",
@@ -75,6 +76,7 @@
     "phpstan:ci": "phpstan analyse --ansi --no-interaction --no-progress --error-format=github",
     "tests": "phpunit",
     "tests:coverage:ci": "phpunit --teamcity --coverage-cobertura .coverage/cobertura.xml",
+    "twig:cs": "twigcs templates/",
     "yaml:lint": "yaml-lint config tests/Fixtures/Config"
   },
   "scripts-descriptions": {
