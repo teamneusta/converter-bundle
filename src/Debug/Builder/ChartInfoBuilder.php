@@ -31,7 +31,7 @@ final class ChartInfoBuilder
         string $nodeID,
         string $id,
     ): void {
-        foreach ($serviceInfo->getReferences() ?? [] as $refId) {
+        foreach ($serviceInfo->getReferences() as $refId) {
             if (!$refServiceInfo = $debugInfo->service($refId)) {
                 continue;
             }
