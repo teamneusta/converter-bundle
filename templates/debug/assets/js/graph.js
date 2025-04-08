@@ -1,5 +1,3 @@
-mermaid.initialize({ startOnLoad: true });
-
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('details.accordion-item').forEach((details, index) => {
         details.addEventListener('toggle', function () {

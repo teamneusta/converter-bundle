@@ -1,9 +1,7 @@
-{% set book_icon_path = '../../public/icon/book.svg' %}
-
 <div class="service-container">
     <div class="body-container">
         <h2 class="body-headline">
-            <img src="{{ book_icon_path }}" alt="Book-Icon" class="book" width="40" height="40" />
+            {{ source('@NeustaConverter/debug/assets/icon/book.svg') }}
             Table of content
         </h2>
         {% include '@NeustaConverter/debug/_partials/chip_container.html.twig' %}

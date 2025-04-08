@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>{% block title %}Service Inspector{% endblock %}</title>
 
-    {# Fonts & Icons #}
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    {# Inline CSS (kann auch ausgelagert werden) #}
     {% block styles %}
-        <link rel="stylesheet" href="../../public/css/styles.css">
-        <link rel="stylesheet" href="../../public/css/service-inspector.css">
+        <style>
+            {{ source('@NeustaConverter/debug/assets/css/styles.css') }}
+            {{ source('@NeustaConverter/debug/assets/css/service-inspector.css') }}
+        </style>
     {% endblock %}
 </head>
 
@@ -19,9 +19,14 @@
 {% block body %}{% endblock %}
 
 {% block scripts %}
-    <script src="../../public/js/graph.js"></script>
-    <script src="../../public/js/service-inspector.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <script>
+        {{ source('@NeustaConverter/debug/assets/js/graph.js') }}
+        {{ source('@NeustaConverter/debug/assets/js/service-inspector.js') }}
+    </script>
 {% endblock %}
 </body>
 </html>
