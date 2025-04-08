@@ -18,20 +18,27 @@ final class ChartInfoBuilder
         $chartInfo = new ChartInfo();
 
         foreach ($debugInfo->services() as $id => $serviceInfo) {
-            $chartInfo->addNode($id);
-            $this->addRelationsRecursive($chartInfo, $debugInfo, $id, $id, $serviceInfo);
+            $this->addRelationsRecursive($chartInfo, $debugInfo, $serviceInfo, $id, $id);
         }
 
         return $chartInfo;
     }
 
-    private function addRelationsRecursive(ChartInfo $chartInfo, DebugInfo $debugInfo, string $nodeID, string $id, ?ServiceInfo $serviceInfo): void
-    {
-        $type = $serviceInfo?->type ?? 'unknown';
+    private function addRelationsRecursive(
+        ChartInfo $chartInfo,
+        DebugInfo $debugInfo,
+        ServiceInfo $serviceInfo,
+        string $nodeID,
+        string $id,
+    ): void {
+        foreach ($serviceInfo->getReferences() ?? [] as $refId) {
+            if (!$refServiceInfo = $debugInfo->service($refId)) {
+                continue;
+            }
 
-        foreach ($serviceInfo?->getReferences() ?? [] as $refId) {
-            $chartInfo->addRelation($nodeID, $id, $type, $refId, $debugInfo->service($refId)?->type ?? 'unknown');
-            $this->addRelationsRecursive($chartInfo, $debugInfo, $nodeID, $refId, $debugInfo->service($refId));
+            $chartInfo->addRelation($nodeID, $id, $serviceInfo->type, $refId, $refServiceInfo->type);
+
+            $this->addRelationsRecursive($chartInfo, $debugInfo, $refServiceInfo, $nodeID, $refId);
         }
     }
 }
