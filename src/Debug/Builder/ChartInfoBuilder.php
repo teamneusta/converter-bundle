@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Neusta\ConverterBundle\Debug\Builder;
 
 use Neusta\ConverterBundle\Debug\ChartInfo;
 use Neusta\ConverterBundle\Debug\DebugInfo;
 use Neusta\ConverterBundle\Debug\ServiceInfo;
 
-class ChartInfoBuilder
+/**
+ * @internal
+ */
+final class ChartInfoBuilder
 {
     public function buildFromDebugInfo(DebugInfo $debugInfo): ChartInfo
     {
@@ -23,11 +28,10 @@ class ChartInfoBuilder
     private function addRelationsRecursive(ChartInfo $chartInfo, DebugInfo $debugInfo, string $nodeID, string $id, ?ServiceInfo $serviceInfo): void
     {
         $type = $serviceInfo?->type ?? 'unknown';
-        $refs = $serviceInfo?->getReferences() ?? [];
 
-        foreach ($refs as $refId) {
-            $chartInfo->addRelation($nodeID, $id, $type, $refId, $debugInfo->serviceById($refId)?->type ?? 'unknown');
-            $this->addRelationsRecursive($chartInfo, $debugInfo, $nodeID, $refId, $debugInfo->serviceById($refId));
+        foreach ($serviceInfo?->getReferences() ?? [] as $refId) {
+            $chartInfo->addRelation($nodeID, $id, $type, $refId, $debugInfo->service($refId)?->type ?? 'unknown');
+            $this->addRelationsRecursive($chartInfo, $debugInfo, $nodeID, $refId, $debugInfo->service($refId));
         }
     }
 }

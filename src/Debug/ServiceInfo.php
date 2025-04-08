@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Debug;
@@ -13,11 +14,10 @@ final class ServiceInfo
      * @param array<ServiceArgumentInfo> $arguments
      */
     public function __construct(
-        public readonly string $class,
         public readonly string $type,
-        public readonly array  $arguments,
-    )
-    {
+        public readonly string $class,
+        public readonly array $arguments,
+    ) {
     }
 
     /**
@@ -28,17 +28,21 @@ final class ServiceInfo
         $refs = [];
 
         foreach ($this->arguments as $arg) {
-            if ($arg->type === 'reference') {
+            if ('reference' === $arg->type) {
                 $refs[] = ltrim($arg->value, '@');
+
+                continue;
             }
-            if ($arg->type === 'array') {
+
+            if ('array' === $arg->type) {
                 foreach ($arg->value as $argArrayValue) {
-                    if ($argArrayValue->type === 'reference') {
+                    if ('reference' === $argArrayValue->type) {
                         $refs[] = ltrim($argArrayValue->value, '@');
                     }
                 }
             }
         }
+
         return array_unique($refs);
     }
 }

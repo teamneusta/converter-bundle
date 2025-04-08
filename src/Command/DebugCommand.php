@@ -66,21 +66,17 @@ final class DebugCommand extends Command
             return Command::SUCCESS;
         }
 
-        $converters = $this->debugInfo->services('converter');
-        $factories = $this->debugInfo->services('factory');
-        $populators = $this->debugInfo->services('populator');
-
-        if ($converters) {
+        if ($converters = $this->debugInfo->services('converter')) {
             $output->writeln('<info>🎯 Converter:</info>');
             $this->describeServices($converters, $output);
         }
 
-        if ($populators) {
+        if ($populators = $this->debugInfo->services('populator')) {
             $output->writeln(['', '<info>🎯 Populatoren:</info>']);
             $this->describeServices($populators, $output);
         }
 
-        if ($factories) {
+        if ($factories = $this->debugInfo->services('factory')) {
             $output->writeln(['', '<info>🎯 Factories:</info>']);
             $this->describeServices($factories, $output);
         }

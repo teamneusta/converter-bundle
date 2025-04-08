@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Neusta\ConverterBundle\Debug;
 
-class ChartInfo
+/**
+ * @internal
+ */
+final class ChartInfo
 {
-    /** @var array<string, string> */
+    /** @var array<string, list<string>> */
     public array $nodes = [];
 
     public function addNode(string $nodeId): void

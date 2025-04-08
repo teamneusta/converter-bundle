@@ -39,7 +39,7 @@ final class DebugInfoPass implements CompilerPassInterface
             };
 
             if ($type) {
-                $debugInfo->addMethodCall('add', [$id, $this->getServiceInfo($definition, $type, $reflection)]);
+                $debugInfo->addMethodCall('add', [$id, $this->getServiceInfo($type, $definition, $reflection)]);
             }
         }
     }
@@ -57,7 +57,7 @@ final class DebugInfoPass implements CompilerPassInterface
         return $container->getReflectionClass($class, false);
     }
 
-    private function getServiceInfo(Definition $definition, string $type, \ReflectionClass $classReflection): Definition
+    private function getServiceInfo(string $type, Definition $definition, \ReflectionClass $classReflection): Definition
     {
         $parametersReflection = $classReflection->getConstructor()?->getParameters();
 
@@ -71,7 +71,7 @@ final class DebugInfoPass implements CompilerPassInterface
         }
 
         return (new Definition(ServiceInfo::class))
-            ->setArguments([$classReflection->name, $type, $argumentsInfo]);
+            ->setArguments([$type, $classReflection->name, $argumentsInfo]);
     }
 
     /**
