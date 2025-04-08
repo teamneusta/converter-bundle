@@ -10,7 +10,7 @@ namespace Neusta\ConverterBundle\Debug;
 final class ServiceInfo
 {
     /**
-     * @param class-string $class
+     * @param class-string               $class
      * @param array<ServiceArgumentInfo> $arguments
      */
     public function __construct(
