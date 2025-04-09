@@ -28,15 +28,15 @@ final class ServiceInfo
         $refs = [];
 
         foreach ($this->arguments as $arg) {
-            if ('reference' === $arg->type && !is_array($arg->value)) {
+            if ('reference' === $arg->type && !\is_array($arg->value)) {
                 $refs[] = ltrim((string) $arg->value, '@');
 
                 continue;
             }
 
-            if ('array' === $arg->type && is_array($arg->value)) {
+            if ('array' === $arg->type && \is_array($arg->value)) {
                 foreach ($arg->value as $arrayArg) {
-                    if ('reference' === $arrayArg->type && !is_array($arrayArg->value)) {
+                    if ('reference' === $arrayArg->type && !\is_array($arrayArg->value)) {
                         $refs[] = ltrim((string) $arrayArg->value, '@');
                     }
                 }
