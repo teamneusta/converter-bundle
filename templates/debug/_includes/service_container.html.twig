@@ -1,0 +1,64 @@
+<div class="service-container">
+    <div class="body-container">
+        <h2 class="body-headline">
+            {{ source('@NeustaConverter/debug/assets/icon/book.svg') }}
+            Table of content
+        </h2>
+        {% include '@NeustaConverter/debug/_partials/chip_container.html.twig' %}
+        {% include '@NeustaConverter/debug/_partials/search_container.html.twig' %}
+        <div class="accordion">
+            {% for id, service in services %}
+                <details class="accordion-item">
+                    <summary id="{{ id }}" type="{{ service.type }}" class="type-{{ service.type }}">{{ id }}</summary>
+                    <div class="accordion-content">
+                        <table class="argument-table">
+                            <thead>
+                            {% set graphNodes = chartInfo.nodes[id] ?? [] %}
+                            {% if graphNodes is not empty %}
+                                {% include '@NeustaConverter/debug/_partials/service_graph.html.twig' with { id: id, chartInfo: chartInfo } %}
+                            {% endif %}
+                            <tr>
+                                <th>Klasse</th>
+                                <th>
+                                    <code class="class-link">{{ service.class }}</code>
+                                    <button class="class-copy" data-class="{{ service.class }}" title="Copy class name">
+                                        <i class="material-icons">content_copy</i>
+                                    </button>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for name, argument in service.arguments %}
+                                <tr>
+                                    <td><code>{{ name }}<code></td>
+                                    <td>{{ _self.render_argument_cell(argument) }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% macro render_argument_cell(argument) %}
+    {% import _self as self %}
+    {% if argument.type == 'array' %}
+        <table class="argument-subtable">
+            {% for argument_name, argument_value in argument.value %}
+                <tr>
+                    <td>{{ argument_name }}</td>
+                    <td>{{ self.render_argument_cell(argument_value) }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        {% if argument.value starts with '@' %}
+            <a href="#{{ argument.value|slice(1) }}">{{ argument.value }}</a>
+        {% else %}
+            {{ argument.value }}
+        {% endif %}
+    {% endif %}
+{% endmacro %}

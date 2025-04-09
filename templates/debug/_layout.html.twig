@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Service Inspector{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    {% block styles %}
+        <style>
+            {{ source('@NeustaConverter/debug/assets/css/styles.css') }}
+            {{ source('@NeustaConverter/debug/assets/css/service-inspector.css') }}
+        </style>
+    {% endblock %}
+</head>
+
+<body>
+{% block body %}{% endblock %}
+
+{% block scripts %}
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <script>
+        {{ source('@NeustaConverter/debug/assets/js/graph.js') }}
+        {{ source('@NeustaConverter/debug/assets/js/service-inspector.js') }}
+    </script>
+{% endblock %}
+</body>
+</html>

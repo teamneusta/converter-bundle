@@ -4,6 +4,21 @@ services:
     autoconfigure: false
 
   ############################################################
+  # Command
+  ############################################################
+  Neusta\ConverterBundle\Command\DebugCommand:
+    arguments:
+      $debugInfo: '@Neusta\ConverterBundle\Debug\DebugInfo'
+      $chartInfoBuilder: '@Neusta\ConverterBundle\Debug\Builder\ChartInfoBuilder'
+      $twig: '@?twig'
+    tags:
+      - { name: 'console.command' }
+
+  Neusta\ConverterBundle\Debug\DebugInfo: ~
+
+  Neusta\ConverterBundle\Debug\Builder\ChartInfoBuilder: ~
+
+  ############################################################
   # Generic Converter
   ############################################################
   neusta_converter.generic_converter:

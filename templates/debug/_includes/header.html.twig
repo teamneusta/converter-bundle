@@ -1,0 +1,25 @@
+<div class="header-container">
+    <div class="header-box">
+        {{ source('@NeustaConverter/debug/assets/icon/symfony_black.svg') }}
+        <h1>Converter - Populator - Pattern</h1>
+        <p>
+            Hier sehen Sie eine Übersicht aller Konverter, Populatoren und Ziel-Fabriken, die in Ihrer Plattform
+            deklariert wurden. Dies soll Ihnen helfen, verkettete Aufrufe wie „Converter → Populator → Converter“ zu
+            verstehen.
+        </p>
+        {{ source('@NeustaConverter/debug/assets/icon/logo_neusta.svg') }}
+    </div>
+    <div class="header-box header-box--info">
+        <div class="welcome">
+            <div>Welcome <span class="user-name">Symfonians</span></div>
+            {{ source('@NeustaConverter/debug/assets/icon/brand-symfony.svg') }}
+        </div>
+        <div class="date" id="datum"></div>
+        <div class="service-items service-items-total" id="accordion-count"></div>
+        <div id="prefix-count"></div>
+        <div class="service-items" id="pimcore-count">Pimcore: 0</div>
+        <div class="service-items" id="trinity-count">Trinity: 0</div>
+        <div class="service-items" id="headless-count">Headless: 0</div>
+        <div class="service-items" id="other-count">Other: 0</div>
+    </div>
+</div>
