@@ -411,3 +411,16 @@ implementation of a domain-oriented context and use it in your populators as you
 
 You can use the context in factories and populators with custom implementation,
 but it is also possible to use the property mapping like described in section [mapping context](#mapping-context).
+
+# Integration in Phpstorm
+If you have to write or configure a lot of converters and populators you could feel hesitate about the correct spelling of properties and values of the declarations.
+
+In these cases we offer Live Templates for Phpstorm which can be used to speed up the writing of the configuration files.
+
+To use them you have to import the templates by using an import script:
+
+```bash
+bin/install_phpstorm_template
+```
+
+and the templates will be available in Phpstorm AFTER a restart.
