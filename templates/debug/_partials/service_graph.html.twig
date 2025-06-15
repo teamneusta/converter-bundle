@@ -1,0 +1,15 @@
+<tr>
+    <td colspan="2">
+        <div class="mermaid" data-rendered="false">
+            graph LR
+            {% for node in chartInfo.nodes[id] %}
+                {{ node }}
+            {% endfor %}
+
+            classDef converter fill:#00968783;
+            classDef populator fill:#e91e6287;
+            classDef factory fill:#3f51b58c;
+            classDef unknown fill:#fff;
+        </div>
+    </td>
+</tr>

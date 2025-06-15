@@ -1,0 +1,12 @@
+{% extends '@NeustaConverter/debug/_layout.html.twig' %}
+
+{% block title %}Symfony Service-Übersicht{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="container">
+            {% include '@NeustaConverter/debug/_includes/header.html.twig' %}
+            {% include '@NeustaConverter/debug/_includes/service_container.html.twig' %}
+        </div>
+    </div>
+{% endblock %}
