@@ -28,7 +28,7 @@ final class ChartInfoBuilderTest extends TestCase
         $chartInfo = $builder->buildFromDebugInfo($debugInfo);
 
         $this->assertInstanceOf(ChartInfo::class, $chartInfo);
-        $this->assertNotEmpty($chartInfo->nodes);
+        $this->assertCount(1, $chartInfo->nodes);
     }
 
     public function testComplexeRelationBetweenServices(): void
