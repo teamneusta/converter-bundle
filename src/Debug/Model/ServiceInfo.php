@@ -9,8 +9,6 @@ namespace Neusta\ConverterBundle\Debug\Model;
  */
 final class ServiceInfo
 {
-    private string $bundleName = 'App';
-
     /**
      * @param class-string               $class
      * @param array<ServiceArgumentInfo> $arguments
@@ -44,15 +42,5 @@ final class ServiceInfo
         }
 
         return array_unique($refs);
-    }
-
-    public function setBundleName(string $bundleName): void
-    {
-        $this->bundleName = $bundleName;
-    }
-
-    public function getBundleName(): string
-    {
-        return $this->bundleName;
     }
 }
