@@ -103,10 +103,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const input = searchInput.value.toLowerCase();
         const accordion = document.querySelector('.accordion');
 
-        // Array statt NodeList, damit wir sortieren können
         let items = Array.from(originalItems);
 
-        // Filter anwenden
         items = items.filter(detail => {
             const summary = detail.querySelector("summary");
             const summaryText = summary.textContent.toLowerCase();
@@ -118,7 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return matchesSearch && matchesType;
         });
 
-        // Sortierung anwenden
         items.sort((a, b) => {
             const aSummary = a.querySelector('summary');
             const bSummary = b.querySelector('summary');
@@ -133,7 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return sortDirection === 'asc' ? compare : -compare;
         });
 
-        // Accordion leeren & sortiert neu einfügen
         accordion.innerHTML = '';
         items.forEach(item => accordion.appendChild(item));
 
@@ -154,42 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
             `Displayed services: ${shown} out of ${visible} total`;
     }
 
-    function countPrefixes() {
-        const summaryElements = document.querySelectorAll('.accordion-item summary');
-
-        const prefixCounts = {
-            pimcore: 0,
-            trinity: 0,
-            headless: 0,
-            other: 0
-        };
-
-        summaryElements.forEach(summary => {
-            const id = summary.id;
-            let prefix = '';
-
-            if (id.startsWith('neusta_pimcore')) {
-                prefix = 'pimcore';
-            } else if (id.startsWith('neusta_trinity')) {
-                prefix = 'trinity';
-            } else if (id.startsWith('neusta_headless')) {
-                prefix = 'headless';
-            } else {
-                prefix = 'other';
-            }
-
-            if (prefixCounts[prefix] !== undefined) {
-                prefixCounts[prefix]++;
-            }
-        });
-
-        document.getElementById('pimcore-count').textContent = `Pimcore: ${prefixCounts.pimcore}`;
-        document.getElementById('trinity-count').textContent = `Trinity: ${prefixCounts.trinity}`;
-        document.getElementById('headless-count').textContent = `Headless: ${prefixCounts.headless}`;
-        document.getElementById('other-count').textContent = `Sonstiges: ${prefixCounts.other}`;
-    }
-
-    // INTERNE LINKS HANDLING
+    // internal links handling
     document.querySelectorAll('.accordion a[href^="#"]').forEach(link => {
         link.addEventListener('click', function (e) {
             const targetId = this.getAttribute('href').substring(1);
@@ -227,5 +188,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Init
     filterAccordion();
-    countPrefixes();
 });
+

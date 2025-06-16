@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection\Compiler;
 
 use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Debug\DebugInfo;
-use Neusta\ConverterBundle\Debug\ServiceArgumentInfo;
-use Neusta\ConverterBundle\Debug\ServiceInfo;
+use Neusta\ConverterBundle\Debug\Model\DebugInfo;
+use Neusta\ConverterBundle\Debug\Model\ServiceArgumentInfo;
+use Neusta\ConverterBundle\Debug\Model\ServiceInfo;
 use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\TargetFactory;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -39,7 +39,8 @@ final class DebugInfoPass implements CompilerPassInterface
             };
 
             if ($type) {
-                $debugInfo->addMethodCall('add', [$id, $this->getServiceInfo($type, $definition, $reflection)]);
+                $serviceInfo = $this->getServiceInfo($type, $definition, $reflection);
+                $debugInfo->addMethodCall('add', [$id, $serviceInfo]);
             }
         }
     }
