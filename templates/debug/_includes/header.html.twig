@@ -16,31 +16,5 @@
         </div>
         <div class="date" id="datum"></div>
         <div class="service-items service-items-total" id="accordion-count"></div>
-
-        <table class="service-summary-table">
-            {% set otherServiceCount = services|length %}
-            <thead>
-            <tr>
-                <th>Bundle</th>
-                <th>Service Count</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for bundle in bundles %}
-                {% if bundle.serviceCount > 0 %}
-                    <tr>
-                        <td>{{ bundle.bundleName }}</td>
-                        <td>{{ bundle.serviceCount }}</td>
-                    </tr>
-                    {% set otherServiceCount = otherServiceCount - bundle.serviceCount %}
-                {% endif %}
-            {% endfor %}
-            <tr class="other-row">
-                <td><strong>Other Services</strong></td>
-                <td><strong>{{ otherServiceCount }}</strong></td>
-            </tr>
-            </tbody>
-        </table>
-
     </div>
 </div>

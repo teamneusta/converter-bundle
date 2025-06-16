@@ -134,7 +134,6 @@ document.addEventListener("DOMContentLoaded", function () {
         items.forEach(item => accordion.appendChild(item));
 
         updateAccordionCount();
-        updateBundleOverview();
     }
 
     function updateSortIcons() {
@@ -150,47 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('accordion-count').textContent =
             `Displayed services: ${shown} out of ${visible} total`;
     }
-
-    function updateBundleOverview() {
-        const visibleItems = Array.from(document.querySelectorAll('.accordion-item'))
-            .filter(item => item.style.display !== "none");
-
-        const bundleCounts = {};
-        let otherCount = 0;
-
-        visibleItems.forEach(item => {
-            const bundle = item.getAttribute('data-bundle') || 'other';
-            bundleCounts[bundle] = (bundleCounts[bundle] || 0) + 1;
-        });
-
-        // Tabelle aktualisieren
-        const tableBody = document.querySelector(".service-summary-table tbody");
-        if (!tableBody) return;
-
-        // Alle Zeilen außer Header & Other löschen
-        const rows = tableBody.querySelectorAll("tr");
-        rows.forEach(row => {
-            if (!row.classList.contains("other-row")) {
-                row.remove();
-            }
-        });
-
-        // Neue Bundle-Zeilen einfügen
-        for (const [bundle, count] of Object.entries(bundleCounts)) {
-            if (bundle !== 'other') {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td>${bundle}</td><td>${count}</td>`;
-                tableBody.insertBefore(row, tableBody.querySelector(".other-row"));
-            }
-        }
-
-        // Other-Zeile setzen
-        const otherRow = tableBody.querySelector(".other-row td:last-child");
-        if (otherRow) {
-            otherRow.innerHTML = `<strong>${bundleCounts['other'] || 0}</strong>`;
-        }
-    }
-
 
     // internal links handling
     document.querySelectorAll('.accordion a[href^="#"]').forEach(link => {
