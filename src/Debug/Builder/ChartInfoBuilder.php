@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Debug\Builder;
 
-use Neusta\ConverterBundle\Debug\ChartInfo;
-use Neusta\ConverterBundle\Debug\DebugInfo;
-use Neusta\ConverterBundle\Debug\ServiceInfo;
+use Neusta\ConverterBundle\Debug\Model\ChartInfo;
+use Neusta\ConverterBundle\Debug\Model\DebugInfo;
+use Neusta\ConverterBundle\Debug\Model\ServiceInfo;
 
 /**
  * @internal

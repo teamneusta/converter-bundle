@@ -8,13 +8,18 @@ services:
   ############################################################
   Neusta\ConverterBundle\Command\DebugCommand:
     arguments:
-      $debugInfo: '@Neusta\ConverterBundle\Debug\DebugInfo'
+      $debugInfo: '@Neusta\ConverterBundle\Debug\Model\DebugInfo'
       $chartInfoBuilder: '@Neusta\ConverterBundle\Debug\Builder\ChartInfoBuilder'
+      $bundleInfoBuilder: '@Neusta\ConverterBundle\Debug\Builder\BundleInfoBuilder'
       $twig: '@?twig'
     tags:
       - { name: 'console.command' }
 
-  Neusta\ConverterBundle\Debug\DebugInfo: ~
+  Neusta\ConverterBundle\Debug\Model\DebugInfo: ~
+
+  Neusta\ConverterBundle\Debug\Builder\BundleInfoBuilder:
+    arguments:
+      $kernel: '@kernel'
 
   Neusta\ConverterBundle\Debug\Builder\ChartInfoBuilder: ~
 

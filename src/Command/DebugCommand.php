@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Command;
 
+use Neusta\ConverterBundle\Debug\Builder\BundleInfoBuilder;
 use Neusta\ConverterBundle\Debug\Builder\ChartInfoBuilder;
-use Neusta\ConverterBundle\Debug\DebugInfo;
-use Neusta\ConverterBundle\Debug\ServiceArgumentInfo;
-use Neusta\ConverterBundle\Debug\ServiceInfo;
+use Neusta\ConverterBundle\Debug\Model\DebugInfo;
+use Neusta\ConverterBundle\Debug\Model\ServiceArgumentInfo;
+use Neusta\ConverterBundle\Debug\Model\ServiceInfo;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,6 +22,7 @@ final class DebugCommand extends Command
     public function __construct(
         private readonly DebugInfo $debugInfo,
         private readonly ChartInfoBuilder $chartInfoBuilder,
+        private readonly BundleInfoBuilder $bundleInfoBuilder,
         private readonly ?TwigEnvironment $twig,
     ) {
         parent::__construct();
@@ -55,9 +57,13 @@ final class DebugCommand extends Command
                 ));
             }
 
+            $bundles = $this->bundleInfoBuilder->getBundles();
+            $this->bundleInfoBuilder->buildFromDebugInfo($this->debugInfo);
+
             $html = $this->twig->render('@NeustaConverter/debug/service_inspector.html.twig', [
                 'services' => $this->debugInfo->services(),
                 'chartInfo' => $this->chartInfoBuilder->buildFromDebugInfo($this->debugInfo),
+                'bundles' => $bundles,
             ]);
 
             file_put_contents($out, $html);

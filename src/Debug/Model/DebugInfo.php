@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Debug;
+namespace Neusta\ConverterBundle\Debug\Model;
 
 /**
  * @internal
@@ -32,9 +32,10 @@ final class DebugInfo
 
     public function serviceById(string $id): ?ServiceInfo
     {
-        if (array_key_exists($id, $this->services)) {
+        if (\array_key_exists($id, $this->services)) {
             return $this->services[$id];
         }
+
         return null;
     }
 }

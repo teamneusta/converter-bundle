@@ -103,10 +103,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const input = searchInput.value.toLowerCase();
         const accordion = document.querySelector('.accordion');
 
-        // Array statt NodeList, damit wir sortieren können
         let items = Array.from(originalItems);
 
-        // Filter anwenden
         items = items.filter(detail => {
             const summary = detail.querySelector("summary");
             const summaryText = summary.textContent.toLowerCase();
@@ -118,7 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return matchesSearch && matchesType;
         });
 
-        // Sortierung anwenden
         items.sort((a, b) => {
             const aSummary = a.querySelector('summary');
             const bSummary = b.querySelector('summary');
@@ -133,11 +130,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return sortDirection === 'asc' ? compare : -compare;
         });
 
-        // Accordion leeren & sortiert neu einfügen
         accordion.innerHTML = '';
         items.forEach(item => accordion.appendChild(item));
 
         updateAccordionCount();
+        updateBundleOverview();
     }
 
     function updateSortIcons() {
@@ -154,42 +151,48 @@ document.addEventListener("DOMContentLoaded", function () {
             `Displayed services: ${shown} out of ${visible} total`;
     }
 
-    function countPrefixes() {
-        const summaryElements = document.querySelectorAll('.accordion-item summary');
+    function updateBundleOverview() {
+        const visibleItems = Array.from(document.querySelectorAll('.accordion-item'))
+            .filter(item => item.style.display !== "none");
 
-        const prefixCounts = {
-            pimcore: 0,
-            trinity: 0,
-            headless: 0,
-            other: 0
-        };
+        const bundleCounts = {};
+        let otherCount = 0;
 
-        summaryElements.forEach(summary => {
-            const id = summary.id;
-            let prefix = '';
+        visibleItems.forEach(item => {
+            const bundle = item.getAttribute('data-bundle') || 'other';
+            bundleCounts[bundle] = (bundleCounts[bundle] || 0) + 1;
+        });
 
-            if (id.startsWith('neusta_pimcore')) {
-                prefix = 'pimcore';
-            } else if (id.startsWith('neusta_trinity')) {
-                prefix = 'trinity';
-            } else if (id.startsWith('neusta_headless')) {
-                prefix = 'headless';
-            } else {
-                prefix = 'other';
-            }
+        // Tabelle aktualisieren
+        const tableBody = document.querySelector(".service-summary-table tbody");
+        if (!tableBody) return;
 
-            if (prefixCounts[prefix] !== undefined) {
-                prefixCounts[prefix]++;
+        // Alle Zeilen außer Header & Other löschen
+        const rows = tableBody.querySelectorAll("tr");
+        rows.forEach(row => {
+            if (!row.classList.contains("other-row")) {
+                row.remove();
             }
         });
 
-        document.getElementById('pimcore-count').textContent = `Pimcore: ${prefixCounts.pimcore}`;
-        document.getElementById('trinity-count').textContent = `Trinity: ${prefixCounts.trinity}`;
-        document.getElementById('headless-count').textContent = `Headless: ${prefixCounts.headless}`;
-        document.getElementById('other-count').textContent = `Sonstiges: ${prefixCounts.other}`;
+        // Neue Bundle-Zeilen einfügen
+        for (const [bundle, count] of Object.entries(bundleCounts)) {
+            if (bundle !== 'other') {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${bundle}</td><td>${count}</td>`;
+                tableBody.insertBefore(row, tableBody.querySelector(".other-row"));
+            }
+        }
+
+        // Other-Zeile setzen
+        const otherRow = tableBody.querySelector(".other-row td:last-child");
+        if (otherRow) {
+            otherRow.innerHTML = `<strong>${bundleCounts['other'] || 0}</strong>`;
+        }
     }
 
-    // INTERNE LINKS HANDLING
+
+    // internal links handling
     document.querySelectorAll('.accordion a[href^="#"]').forEach(link => {
         link.addEventListener('click', function (e) {
             const targetId = this.getAttribute('href').substring(1);
@@ -227,5 +230,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Init
     filterAccordion();
-    countPrefixes();
 });
+
