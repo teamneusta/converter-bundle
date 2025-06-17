@@ -15,6 +15,6 @@ neusta_converter:
         chip_populator: "Populators"
         chip_factory: "Factories"
         chip_sort_by_name: "sortiert nach Name"
-        chip_sort_by_type: "sortiert nach Type"
+        chip_sort_by_type: "sortiert nach Typ"
         chip_reset_all: "Alles zurücksetzen"
         search_placeholder: "Suche..."
