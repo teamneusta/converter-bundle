@@ -52,6 +52,8 @@ final class DebugCommand extends Command
     {
         if ($this->translator instanceof Translator) {
             $this->translator->setLocale($input->getOption('locale'));
+        } else {
+            $output->write("There is no translator available or configrued, so the locale option will be ignored.\n");
         }
         if ($out = $input->getOption('out')) {
             if (null === $this->twig) {
