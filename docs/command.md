@@ -28,23 +28,10 @@ It supports two modes:
 
 ## Options
 
-| Option       | Description                                                                                     |
-|--------------|-------------------------------------------------------------------------------------------------|
-| `--out=PATH` | Optional. If set, generates a static HTML file with all converter data.                         |
-| `--locale=XX`| Optional. Sets the language/locale to be used for translations (e.g. `de`, `en`).  ATM only these two languages are supported.
-
-
-
-
-
-
-
-
-
-
-
-
-|
+| Option        | Description                                                                                                                     |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `--out=PATH`  | Optional. If set, generates a static HTML file with all converter data.                                                         |
+| `--locale=XX` | Optional. Sets the language/locale to be used for translations (e.g. `de`, `en`).<br>ATM only these two languages are supported.|
 
 ### Example HTML output
 ![Example Output](images/screenshot_html_output.png)
