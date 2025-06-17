@@ -1,20 +1,17 @@
 <div class="header-container">
     <div class="header-box">
         {{ source('@NeustaConverter/debug/assets/icon/symfony_black.svg') }}
-        <h1>Converter - Populator - Pattern</h1>
-        <p>
-            Hier sehen Sie eine Übersicht aller Converter, Populatoren und Ziel-Fabriken, die in Ihrer Plattform
-            deklariert wurden. Dies soll Ihnen helfen, verkettete Aufrufe wie „Converter → Populator → Converter“ zu
-            verstehen.
-        </p>
+        <h1>{{ 'neusta_converter.debug.service_inspector.header.title'|trans }}</h1>
+        <p>{{ 'neusta_converter.debug.service_inspector.header.brief_description'|trans }}</p>
         {{ source('@NeustaConverter/debug/assets/icon/logo_neusta.svg') }}
     </div>
     <div class="header-box header-box--info">
         <div class="welcome">
-            <div>Welcome <span class="user-name">Symfonians</span></div>
+            <div>{{ 'neusta_converter.debug.service_inspector.header.welcome'|trans|raw }}</div>
             {{ source('@NeustaConverter/debug/assets/icon/brand-symfony.svg') }}
         </div>
         <div class="date" id="datum"></div>
-        <div class="service-items service-items-total" id="accordion-count"></div>
+        <div class="service-items service-items-total" id="accordion-count" data-label="{{ 'neusta_converter.debug.service_inspector.header.stats'|trans({'%shown%': '__SHOWN__', '%total%': '__TOTAL__'}) }}"></div>
+
     </div>
 </div>

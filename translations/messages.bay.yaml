@@ -1,0 +1,20 @@
+neusta_converter:
+  debug:
+    service_inspector:
+      title: "Symfony Service-Übersicht"
+      header:
+        title: "Converter - Populator - Schmarr'n"
+        brief_description: "Do siggst’d a Übersicht über olle Converter, Populatoren und Zielfabriken, de auf da Plattform o'gehm san. Des soi Dia dabei helfa, wia so z'sammbatzte Aufrufe à la ‚Converter → Populator → Converter‘ z'sammkemma."
+        welcome: "Servus <span class=\"user-name\">Symfoniker</span>"
+        stats: "Ozoagte Services: %shown% von %total%"
+      service_container:
+        title: "Services G'schau"
+      chip_container:
+        label: "G'filtert noch:"
+        chip_converter: "Converters"
+        chip_populator: "Populators"
+        chip_factory: "Factories"
+        chip_sort_by_name: "ahm Nama noch"
+        chip_sort_by_type: "ahm Typ noch"
+        chip_reset_all: "ois weg"
+        search_placeholder: "Suach..."

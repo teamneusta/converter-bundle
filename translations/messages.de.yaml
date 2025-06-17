@@ -1,0 +1,20 @@
+neusta_converter:
+  debug:
+    service_inspector:
+      title: "Symfony Service-Übersicht"
+      header:
+        title: "Converter - Populator - Muster"
+        brief_description: "Hier sehen Sie eine Übersicht aller Converter, Populatoren und Ziel-Fabriken, die in Ihrer Plattform deklariert wurden. Dies soll Ihnen helfen, verkettete Aufrufe wie 'Converter → Populator → Converter' zu verstehen."
+        welcome: "Willkommen <span class=\"user-name\">Symfoniker</span>"
+        stats: "Angezeigte Services: %shown% von %total%"
+      service_container:
+        title: "Services Übersicht"
+      chip_container:
+        label: "Gefiltert nach:"
+        chip_converter: "Converters"
+        chip_populator: "Populators"
+        chip_factory: "Factories"
+        chip_sort_by_name: "sortiert nach Name"
+        chip_sort_by_type: "sortiert nach Typ"
+        chip_reset_all: "Alles zurücksetzen"
+        search_placeholder: "Suche..."

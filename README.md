@@ -22,6 +22,8 @@ A default implementation of the Converter & Populator design pattern.
 
 ## [Usage](docs/usage.md)
 
+## [Helpful Command](docs/command.md)
+
 ## Contribution
 
 Feel free to open issues for any bug, feature request, or other ideas.

@@ -42,6 +42,7 @@
     "symfony/filesystem": "^5.4 || ^6.2 || ^7.0",
     "symfony/phpunit-bridge": "^5.4 || ^6.2 || ^7.0",
     "symfony/test-pack": "^1.0",
+    "symfony/translation": "^5.4 || ^6.2 || ^7.0",
     "symfony/twig-bundle": "^5.4 || ^6.2 || ^7.0",
     "symfony/yaml": "^5.4 || ^6.2 || ^7.0",
     "twig/twig": "^3.20"
