@@ -9,11 +9,11 @@ bin/console neusta:converter:debug
 ```
 
 ## Description
-This command inspects services tagged as:
+This command inspects services implementing one of the following interfaces:
 
-* converter
-* populator
-* factory
+* `Neusta\ConverterBundle\Converter`
+* `Neusta\ConverterBundle\Populator`
+* `Neusta\ConverterBundle\TargetFactory`
 
 For each, it outputs:
 
