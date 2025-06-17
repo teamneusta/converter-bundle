@@ -145,9 +145,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const visible = document.querySelectorAll('.accordion-item').length;
         const shown = Array.from(document.querySelectorAll('.accordion-item'))
             .filter(item => item.style.display !== "none").length;
+        const countElement = document.getElementById('accordion-count');
+        const labelTemplate = countElement.dataset.label;
 
-        document.getElementById('accordion-count').textContent =
-            `Displayed services: ${shown} out of ${visible} total`;
+        countElement.textContent = labelTemplate
+            .replace('__SHOWN__', shown)
+            .replace('__TOTAL__', visible);
     }
 
     // internal links handling

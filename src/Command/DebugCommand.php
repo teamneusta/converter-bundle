@@ -13,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment as TwigEnvironment;
 
 #[AsCommand(name: 'neusta:converter:debug', description: 'Displays debug information for converters, populators and factories')]
@@ -21,6 +22,7 @@ final class DebugCommand extends Command
     public function __construct(
         private readonly DebugInfo $debugInfo,
         private readonly ChartInfoBuilder $chartInfoBuilder,
+        private readonly TranslatorInterface $translator,
         private readonly ?TwigEnvironment $twig,
     ) {
         parent::__construct();
@@ -30,6 +32,7 @@ final class DebugCommand extends Command
     {
         $this
             ->addOption('out', null, InputOption::VALUE_REQUIRED, 'Path to the HTML file for static output')
+            ->addOption('locale', null, InputOption::VALUE_REQUIRED, 'Language to use', 'en')
             ->setHelp(<<<'HELP'
                 The <info>%command.name%</info> command displays a structured list of all tagged services that act as converters, factories or populators – including their constructor arguments.
 
@@ -46,6 +49,7 @@ final class DebugCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->translator->setLocale($input->getOption('locale'));
         if ($out = $input->getOption('out')) {
             if (null === $this->twig) {
                 throw new \LogicException(\sprintf(

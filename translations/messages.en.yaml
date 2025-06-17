@@ -1,0 +1,20 @@
+neusta_converter:
+  debug:
+    service_inspector:
+      title: "Symfony Service Overview"
+      header:
+        title: "Converter - Populator - Pattern"
+        brief_description: "You see an overview here over all Converters, Populators and Target Factories which have been declared in your platform. This should help you understanding chained calls as 'Converter → Populator → Converter'."
+        welcome: "Welcome <span class=\"user-name\">Symfonians</span>"
+        stats: "Displayed services: %shown% of %total%"
+      service_container:
+        title: "Services Overview"
+      chip_container:
+        label: "Filtered by:"
+        chip_converter: "Converters"
+        chip_populator: "Populators"
+        chip_factory: "Factories"
+        chip_sort_by_name: "Sort by name"
+        chip_sort_by_type: "Sort by type"
+        chip_reset_all: "Reset all"
+        search_placeholder: "Search..."

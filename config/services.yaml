@@ -10,6 +10,7 @@ services:
     arguments:
       $debugInfo: '@Neusta\ConverterBundle\Debug\Model\DebugInfo'
       $chartInfoBuilder: '@Neusta\ConverterBundle\Debug\Builder\ChartInfoBuilder'
+      $translator: '@translator'
       $twig: '@?twig'
     tags:
       - { name: 'console.command' }
