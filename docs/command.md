@@ -1,14 +1,17 @@
 # Command 
 
-## neusta:converter:debug
+## `neusta:converter:debug`
+
 Displays debug information about all registered converters, populators, and factories in the application. Optionally generates a static HTML overview for documentation purposes.
 
 ## Usage
+
 ```shell
 bin/console neusta:converter:debug
 ```
 
 ## Description
+
 This command inspects services implementing one of the following interfaces:
 
 * `Neusta\ConverterBundle\Converter`
@@ -34,4 +37,5 @@ It supports two modes:
 | `--locale=XX` | Optional. Sets the language/locale to be used for translations (e.g. `de`, `en`).<br>ATM only these two languages are supported.|
 
 ### Example HTML output
+
 ![Example Output](images/screenshot_html_output.png)
