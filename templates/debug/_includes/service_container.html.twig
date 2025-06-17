@@ -8,7 +8,7 @@
         {% include '@NeustaConverter/debug/_partials/search_container.html.twig' %}
         <div class="accordion">
             {% for id, service in services %}
-                <details class="accordion-item" data-bundle="{{ service.bundleName }}">
+                <details class="accordion-item">
                     <summary id="{{ id }}" type="{{ service.type }}" class="type-{{ service.type }}">{{ id }}</summary>
                     <div class="accordion-content">
                         <table class="argument-table">
