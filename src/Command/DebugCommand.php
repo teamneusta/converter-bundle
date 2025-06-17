@@ -13,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Translation\Translator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment as TwigEnvironment;
 
@@ -22,8 +23,8 @@ final class DebugCommand extends Command
     public function __construct(
         private readonly DebugInfo $debugInfo,
         private readonly ChartInfoBuilder $chartInfoBuilder,
-        private readonly TranslatorInterface $translator,
         private readonly ?TwigEnvironment $twig,
+        private readonly ?TranslatorInterface $translator = null,
     ) {
         parent::__construct();
     }
@@ -49,7 +50,9 @@ final class DebugCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->translator->setLocale($input->getOption('locale'));
+        if ($this->translator instanceof Translator) {
+            $this->translator->setLocale($input->getOption('locale'));
+        }
         if ($out = $input->getOption('out')) {
             if (null === $this->twig) {
                 throw new \LogicException(\sprintf(

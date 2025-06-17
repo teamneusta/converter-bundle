@@ -23,7 +23,8 @@
     "symfony/dependency-injection": "^5.4 || ^6.2 || ^7.0",
     "symfony/framework-bundle": "^5.4 || ^6.2 || ^7.0",
     "symfony/http-kernel": "^5.4 || ^6.2 || ^7.0",
-    "symfony/property-access": "^5.4 || ^6.2 || ^7.0"
+    "symfony/property-access": "^5.4 || ^6.2 || ^7.0",
+    "symfony/translation": "^5.4 || ^6.2 || ^7.0"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.42",
