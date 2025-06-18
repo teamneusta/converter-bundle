@@ -13,8 +13,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Translation\Translator;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment as TwigEnvironment;
 
 #[AsCommand(name: 'neusta:converter:debug', description: 'Displays debug information for converters, populators and factories')]
@@ -24,7 +24,7 @@ final class DebugCommand extends Command
         private readonly DebugInfo $debugInfo,
         private readonly ChartInfoBuilder $chartInfoBuilder,
         private readonly ?TwigEnvironment $twig,
-        private readonly ?TranslatorInterface $translator = null,
+        private readonly ?Translator $translator = null,
     ) {
         parent::__construct();
     }
@@ -50,19 +50,28 @@ final class DebugCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->translator instanceof Translator) {
-            $this->translator->setLocale($input->getOption('locale'));
-        } else {
-            $output->write("There is no translator available or configrued, so the locale option will be ignored.\n");
-        }
         if ($out = $input->getOption('out')) {
+            $io = new SymfonyStyle($input, $output);
+
             if (null === $this->twig) {
-                throw new \LogicException(\sprintf(
-                    'You cannot use the "%s" command if the Twig Bundle is not available. ' .
+                $io->getErrorStyle()->error([
+                    \sprintf('You cannot use the "%s" command if the Twig Bundle is not available.', $this->getName()),
                     'Try running "composer require symfony/twig-bundle".',
-                    $this->getName(),
-                ));
+                ]);
+
+                return Command::FAILURE;
             }
+
+            if (null === $this->translator) {
+                $io->getErrorStyle()->error([
+                    \sprintf('You cannot use the "%s" command if the Symfony translation component is not available.', $this->getName()),
+                    'Try running "composer require symfony/translation".',
+                ]);
+
+                return Command::FAILURE;
+            }
+
+            $this->translator->setLocale($input->getOption('locale'));
 
             $html = $this->twig->render('@NeustaConverter/debug/service_inspector.html.twig', [
                 'services' => $this->debugInfo->services(),
@@ -70,18 +79,19 @@ final class DebugCommand extends Command
             ]);
 
             file_put_contents($out, $html);
-            $output->writeln("✅ HTML-Datei gespeichert: {$out}");
+
+            $io->success(\sprintf('HTML file saved: %s', realpath($out)));
 
             return Command::SUCCESS;
         }
 
         if ($converters = $this->debugInfo->services('converter')) {
-            $output->writeln('<info>🎯 Converter:</info>');
+            $output->writeln('<info>🎯 Converters:</info>');
             $this->describeServices($converters, $output);
         }
 
         if ($populators = $this->debugInfo->services('populator')) {
-            $output->writeln(['', '<info>🎯 Populatoren:</info>']);
+            $output->writeln(['', '<info>🎯 Populators:</info>']);
             $this->describeServices($populators, $output);
         }
 
