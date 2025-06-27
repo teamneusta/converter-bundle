@@ -14,7 +14,7 @@ interface Populator
     /**
      * @param TTarget  $target
      * @param TSource  $source
-     * @param TContext $ctx
+     * @param Context|TContext $ctx
      */
     public function populate(object $target, object $source, ?object $ctx = null): void;
 }

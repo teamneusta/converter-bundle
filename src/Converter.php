@@ -15,7 +15,7 @@ interface Converter
 {
     /**
      * @param TSource  $source
-     * @param TContext $ctx
+     * @param Context|TContext $ctx
      *
      * @return TTarget target type of your conversion
      *

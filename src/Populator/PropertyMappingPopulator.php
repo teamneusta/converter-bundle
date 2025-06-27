@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator;
 
+use Neusta\ConverterBundle\Context;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -18,12 +20,12 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 final class PropertyMappingPopulator implements Populator
 {
-    /** @var \Closure(mixed, TContext=):mixed */
+    /** @var \Closure(mixed, Context|TContext=):mixed */
     private \Closure $mapper;
     private PropertyAccessorInterface $accessor;
 
     /**
-     * @param \Closure(mixed, TContext=):mixed|null $mapper
+     * @param \Closure(mixed, Context|TContext=):mixed|null $mapper
      */
     public function __construct(
         private string $targetProperty,
@@ -42,6 +44,16 @@ final class PropertyMappingPopulator implements Populator
      */
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
+        if ($ctx instanceof GenericContext) {
+            trigger_deprecation(
+                'teamneusta/converter-bundle',
+                '1.10.0',
+                'Passing a "%s" is deprecated, pass a "%s" instead.',
+                GenericContext::class,
+                Context::class,
+            );
+        }
+
         try {
             $value = '$this' !== $this->sourceProperty
                 ? $this->accessor->getValue($source, $this->sourceProperty) ?? $this->defaultValue
