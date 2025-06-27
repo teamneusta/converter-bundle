@@ -11,7 +11,7 @@ namespace Neusta\ConverterBundle;
 interface TargetFactory
 {
     /**
-     * @param TContext $ctx
+     * @param Context|TContext $ctx
      *
      * @return TTarget
      */
