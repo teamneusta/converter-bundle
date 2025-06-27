@@ -1,0 +1,26 @@
+neusta_converter:
+  context_configurators:
+    - Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator
+
+  converter:
+    global_context_converter:
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
+      context:
+        age:
+          objectType: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
+
+    global_and_local_context_converter:
+      context_configurators:
+        - Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContextConfigurator
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
+      context:
+        age:
+          objectType: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
+          property: age
+        locale:
+          objectType: Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext
+          property: language
+
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContextConfigurator: ~
