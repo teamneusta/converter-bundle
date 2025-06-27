@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle;
 final class Context
 {
     /**
-     * @param array<class-string,object> $context
+     * @param array<class-string, object> $context
      */
     private function __construct(
         private array $context = [],
@@ -20,6 +20,17 @@ final class Context
         }
 
         return new self($context);
+    }
+
+    public function merge(self $context): self
+    {
+        $clone = clone $this;
+
+        foreach ($context->context as $class => $object) {
+            $clone->context[$class] = $object;
+        }
+
+        return $clone;
     }
 
     public function with(object ...$objects): self
