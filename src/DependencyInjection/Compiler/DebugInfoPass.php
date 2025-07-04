@@ -48,7 +48,11 @@ final class DebugInfoPass implements CompilerPassInterface
     private function getClassReflection(ContainerBuilder $container, Definition $definition): ?\ReflectionClass
     {
         while ((null === $class = $definition->getClass()) && $definition instanceof ChildDefinition) {
-            $definition = $container->findDefinition($definition->getParent());
+            if (!$parentId = $definition->getParent()) {
+                break;
+            }
+            
+            $definition = $container->findDefinition($parentId);
         }
 
         if (null === $class) {
