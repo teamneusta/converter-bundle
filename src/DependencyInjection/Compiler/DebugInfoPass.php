@@ -51,7 +51,7 @@ final class DebugInfoPass implements CompilerPassInterface
             if (!$parentId = $definition->getParent()) {
                 break;
             }
-            
+
             $definition = $container->findDefinition($parentId);
         }
 
