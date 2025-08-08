@@ -386,7 +386,7 @@ converter.closure.factory:
 
 ### Conditional Populators
 
-Sometimes you want to populate but not in any case but under special circumstances. 
+Sometimes you want to populate, but not in every case, only under certain circumstances.
 Therefore, we offer the `ConditionalPopulator`.
 
 This populator allows you to define a condition under which the population -
@@ -410,6 +410,19 @@ my.condition:
     factory: [Closure, fromCallable]
     arguments: [['@My\Condition', 'checkCondition']]
 ```
+
+> [!TIP]
+> If your [Service is invokable, and you use Symfony 6.1+](https://symfony.com/doc/6.4/service_container.html#injecting-a-closure-as-an-argument) you don't need to specify an extra service. 
+> You can directly use it like this:
+>
+> ```yaml
+> my.conditional.populator:
+>     public: true
+>     class: Neusta\ConverterBundle\Populator\ConditionalPopulator
+>     arguments:
+>         $populator: '@my.populator'
+>         $condition: !closure '@my.condition'
+> ```****
 
 ## Context
 
