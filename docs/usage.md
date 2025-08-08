@@ -422,7 +422,7 @@ my.condition:
 >     arguments:
 >         $populator: '@my.populator'
 >         $condition: !closure '@my.condition'
-> ```****
+> ```
 
 ## Context
 
