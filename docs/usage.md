@@ -407,7 +407,8 @@ The condition is a Closure that could e.g., be created by the `ClosureFactory`:
 ```yaml
 my.condition:
     class: Closure
-    factory: [ '@My\Condition', 'checkCondition' ]
+    factory: [Closure, fromCallable]
+    arguments: [['@My\Condition', 'checkCondition']]
 ```
 
 ## Context
