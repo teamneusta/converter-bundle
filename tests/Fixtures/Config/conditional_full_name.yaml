@@ -1,0 +1,23 @@
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Condition\AgeCondition:
+    arguments:
+      $minAge: 18
+
+  test.person.fullName.populator:
+    public: true
+    parent: 'neusta_converter.property_mapping_populator'
+    arguments:
+      $targetProperty: 'fullName'
+      $sourceProperty: 'fullName'
+
+  test.person.fullName.conditional.populator:
+    public: true
+    class: Neusta\ConverterBundle\Populator\ConditionalPopulator
+    arguments:
+      $populator: '@test.person.fullName.populator'
+      # Todo: replace by this once we're on Symfony >= 6.1
+      # $condition: !closure '@Neusta\ConverterBundle\Tests\Fixtures\Condition\AgeCondition'
+      $condition: !service
+        class: Closure
+        factory: [Closure, fromCallable]
+        arguments: [['@Neusta\ConverterBundle\Tests\Fixtures\Condition\AgeCondition', '__invoke']]

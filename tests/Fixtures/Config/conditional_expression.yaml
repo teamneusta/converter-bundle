@@ -1,0 +1,25 @@
+neusta_converter:
+  converter:
+    person_converter:
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
+      properties:
+        age: ageInYears
+        fullName: ~
+      populators:
+        - conditional_person_address_populator
+
+    person_address_converter:
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\PersonAddress
+      properties:
+        street: ~
+        streetNo: ~
+        postalCode: ~
+        city: ~
+
+  populator:
+    conditional_person_address_populator:
+      converter: person_address_converter
+      property:
+        address: ~
+      condition:
+        expression: source.getAgeInYears() >= 18

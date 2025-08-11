@@ -384,6 +384,46 @@ converter.closure.factory:
   arguments: [ '@my.converter', 'convert' ]
 ```
 
+### Conditional Populators
+
+Sometimes you want to populate, but not in every case, only under certain circumstances.
+Therefore, we offer the `ConditionalPopulator`.
+
+This populator allows you to define a condition under which the population -
+implemented in another populator - should be done.
+So, the decoration pattern is used here:
+
+```yaml
+my.conditional.populator:
+    public: true
+    class: Neusta\ConverterBundle\Populator\ConditionalPopulator
+    arguments:
+        $populator: '@my.populator'
+        $condition: '@my.condition'
+```
+
+The condition is a Closure that could e.g., be created by the `ClosureFactory`:
+
+```yaml
+my.condition:
+    class: Closure
+    factory: [Closure, fromCallable]
+    arguments: [['@My\Condition', 'checkCondition']]
+```
+
+> [!TIP]
+> If your [Service is invokable, and you use Symfony 6.1+](https://symfony.com/doc/6.4/service_container.html#injecting-a-closure-as-an-argument) you don't need to specify an extra service. 
+> You can directly use it like this:
+>
+> ```yaml
+> my.conditional.populator:
+>     public: true
+>     class: Neusta\ConverterBundle\Populator\ConditionalPopulator
+>     arguments:
+>         $populator: '@my.populator'
+>         $condition: !closure '@my.condition'
+> ```
+
 ## Context
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.

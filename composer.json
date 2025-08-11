@@ -21,6 +21,7 @@
     "php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
     "symfony/config": "^5.4 || ^6.2 || ^7.0",
     "symfony/dependency-injection": "^5.4 || ^6.2 || ^7.0",
+    "symfony/expression-language": "^5.4 || ^6.2 || ^7.0",
     "symfony/framework-bundle": "^5.4 || ^6.2 || ^7.0",
     "symfony/http-kernel": "^5.4 || ^6.2 || ^7.0",
     "symfony/property-access": "^5.4 || ^6.2 || ^7.0"
@@ -78,7 +79,7 @@
     "tests": "phpunit",
     "tests:coverage:ci": "phpunit --teamcity --coverage-cobertura .coverage/cobertura.xml",
     "twig:cs": "twigcs templates/",
-    "yaml:lint": "yaml-lint config tests/Fixtures/Config"
+    "yaml:lint": "yaml-lint --parse-tags config tests/Fixtures/Config"
   },
   "scripts-descriptions": {
     "cs:check": "Checks code style (but doesn't fix anything)",
