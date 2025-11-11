@@ -44,16 +44,6 @@ final class PropertyMappingPopulator implements Populator
      */
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
-        if ($ctx instanceof GenericContext) {
-            trigger_deprecation(
-                'teamneusta/converter-bundle',
-                '1.10.0',
-                'Passing a "%s" is deprecated, pass a "%s" instead.',
-                GenericContext::class,
-                Context::class,
-            );
-        }
-
         try {
             $value = '$this' !== $this->sourceProperty
                 ? $this->accessor->getValue($source, $this->sourceProperty) ?? $this->defaultValue

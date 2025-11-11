@@ -31,16 +31,6 @@ final class StrategicConverter implements Converter
 
     public function convert(object $source, ?object $ctx = null): object
     {
-        if ($ctx instanceof GenericContext) {
-            trigger_deprecation(
-                'teamneusta/converter-bundle',
-                '1.10.0',
-                'Passing a "%s" is deprecated, pass a "%s" instead.',
-                GenericContext::class,
-                Context::class,
-            );
-        }
-
         $selectedConverterKey = $this->selector->selectConverter($source, $ctx);
 
         if (\array_key_exists($selectedConverterKey, $this->converters)) {
