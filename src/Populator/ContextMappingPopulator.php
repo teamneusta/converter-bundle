@@ -49,14 +49,6 @@ final class ContextMappingPopulator implements Populator
         }
 
         if ($ctx instanceof GenericContext) {
-            trigger_deprecation(
-                'teamneusta/converter-bundle',
-                '1.10.0',
-                'Passing a "%s" is deprecated, pass a "%s" and set the relevant "contextObject" type in the constructor instead.',
-                GenericContext::class,
-                Context::class,
-            );
-
             if (!$ctx->hasKey($this->contextProperty)) {
                 return;
             }
