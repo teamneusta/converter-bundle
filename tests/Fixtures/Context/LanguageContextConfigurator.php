@@ -8,8 +8,8 @@ use Neusta\ConverterBundle\Context\ContextConfigurator;
 
 final class LanguageContextConfigurator implements ContextConfigurator
 {
-    public function configureContext(Context $context): Context
+    public function configureContext(Context $ctx): Context
     {
-        return $context->with(new LanguageContext('de'));
+        return $ctx->with(new LanguageContext('de'));
     }
 }

@@ -8,8 +8,8 @@ use Neusta\ConverterBundle\Context\ContextConfigurator;
 
 final class AgeContextConfigurator implements ContextConfigurator
 {
-    public function configureContext(Context $context): Context
+    public function configureContext(Context $ctx): Context
     {
-        return $context->with(new AgeContext(39));
+        return $ctx->with(new AgeContext(39));
     }
 }
