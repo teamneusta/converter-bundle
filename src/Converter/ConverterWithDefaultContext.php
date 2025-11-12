@@ -29,7 +29,7 @@ final class ConverterWithDefaultContext implements Converter
                 throw new \InvalidArgumentException(sprintf('The context must be an instance of "%s".', Context::class));
             }
 
-            $context = $context->merge($ctx);
+            $context = $context->with($ctx);
         }
 
         return $this->inner->convert($source, $context);
