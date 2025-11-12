@@ -13,7 +13,7 @@ use Neusta\ConverterBundle\Context;
 interface ConverterSelector
 {
     /**
-     * @param TSource  $source
+     * @param TSource          $source
      * @param Context|TContext $ctx
      */
     public function selectConverter(object $source, ?object $ctx = null): string;
