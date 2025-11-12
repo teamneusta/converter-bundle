@@ -14,6 +14,9 @@ use Neusta\ConverterBundle\Converter;
  */
 final class ConverterWithDefaultContext implements Converter
 {
+    /**
+     * @param Converter<TSource, TTarget, Context> $inner
+     */
     public function __construct(
         private readonly Converter $inner,
         private readonly Context $context,
@@ -25,6 +28,7 @@ final class ConverterWithDefaultContext implements Converter
         $context = $this->context;
 
         if ($ctx) {
+            // @phpstan-ignore-next-line instanceof.alwaysTrue
             if (!$ctx instanceof Context) {
                 throw new \InvalidArgumentException(\sprintf('The context must be an instance of "%s".', Context::class));
             }

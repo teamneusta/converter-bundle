@@ -67,6 +67,7 @@ final class Context
      */
     public function get(string $class): ?object
     {
+        // @phpstan-ignore-next-line return.type
         return $this->context[$class] ?? null;
     }
 
@@ -79,6 +80,7 @@ final class Context
      */
     public function __invoke(string $class): ?object
     {
+        // @phpstan-ignore-next-line return.type
         return $this->context[$class] ?? null;
     }
 }
