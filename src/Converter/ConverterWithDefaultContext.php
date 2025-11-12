@@ -26,7 +26,7 @@ final class ConverterWithDefaultContext implements Converter
 
         if ($ctx) {
             if (!$ctx instanceof Context) {
-                throw new \InvalidArgumentException(sprintf('The context must be an instance of "%s".', Context::class));
+                throw new \InvalidArgumentException(\sprintf('The context must be an instance of "%s".', Context::class));
             }
 
             $context = $context->with($ctx);

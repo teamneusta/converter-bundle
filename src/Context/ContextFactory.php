@@ -13,7 +13,8 @@ final class ContextFactory
     public function __construct(
         /** @var iterable<ContextConfigurator> */
         private readonly iterable $configurators,
-    ) {}
+    ) {
+    }
 
     public function create(): Context
     {

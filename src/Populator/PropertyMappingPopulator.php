@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Populator;
 
 use Neusta\ConverterBundle\Context;
-use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator;
 use Symfony\Component\PropertyAccess\PropertyAccess;
