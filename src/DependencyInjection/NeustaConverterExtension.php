@@ -56,7 +56,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
     /**
      * @param array<string, mixed> $config
-     * @param array<string>         $globalContextConfigurators
+     * @param array<string>        $globalContextConfigurators
      */
     private function registerConverterConfiguration(
         string $id,
