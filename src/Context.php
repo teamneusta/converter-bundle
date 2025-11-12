@@ -10,7 +10,8 @@ final class Context
      */
     private function __construct(
         private array $context = [],
-    ) {}
+    ) {
+    }
 
     public static function create(object ...$objects): self
     {
