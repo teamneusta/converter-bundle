@@ -71,17 +71,4 @@ final class Context
         // @phpstan-ignore-next-line return.type
         return $this->context[$class] ?? null;
     }
-
-    /**
-     * @template T of object
-     *
-     * @param class-string<T> $class
-     *
-     * @return T|null
-     */
-    public function __invoke(string $class): ?object
-    {
-        // @phpstan-ignore-next-line return.type
-        return $this->context[$class] ?? null;
-    }
 }
