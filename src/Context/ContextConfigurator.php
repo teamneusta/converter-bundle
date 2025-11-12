@@ -20,9 +20,9 @@ use Neusta\ConverterBundle\Context;
  *         private readonly string $someValue,
  *     ) {}
  *
- *     public function configureContext(Context $context): Context
+ *     public function configureContext(Context $ctx): Context
  *     {
- *         return $context->with(
+ *         return $ctx->with(
  *             new MyContext($this->someValue),
  *         );
  *     }
@@ -51,5 +51,5 @@ use Neusta\ConverterBundle\Context;
  */
 interface ContextConfigurator
 {
-    public function configureContext(Context $context): Context;
+    public function configureContext(Context $ctx): Context;
 }
