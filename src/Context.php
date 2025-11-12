@@ -22,23 +22,16 @@ final class Context
         return new self($context);
     }
 
-    public function merge(self $context): self
-    {
-        $clone = clone $this;
-
-        foreach ($context->context as $class => $object) {
-            $clone->context[$class] = $object;
-        }
-
-        return $clone;
-    }
-
     public function with(object ...$objects): self
     {
         $clone = clone $this;
 
         foreach ($objects as $object) {
-            $clone->context[$object::class] = $object;
+            if ($object instanceof self) {
+                $clone->context = array_merge($clone->context, $object->context);
+            } else {
+                $clone->context[$object::class] = $object;
+            }
         }
 
         return $clone;
@@ -49,6 +42,10 @@ final class Context
      */
     public function without(object|string $value): self
     {
+        if ($value instanceof self) {
+            throw new \InvalidArgumentException('Cannot remove context from another context.');
+        }
+
         $class = \is_string($value) ? $value : $value::class;
 
         if (!isset($this->context[$class])) {
