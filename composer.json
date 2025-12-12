@@ -24,7 +24,8 @@
     "symfony/expression-language": "^5.4 || ^6.2 || ^7.0",
     "symfony/framework-bundle": "^5.4 || ^6.2 || ^7.0",
     "symfony/http-kernel": "^5.4 || ^6.2 || ^7.0",
-    "symfony/property-access": "^5.4 || ^6.2 || ^7.0"
+    "symfony/property-access": "^5.4 || ^6.2 || ^7.0",
+    "symfony/translation": "^7.4"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.42",
@@ -43,7 +44,6 @@
     "symfony/filesystem": "^5.4 || ^6.2 || ^7.0",
     "symfony/phpunit-bridge": "^5.4 || ^6.2 || ^7.0",
     "symfony/test-pack": "^1.0",
-    "symfony/translation": "^5.4 || ^6.2 || ^7.0",
     "symfony/twig-bundle": "^5.4 || ^6.2 || ^7.0",
     "symfony/yaml": "^5.4 || ^6.2 || ^7.0",
     "twig/twig": "^3.20"
@@ -74,7 +74,7 @@
     "cs:fix": "php-cs-fixer fix --ansi --verbose --diff",
     "deptrac:analyse": "deptrac --config-file=depfile.yaml",
     "deptrac:analyse:visual": "deptrac --formatter=graphviz-html --output=deptrac.analyse-result.html --config-file=depfile.yaml",
-    "phpstan": "phpstan analyse --ansi",
+    "phpstan": "phpstan analyse --ansi --memory-limit 512M",
     "phpstan:ci": "phpstan analyse --ansi --no-interaction --no-progress --error-format=github",
     "tests": "phpunit",
     "tests:coverage:ci": "phpunit --teamcity --coverage-cobertura .coverage/cobertura.xml",

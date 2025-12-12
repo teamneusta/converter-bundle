@@ -71,9 +71,8 @@ final class DebugCommand extends Command
                 return Command::FAILURE;
             }
 
-            $this->translator->setLocale($input->getOption('locale'));
-
             $html = $this->twig->render('@NeustaConverter/debug/service_inspector.html.twig', [
+                'locale' => $input->getOption('locale'),
                 'services' => $this->debugInfo->services(),
                 'chartInfo' => $this->chartInfoBuilder->buildFromDebugInfo($this->debugInfo),
             ]);
