@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Translation\Translator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment as TwigEnvironment;
 
 #[AsCommand(name: 'neusta:converter:debug', description: 'Displays debug information for converters, populators and factories')]
@@ -24,7 +25,7 @@ final class DebugCommand extends Command
         private readonly DebugInfo $debugInfo,
         private readonly ChartInfoBuilder $chartInfoBuilder,
         private readonly ?TwigEnvironment $twig,
-        private readonly ?Translator $translator = null,
+        private readonly ?TranslatorInterface $translator = null,
     ) {
         parent::__construct();
     }
