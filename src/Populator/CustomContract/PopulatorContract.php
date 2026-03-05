@@ -57,35 +57,59 @@ final class PopulatorContract
             return $cache[$class->name];
         }
 
+        $candidates = self::findContractCandidates($class);
+
+        if ([] === $candidates) {
+            throw new \LogicException(sprintf(
+                'Class "%s" does not implement a custom populator contract.',
+                $class->name,
+            ));
+        }
+
+        if (1 < \count($candidates)) {
+            throw new \LogicException(sprintf(
+                'Class "%s" matches multiple custom populator contracts: %s.',
+                $class->name,
+                implode(', ', array_column($candidates, 'name')),
+            ));
+        }
+
+        return $cache[$class->name] = $candidates[0];
+    }
+
+    /**
+     * @return list<\ReflectionClass>
+     */
+    private static function findContractCandidates(\ReflectionClass $class): array
+    {
+        $candidates = [];
+        $seen = [];
+
         $current = $class;
 
         while ($current) {
             if (self::isContract($current)) {
-                return $cache[$class->name] = $current;
+                $seen[$current->name] = true;
+                $candidates[] = $current;
             }
 
-            if ($contract = self::findContractInInterfaces($current)) {
-                return $cache[$class->name] = $contract;
+            foreach ($current->getInterfaces() as $interface) {
+                if (isset($seen[$interface->name])) {
+                    continue;
+                }
+
+                if (!self::isContract($interface)) {
+                    continue;
+                }
+
+                $seen[$interface->name] = true;
+                $candidates[] = $interface;
             }
 
             $current = $current->getParentClass();
         }
 
-        throw new \LogicException(sprintf(
-            'Class "%s" does not implement a custom populator contract.',
-            $class->name,
-        ));
-    }
-
-    private static function findContractInInterfaces(\ReflectionClass $class): ?\ReflectionClass
-    {
-        foreach ($class->getInterfaces() as $interface) {
-            if (self::isContract($interface)) {
-                return $interface;
-            }
-        }
-
-        return null;
+        return $candidates;
     }
 
     private static function isContract(\ReflectionClass $class): bool
