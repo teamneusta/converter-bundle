@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator\CustomContract;
 
-use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Populator;
 use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Source;
 use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Target;
 
@@ -29,24 +28,17 @@ final class PopulatorContract
 
         $methods = $contract->getMethods();
 
-        if (1 === \count($methods)) {
-            return $cache[$contract->name] = new self(
-                $methods[0]->name,
-                ParameterOrder::fromReflection($methods[0]),
-            );
+        if (1 !== \count($methods)) {
+            throw new \LogicException(sprintf(
+                'Custom populator contract interface "%s" must declare exactly one method.',
+                $contract->name,
+            ));
         }
 
-        if (1 === \count($attributed = array_values(array_filter($methods, self::hasPopulatorAttribute(...))))) {
-            return $cache[$contract->name] = new self(
-                $attributed[0]->name,
-                ParameterOrder::fromReflection($attributed[0]),
-            );
-        }
-
-        throw new \LogicException(sprintf(
-            'The populator contract "%s" has multiple methods. Exactly one must be annotated with #[Populator].',
-            $contract->name,
-        ));
+        return $cache[$contract->name] = new self(
+            $methods[0]->name,
+            ParameterOrder::fromReflection($methods[0]),
+        );
     }
 
     private static function findContract(\ReflectionClass $class): \ReflectionClass
@@ -105,10 +97,5 @@ final class PopulatorContract
         }
 
         return false;
-    }
-
-    private static function hasPopulatorAttribute(\ReflectionMethod $method): bool
-    {
-        return [] !== $method->getAttributes(Populator::class);
     }
 }
