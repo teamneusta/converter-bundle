@@ -26,7 +26,9 @@ final class CustomContractPopulator implements Populator
     public function __construct(
         private readonly object $populator,
     ) {
-        [$this->method, $this->parameterOrder] = self::resolvePopulateMethod(new \ReflectionObject($populator));
+        $class = new \ReflectionObject($populator);
+        $this->method = self::resolvePopulateMethod($class);
+        $this->parameterOrder = self::resolveParameterOrder($class, $this->method);
     }
 
     public function populate(object $target, object $source, ?object $ctx = null): void
@@ -43,37 +45,37 @@ final class CustomContractPopulator implements Populator
         $this->method->invoke($this->populator, ...$args);
     }
 
-    /**
-     * @return array{\ReflectionMethod, list<'source'|'target'|'context'>}
-     */
-    private static function resolvePopulateMethod(\ReflectionClass $class): array
+    private static function resolvePopulateMethod(\ReflectionClass $class): \ReflectionMethod
     {
         $contract = self::findPopulatorContract($class);
         $methods = $contract->getMethods();
 
         if (1 === \count($methods)) {
-            $method = $methods[0];
-        } else {
-            $attributed = array_values(array_filter(
-                $methods,
-                static fn (\ReflectionMethod $m) => [] !== $m->getAttributes(PopulatorMethod::class),
-            ));
-
-            if (1 !== \count($attributed)) {
-                throw new \LogicException(sprintf(
-                    'The populator "%s" has multiple methods. Exactly one must be annotated with #[Populator].',
-                    $contract->getName(),
-                ));
-            }
-
-            $method = $attributed[0];
+            return $class->getMethod($methods[0]->getName());
         }
 
-        // Resolve the method on the actual class to call it
-        $concreteMethod = $class->getMethod($method->getName());
+        $attributed = array_values(array_filter(
+            $methods,
+            static fn (\ReflectionMethod $m) => [] !== $m->getAttributes(PopulatorMethod::class),
+        ));
 
+        if (1 !== \count($attributed)) {
+            throw new \LogicException(sprintf(
+                'The populator "%s" has multiple methods. Exactly one must be annotated with #[Populator].',
+                $contract->getName(),
+            ));
+        }
+
+        return $class->getMethod($attributed[0]->getName());
+    }
+
+    /**
+     * @return list<'source'|'target'|'context'>
+     */
+    private static function resolveParameterOrder(\ReflectionClass $class, \ReflectionMethod $method): array
+    {
         $parameterOrder = [];
-        foreach ($concreteMethod->getParameters() as $parameter) {
+        foreach ($method->getParameters() as $parameter) {
             if ([] !== $parameter->getAttributes(Source::class)) {
                 $parameterOrder[] = 'source';
             } elseif ([] !== $parameter->getAttributes(Target::class)) {
@@ -98,7 +100,7 @@ final class CustomContractPopulator implements Populator
             ));
         }
 
-        return [$concreteMethod, $parameterOrder];
+        return $parameterOrder;
     }
 
     private static function findPopulatorContract(\ReflectionClass $class): \ReflectionClass
