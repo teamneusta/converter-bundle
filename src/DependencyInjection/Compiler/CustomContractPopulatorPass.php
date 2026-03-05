@@ -4,6 +4,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection\Compiler;
 
 use Neusta\ConverterBundle\Populator;
+use Neusta\ConverterBundle\Populator\CustomContract\ParameterOrder;
+use Neusta\ConverterBundle\Populator\CustomContract\ParameterOrderResolver;
+use Neusta\ConverterBundle\Populator\CustomContract\PopulatorContractResolver;
 use Neusta\ConverterBundle\Populator\CustomContractPopulator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -30,14 +33,15 @@ final class CustomContractPopulatorPass implements CompilerPassInterface
                     continue;
                 }
 
-                $methodReflection = CustomContractPopulator::resolvePopulateMethod($populatorReflection);
-                $parameterOrder = CustomContractPopulator::resolveParameterOrder($methodReflection);
+                $methodReflection = PopulatorContractResolver::resolvePopulateMethod($populatorReflection);
 
                 $populators[] = (new Definition(CustomContractPopulator::class))->setArguments([
                     '$populator' => (new Definition(\Closure::class))
                         ->setFactory([\Closure::class, 'fromCallable'])
                         ->addArgument([$populatorRef, $methodReflection->getName()]),
-                    '$parameterOrder' => $parameterOrder,
+                    '$parameterOrder' => (new Definition(ParameterOrder::class))
+                        ->setFactory([ParameterOrder::class, 'fromArray'])
+                        ->addArgument(ParameterOrderResolver::resolve($methodReflection)->toArray()),
                 ]);
             }
 
