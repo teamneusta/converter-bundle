@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator;
 
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\Populator\CustomContract\Context;
-use Neusta\ConverterBundle\Populator\CustomContract\Populator as PopulatorMethod;
+use Neusta\ConverterBundle\Populator\CustomContract\Populator as PopulatorAttribute;
 use Neusta\ConverterBundle\Populator\CustomContract\Source;
 use Neusta\ConverterBundle\Populator\CustomContract\Target;
 
@@ -18,17 +19,14 @@ use Neusta\ConverterBundle\Populator\CustomContract\Target;
  */
 final class CustomContractPopulator implements Populator
 {
-    private \ReflectionMethod $method;
-
-    /** @var list<'source'|'target'|'context'> */
-    private array $parameterOrder;
-
+    /**
+     * @param \Closure(object, object, object|null):void $populator
+     * @param list<'source'|'target'|'context'>          $parameterOrder
+     */
     public function __construct(
-        private readonly object $populator,
+        private readonly \Closure $populator,
+        private readonly array $parameterOrder,
     ) {
-        $class = new \ReflectionObject($populator);
-        $this->method = self::resolvePopulateMethod($class);
-        $this->parameterOrder = self::resolveParameterOrder($class, $this->method);
     }
 
     public function populate(object $target, object $source, ?object $ctx = null): void
@@ -42,10 +40,13 @@ final class CustomContractPopulator implements Populator
             };
         }
 
-        $this->method->invoke($this->populator, ...$args);
+        ($this->populator)(...$args);
     }
 
-    private static function resolvePopulateMethod(\ReflectionClass $class): \ReflectionMethod
+    /**
+     * @internal Used by {@see CustomContractPopulatorPass} at compile time.
+     */
+    public static function resolvePopulateMethod(\ReflectionClass $class): \ReflectionMethod
     {
         $contract = self::findPopulatorContract($class);
         $methods = $contract->getMethods();
@@ -56,7 +57,7 @@ final class CustomContractPopulator implements Populator
 
         $attributed = array_values(array_filter(
             $methods,
-            static fn (\ReflectionMethod $m) => [] !== $m->getAttributes(PopulatorMethod::class),
+            static fn (\ReflectionMethod $m) => [] !== $m->getAttributes(PopulatorAttribute::class),
         ));
 
         if (1 !== \count($attributed)) {
@@ -70,9 +71,13 @@ final class CustomContractPopulator implements Populator
     }
 
     /**
+     * Todo: can we cache this for known classes!?
+     *
+     * @internal Used by {@see CustomContractPopulatorPass} at compile time.
+     *
      * @return list<'source'|'target'|'context'>
      */
-    private static function resolveParameterOrder(\ReflectionClass $class, \ReflectionMethod $method): array
+    public static function resolveParameterOrder(\ReflectionMethod $method): array
     {
         $parameterOrder = [];
         foreach ($method->getParameters() as $parameter) {
@@ -81,12 +86,13 @@ final class CustomContractPopulator implements Populator
             } elseif ([] !== $parameter->getAttributes(Target::class)) {
                 $parameterOrder[] = 'target';
             } elseif ([] !== $parameter->getAttributes(Context::class)) {
+                // Todo: wenn es das gibt, dann muss es vom Typ `GenericContext|null` sein und einen default Wert haben!
                 $parameterOrder[] = 'context';
             } else {
                 throw new \LogicException(sprintf(
                     'Parameter "$%s" of method "%s::%s" must be annotated with #[Source], #[Target] or #[Context].',
                     $parameter->getName(),
-                    $class->getName(),
+                    $method->getDeclaringClass()->getName(),
                     $method->getName(),
                 ));
             }
@@ -95,7 +101,7 @@ final class CustomContractPopulator implements Populator
         if (!\in_array('source', $parameterOrder, true) || !\in_array('target', $parameterOrder, true)) {
             throw new \LogicException(sprintf(
                 'Method "%s::%s" must have parameters annotated with both #[Source] and #[Target].',
-                $class->getName(),
+                $method->getDeclaringClass()->getName(),
                 $method->getName(),
             ));
         }
@@ -103,6 +109,7 @@ final class CustomContractPopulator implements Populator
         return $parameterOrder;
     }
 
+    // Todo: can we cache this for known classes!?
     private static function findPopulatorContract(\ReflectionClass $class): \ReflectionClass
     {
         $current = $class;

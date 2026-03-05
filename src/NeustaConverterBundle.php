@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle;
 
+use Neusta\ConverterBundle\DependencyInjection\Compiler\CustomContractPopulatorPass;
 use Neusta\ConverterBundle\DependencyInjection\Compiler\DebugInfoPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -18,5 +19,6 @@ class NeustaConverterBundle extends Bundle
     public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new DebugInfoPass());
+        $container->addCompilerPass(new CustomContractPopulatorPass());
     }
 }
