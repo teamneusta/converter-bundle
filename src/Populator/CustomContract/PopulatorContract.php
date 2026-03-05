@@ -82,7 +82,10 @@ final class PopulatorContract
             foreach ($method->getParameters() as $parameter) {
                 if ([] !== $parameter->getAttributes(Source::class)) {
                     $hasSource = true;
+
+                    continue;
                 }
+
                 if ([] !== $parameter->getAttributes(Target::class)) {
                     $hasTarget = true;
                 }
