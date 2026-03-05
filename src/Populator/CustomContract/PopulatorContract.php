@@ -19,37 +19,49 @@ final class PopulatorContract
 
     public static function fromReflection(\ReflectionClass $class): self
     {
+        static $cache = [];
+
         $contract = self::findContract($class);
+
+        if (isset($cache[$contract->name])) {
+            return $cache[$contract->name];
+        }
+
         $methods = $contract->getMethods();
 
         if (1 === \count($methods)) {
-            return new self(
-                $methods[0]->getName(),
+            return $cache[$contract->name] = new self(
+                $methods[0]->name,
                 ParameterOrder::fromReflection($methods[0]),
             );
         }
 
         if (1 === \count($attributed = array_values(array_filter($methods, self::hasPopulatorAttribute(...))))) {
-            return new self(
-                $attributed[0]->getName(),
+            return $cache[$contract->name] = new self(
+                $attributed[0]->name,
                 ParameterOrder::fromReflection($attributed[0]),
             );
         }
 
         throw new \LogicException(sprintf(
             'The populator "%s" has multiple methods. Exactly one must be annotated with #[Populator].',
-            $contract->getName(),
+            $contract->name,
         ));
     }
 
-    // Todo: can we cache this for known classes!?
     private static function findContract(\ReflectionClass $class): \ReflectionClass
     {
+        static $cache = [];
+
+        if (isset($cache[$class->name])) {
+            return $cache[$class->name];
+        }
+
         $current = $class;
 
         while ($current) {
             if (self::isContract($current)) {
-                return $current;
+                return $cache[$class->name] = $current;
             }
 
             $current = $current->getParentClass();
@@ -57,7 +69,7 @@ final class PopulatorContract
 
         throw new \LogicException(sprintf(
             'Class "%s" does not implement a custom populator contract.',
-            $class->getName(),
+            $class->name,
         ));
     }
 
