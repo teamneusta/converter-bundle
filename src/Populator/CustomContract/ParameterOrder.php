@@ -29,7 +29,7 @@ final class ParameterOrder
         $order = array_map(self::resolveRole(...), $method->getParameters());
 
         if (!\in_array('source', $order, true) || !\in_array('target', $order, true)) {
-            throw new \LogicException(sprintf(
+            throw new \LogicException(\sprintf(
                 'Method "%s::%s" must have parameters annotated with both #[Source] and #[Target].',
                 $method->class,
                 $method->name,
@@ -60,7 +60,7 @@ final class ParameterOrder
             [] !== $parameter->getAttributes(Source::class) => 'source',
             [] !== $parameter->getAttributes(Target::class) => 'target',
             [] !== $parameter->getAttributes(Context::class) => 'context',
-            default => throw new \LogicException(sprintf(
+            default => throw new \LogicException(\sprintf(
                 'Parameter "$%s" of method "%s::%s" must be annotated with #[Source], #[Target] or #[Context].',
                 $parameter->name,
                 $parameter->getDeclaringClass()->name,

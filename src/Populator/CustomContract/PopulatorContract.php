@@ -14,7 +14,8 @@ final class PopulatorContract
     private function __construct(
         public readonly string $methodName,
         public readonly ParameterOrder $parameterOrder,
-    ) {}
+    ) {
+    }
 
     public static function fromReflection(\ReflectionClass $class): self
     {
@@ -29,7 +30,7 @@ final class PopulatorContract
         $methods = $contract->getMethods();
 
         if (1 !== \count($methods)) {
-            throw new \LogicException(sprintf(
+            throw new \LogicException(\sprintf(
                 'Custom populator contract interface "%s" must declare exactly one method.',
                 $contract->name,
             ));
@@ -52,14 +53,14 @@ final class PopulatorContract
         $candidates = array_values(array_filter($class->getInterfaces(), self::isContract(...)));
 
         if ([] === $candidates) {
-            throw new \LogicException(sprintf(
+            throw new \LogicException(\sprintf(
                 'Class "%s" does not implement a custom populator contract interface.',
                 $class->name,
             ));
         }
 
         if (1 < \count($candidates)) {
-            throw new \LogicException(sprintf(
+            throw new \LogicException(\sprintf(
                 'Class "%s" implements multiple custom populator contract interfaces: %s.',
                 $class->name,
                 implode(', ', array_column($candidates, 'name')),
