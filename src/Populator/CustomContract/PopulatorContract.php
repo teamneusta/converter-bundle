@@ -44,7 +44,7 @@ final class PopulatorContract
         }
 
         throw new \LogicException(sprintf(
-            'The populator "%s" has multiple methods. Exactly one must be annotated with #[Populator].',
+            'The populator contract "%s" has multiple methods. Exactly one must be annotated with #[Populator].',
             $contract->name,
         ));
     }
@@ -57,18 +57,18 @@ final class PopulatorContract
             return $cache[$class->name];
         }
 
-        $candidates = self::findContractCandidates($class);
+        $candidates = array_values(array_filter($class->getInterfaces(), self::isContract(...)));
 
         if ([] === $candidates) {
             throw new \LogicException(sprintf(
-                'Class "%s" does not implement a custom populator contract.',
+                'Class "%s" does not implement a custom populator contract interface.',
                 $class->name,
             ));
         }
 
         if (1 < \count($candidates)) {
             throw new \LogicException(sprintf(
-                'Class "%s" matches multiple custom populator contracts: %s.',
+                'Class "%s" implements multiple custom populator contract interfaces: %s.',
                 $class->name,
                 implode(', ', array_column($candidates, 'name')),
             ));
@@ -77,43 +77,12 @@ final class PopulatorContract
         return $cache[$class->name] = $candidates[0];
     }
 
-    /**
-     * @return list<\ReflectionClass>
-     */
-    private static function findContractCandidates(\ReflectionClass $class): array
-    {
-        $candidates = [];
-        $seen = [];
-
-        $current = $class;
-
-        while ($current) {
-            if (self::isContract($current)) {
-                $seen[$current->name] = true;
-                $candidates[] = $current;
-            }
-
-            foreach ($current->getInterfaces() as $interface) {
-                if (isset($seen[$interface->name])) {
-                    continue;
-                }
-
-                if (!self::isContract($interface)) {
-                    continue;
-                }
-
-                $seen[$interface->name] = true;
-                $candidates[] = $interface;
-            }
-
-            $current = $current->getParentClass();
-        }
-
-        return $candidates;
-    }
-
     private static function isContract(\ReflectionClass $class): bool
     {
+        if (!$class->isInterface()) {
+            return false;
+        }
+
         foreach ($class->getMethods() as $method) {
             $hasSource = false;
             $hasTarget = false;
