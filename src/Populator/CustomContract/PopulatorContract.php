@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator\CustomContract;
 
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Populator;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Source;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Target;
+
 /**
  * @internal
  */

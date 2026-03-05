@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Fixtures\Populator;
 
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
-use Neusta\ConverterBundle\Populator\CustomContract\Context;
-use Neusta\ConverterBundle\Populator\CustomContract\Source;
-use Neusta\ConverterBundle\Populator\CustomContract\Target;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Context;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Source;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Target;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 
