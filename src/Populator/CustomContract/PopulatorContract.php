@@ -6,32 +6,36 @@ namespace Neusta\ConverterBundle\Populator\CustomContract;
 /**
  * @internal
  */
-final class PopulatorContractResolver
+final class PopulatorContract
 {
-    private function __construct() {}
+    private function __construct(
+        public readonly string $methodName,
+        public readonly ParameterOrder $parameterOrder,
+    ) {}
 
-    public static function resolvePopulateMethod(\ReflectionClass $class): \ReflectionMethod
+    public static function fromReflection(\ReflectionClass $class): self
     {
         $contract = self::findContract($class);
         $methods = $contract->getMethods();
 
         if (1 === \count($methods)) {
-            return $class->getMethod($methods[0]->getName());
+            return new self(
+                $methods[0]->getName(),
+                ParameterOrder::fromReflection($methods[0]),
+            );
         }
 
-        $attributed = array_values(array_filter(
-            $methods,
-            static fn (\ReflectionMethod $m) => [] !== $m->getAttributes(Populator::class),
+        if (1 === \count($attributed = array_values(array_filter($methods, self::hasPopulatorAttribute(...))))) {
+            return new self(
+                $attributed[0]->getName(),
+                ParameterOrder::fromReflection($attributed[0]),
+            );
+        }
+
+        throw new \LogicException(sprintf(
+            'The populator "%s" has multiple methods. Exactly one must be annotated with #[Populator].',
+            $contract->getName(),
         ));
-
-        if (1 !== \count($attributed)) {
-            throw new \LogicException(sprintf(
-                'The populator "%s" has multiple methods. Exactly one must be annotated with #[Populator].',
-                $contract->getName(),
-            ));
-        }
-
-        return $class->getMethod($attributed[0]->getName());
     }
 
     // Todo: can we cache this for known classes!?
@@ -74,5 +78,10 @@ final class PopulatorContractResolver
         }
 
         return false;
+    }
+
+    private static function hasPopulatorAttribute(\ReflectionMethod $method): bool
+    {
+        return [] !== $method->getAttributes(Populator::class);
     }
 }
