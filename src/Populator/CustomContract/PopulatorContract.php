@@ -64,6 +64,10 @@ final class PopulatorContract
                 return $cache[$class->name] = $current;
             }
 
+            if ($contract = self::findContractInInterfaces($current)) {
+                return $cache[$class->name] = $contract;
+            }
+
             $current = $current->getParentClass();
         }
 
@@ -71,6 +75,17 @@ final class PopulatorContract
             'Class "%s" does not implement a custom populator contract.',
             $class->name,
         ));
+    }
+
+    private static function findContractInInterfaces(\ReflectionClass $class): ?\ReflectionClass
+    {
+        foreach ($class->getInterfaces() as $interface) {
+            if (self::isContract($interface)) {
+                return $interface;
+            }
+        }
+
+        return null;
     }
 
     private static function isContract(\ReflectionClass $class): bool
