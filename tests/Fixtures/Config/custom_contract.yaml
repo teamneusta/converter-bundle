@@ -3,7 +3,7 @@ neusta_converter:
     test.person.converter:
       target: 'Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person'
       populators:
-        - Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContractPersonNamePopulator
+        - Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContract\CustomContractPersonNamePopulator
 
 services:
-  Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContractPersonNamePopulator: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContract\CustomContractPersonNamePopulator: ~

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neusta\ConverterBundle\Tests\Fixtures\Populator;
+namespace Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContract;
 
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;

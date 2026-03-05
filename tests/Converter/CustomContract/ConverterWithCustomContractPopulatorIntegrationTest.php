@@ -13,7 +13,7 @@ use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/custom_contract.yaml')]
 class ConverterWithCustomContractPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
-    public function testConvertWithContext(): void
+    public function testConvertWithSingleMethodCustomContract(): void
     {
         // Arrange
         $source = (new User())->setFirstname('Max')->setLastname('Mustermann');
