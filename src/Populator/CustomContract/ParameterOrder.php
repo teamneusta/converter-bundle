@@ -20,6 +20,24 @@ final class ParameterOrder
         return new self($order);
     }
 
+    /**
+     * Todo: can we cache this for known classes!?
+     */
+    public static function fromReflection(\ReflectionMethod $method): self
+    {
+        $order = array_map(self::resolveRole(...), $method->getParameters());
+
+        if (!\in_array('source', $order, true) || !\in_array('target', $order, true)) {
+            throw new \LogicException(sprintf(
+                'Method "%s::%s" must have parameters annotated with both #[Source] and #[Target].',
+                $method->getDeclaringClass()->getName(),
+                $method->getName(),
+            ));
+        }
+
+        return new self($order);
+    }
+
     public function resolveArgs(object $source, object $target, ?object $context): array
     {
         return array_map(fn (string $role) => match ($role) {
@@ -33,5 +51,20 @@ final class ParameterOrder
     public function toArray(): array
     {
         return $this->order;
+    }
+
+    private static function resolveRole(\ReflectionParameter $parameter): string
+    {
+        return match (true) {
+            [] !== $parameter->getAttributes(Source::class) => 'source',
+            [] !== $parameter->getAttributes(Target::class) => 'target',
+            [] !== $parameter->getAttributes(Context::class) => 'context',
+            default => throw new \LogicException(sprintf(
+                'Parameter "$%s" of method "%s::%s" must be annotated with #[Source], #[Target] or #[Context].',
+                $parameter->getName(),
+                $parameter->getDeclaringClass()->getName(),
+                $parameter->getDeclaringFunction()->getName(),
+            )),
+        };
     }
 }
