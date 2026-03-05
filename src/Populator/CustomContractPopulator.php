@@ -16,7 +16,7 @@ use Neusta\ConverterBundle\Populator\CustomContract\ParameterOrder;
 final class CustomContractPopulator implements Populator
 {
     /**
-     * @param \Closure(object, object, object|null):void $populator
+     * @param \Closure(object|null, object|null, object|null):void $populator
      */
     public function __construct(
         private readonly \Closure $populator,

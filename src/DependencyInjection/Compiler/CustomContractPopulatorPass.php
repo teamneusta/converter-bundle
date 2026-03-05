@@ -10,6 +10,7 @@ use Neusta\ConverterBundle\Populator\CustomContractPopulator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Reference;
 
 final class CustomContractPopulatorPass implements CompilerPassInterface
@@ -24,7 +25,14 @@ final class CustomContractPopulatorPass implements CompilerPassInterface
             $populators = [];
             foreach ($populatorRefs as $populatorRef) {
                 $populatorClass = $container->findDefinition((string) $populatorRef)->getClass();
-                $populatorReflection = $container->getReflectionClass($populatorClass);
+
+                if (!$populatorReflection = $container->getReflectionClass($populatorClass)) {
+                    throw new InvalidArgumentException(\sprintf(
+                        'Class "%s" used for service "%s" cannot be found.',
+                        $populatorClass,
+                        $id,
+                    ));
+                }
 
                 if ($populatorReflection->implementsInterface(Populator::class)) {
                     $populators[] = $populatorRef;

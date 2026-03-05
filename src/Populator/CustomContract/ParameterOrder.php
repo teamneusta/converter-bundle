@@ -39,6 +39,7 @@ final class ParameterOrder
         return new self($order);
     }
 
+    /** @return list<object|null> */
     public function resolveArgs(object $source, object $target, ?object $context): array
     {
         return array_map(fn (string $role) => match ($role) {
@@ -54,6 +55,9 @@ final class ParameterOrder
         return $this->order;
     }
 
+    /**
+     * @return 'source'|'target'|'context'
+     */
     private static function resolveRole(\ReflectionParameter $parameter): string
     {
         return match (true) {
@@ -63,7 +67,7 @@ final class ParameterOrder
             default => throw new \LogicException(\sprintf(
                 'Parameter "$%s" of method "%s::%s" must be annotated with #[Source], #[Target] or #[Context].',
                 $parameter->name,
-                $parameter->getDeclaringClass()->name,
+                $parameter->getDeclaringClass()?->name,
                 $parameter->getDeclaringFunction()->name,
             )),
         };
