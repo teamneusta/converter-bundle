@@ -26,13 +26,6 @@ final class ParameterOrder
 
     public static function fromReflection(\ReflectionMethod $method): self
     {
-        static $cache = [];
-        $cacheKey = sprintf('%s::%s', $method->class, $method->name);
-
-        if (isset($cache[$cacheKey])) {
-            return $cache[$cacheKey];
-        }
-
         $order = array_map(self::resolveRole(...), $method->getParameters());
 
         if (!\in_array('source', $order, true) || !\in_array('target', $order, true)) {
@@ -43,7 +36,7 @@ final class ParameterOrder
             ));
         }
 
-        return $cache[$cacheKey] = new self($order);
+        return new self($order);
     }
 
     public function resolveArgs(object $source, object $target, ?object $context): array
