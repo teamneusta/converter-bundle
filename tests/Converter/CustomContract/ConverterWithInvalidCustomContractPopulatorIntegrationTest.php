@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
-#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/custom_contract_invalid.yaml')]
+#[ConfigureContainer(__DIR__ . '/../../Fixtures/Config/custom_contract_invalid.yaml')]
 final class ConverterWithInvalidCustomContractPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
     public function testBootFailsWhenNoCustomContractInterfaceIsImplemented(): void

@@ -10,7 +10,7 @@ use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
-#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/custom_contract.yaml')]
+#[ConfigureContainer(__DIR__ . '/../../Fixtures/Config/custom_contract.yaml')]
 class ConverterWithCustomContractPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
     public function testConvertWithSingleMethodCustomContract(): void

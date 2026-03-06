@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle\Tests\Converter;
 use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
-#[ConfigureContainer(__DIR__ . '/../Fixtures/Config/custom_contract_ambiguous.yaml')]
+#[ConfigureContainer(__DIR__ . '/../../Fixtures/Config/custom_contract_ambiguous.yaml')]
 final class ConverterWithAmbiguousCustomContractPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
     public function testBootFailsWhenMultipleCustomContractInterfacesAreImplemented(): void
