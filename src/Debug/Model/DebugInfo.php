@@ -22,7 +22,7 @@ final class DebugInfo
      */
     public function services(?string $type = null): array
     {
-        return null === $type ? $this->services : array_filter($this->services, fn ($service) => $type === $service->type);
+        return null === $type ? $this->services : array_filter($this->services, static fn ($service) => $type === $service->type);
     }
 
     public function service(string $id): ?ServiceInfo

@@ -29,7 +29,7 @@ class ArrayConvertingPopulatorIntegrationTest extends ConfigurableKernelTestCase
 
         self::assertSame(
             [$phone1, $phone2, $phone3],
-            array_map(fn ($item) => $item->getPhoneNumber(), $person->getContactNumbers()),
+            array_map(static fn ($item) => $item->getPhoneNumber(), $person->getContactNumbers()),
         );
     }
 }
