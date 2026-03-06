@@ -38,7 +38,7 @@ final class ParameterOrder
     /** @return list<object|null> */
     public function resolveArgs(object $source, object $target, ?object $context): array
     {
-        return array_map(fn (string $role) => match ($role) {
+        return array_map(static fn (string $role) => match ($role) {
             'source' => $source,
             'target' => $target,
             'context' => $context,
