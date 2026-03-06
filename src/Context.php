@@ -44,7 +44,7 @@ final class Context
     public function without(object|string $value): self
     {
         if ($value instanceof self) {
-            throw new \InvalidArgumentException('Cannot remove context from another context.');
+            throw new \InvalidArgumentException(\sprintf('Removing multiple entries by passing another context to "%s()" is not supported.', __FUNCTION__));
         }
 
         $class = \is_string($value) ? $value : $value::class;
@@ -60,15 +60,24 @@ final class Context
     }
 
     /**
+     * @param class-string $value
+     */
+    public function has(string $value): bool
+    {
+        return isset($this->context[$value]);
+    }
+
+    /**
      * @template T of object
      *
      * @param class-string<T> $class
      *
-     * @return T|null
+     * @return T
      */
-    public function get(string $class): ?object
+    public function get(string $class): object
     {
         // @phpstan-ignore-next-line return.type
-        return $this->context[$class] ?? null;
+        return $this->context[$class]
+            ?? throw new \InvalidArgumentException(\sprintf('No instance of "%s" was found in the context.', $class));
     }
 }
