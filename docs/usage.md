@@ -199,6 +199,20 @@ with `language` (property of the context object).
 > [!IMPORTANT]
 > The context and the target property must be of the same type for this to work.
 
+#### Constant Value Population
+Sometimes you may want to assign specific properties of the target object fixed, constant values (regardless of the source object).
+
+In such cases, the `Neusta\ConverterBundle\Populator\ConstantValuePopulator` can be used:
+
+Example:
+```yaml
+class: App\Populator\ConstantValuePopulator
+arguments:
+    $targetProperty: 'tag'
+    $value: 'h1'
+```
+This populator allows also the usage of a mapper function (Closure) so that small manipulations can be done before.
+
 ### Conversion
 
 And now if you want to convert `User`s into `Person`s just type in your code:
