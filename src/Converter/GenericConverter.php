@@ -27,12 +27,6 @@ final class GenericConverter implements Converter
     ) {
     }
 
-    /**
-     * @param TSource  $source
-     * @param TContext $ctx
-     *
-     * @return TTarget
-     */
     public function convert(object $source, ?object $ctx = null): object
     {
         $target = $this->factory->create($ctx);

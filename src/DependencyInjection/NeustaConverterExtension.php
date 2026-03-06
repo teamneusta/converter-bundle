@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Command\DebugCommand;
+use Neusta\ConverterBundle\Context;
+use Neusta\ConverterBundle\Context\ContextFactory;
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\Condition\ExpressionCondition;
@@ -35,8 +38,10 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2) . '/config'));
         $loader->load('services.yaml');
 
+        $globalContextConfigurators = $mergedConfig['context_configurators'];
+
         foreach ($mergedConfig['converter'] as $converterId => $converter) {
-            $this->registerConverterConfiguration($converterId, $converter, $container);
+            $this->registerConverterConfiguration($converterId, $converter, $globalContextConfigurators, $container);
         }
 
         foreach ($mergedConfig['populator'] as $populatorId => $populator) {
@@ -51,9 +56,14 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
     /**
      * @param array<string, mixed> $config
+     * @param array<string>        $globalContextConfigurators
      */
-    private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
-    {
+    private function registerConverterConfiguration(
+        string $id,
+        array $config,
+        array $globalContextConfigurators,
+        ContainerBuilder $container,
+    ): void {
         $targetFactoryId = $config['target_factory'] ?? "{$id}.target_factory";
         if (!isset($config['target_factory'])) {
             $targetClass = $config['target']['class'];
@@ -83,12 +93,13 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ]);
         }
 
-        foreach ($config['context'] ?? [] as $targetProperty => $contextProperty) {
+        foreach ($config['context'] ?? [] as $targetProperty => $contextConfig) {
             $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
             $container->register($contextPopulatorId, ContextMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
-                    '$contextProperty' => $contextProperty ?? $targetProperty,
+                    '$contextObjectType' => $contextConfig['objectType'] ?? null,
+                    '$contextProperty' => $contextConfig['property'] ?? $targetProperty,
                     '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
                 ]);
@@ -104,6 +115,27 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     $config['populators'],
                 ),
             ]);
+
+        if ($contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? [])) {
+            $contextFactoryId = "{$id}.context.factory";
+            $container->register($contextFactoryId, ContextFactory::class)
+                ->setArgument('$configurators', array_map(
+                    static fn (string $configurator) => new Reference($configurator),
+                    $contextConfigurators,
+                ));
+
+            $contextId = "{$id}.context";
+            $container->register($contextId, Context::class)
+                ->setFactory([new Reference($contextFactoryId), 'create']);
+
+            $contextDecoratorId = "{$id}.decorator.context";
+            $container->register($contextDecoratorId, ConverterWithDefaultContext::class)
+                ->setDecoratedService($id)
+                ->setArguments([
+                    '$inner' => new Reference($contextDecoratorId . '.inner'),
+                    '$context' => new Reference($contextId),
+                ]);
+        }
     }
 
     /**

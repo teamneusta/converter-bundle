@@ -27,18 +27,14 @@ final class StrategicConverter implements Converter
     ) {
     }
 
-    /**
-     * @param TSource  $source
-     * @param TContext $ctx
-     *
-     * @return TTarget
-     */
     public function convert(object $source, ?object $ctx = null): object
     {
         $selectedConverterKey = $this->selector->selectConverter($source, $ctx);
+
         if (\array_key_exists($selectedConverterKey, $this->converters)) {
             return $this->converters[$selectedConverterKey]->convert($source, $ctx);
         }
+
         throw new ConverterException(\sprintf('No converter found for key <%s>', $selectedConverterKey));
     }
 }

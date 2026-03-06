@@ -14,8 +14,8 @@ use Neusta\ConverterBundle\Exception\ConverterException;
 interface Converter
 {
     /**
-     * @param TSource  $source
-     * @param TContext $ctx
+     * @param TSource          $source
+     * @param Context|TContext $ctx
      *
      * @return TTarget target type of your conversion
      *
