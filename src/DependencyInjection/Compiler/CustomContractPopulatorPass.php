@@ -1,0 +1,58 @@
+<?php
+declare(strict_types=1);
+
+namespace Neusta\ConverterBundle\DependencyInjection\Compiler;
+
+use Neusta\ConverterBundle\Populator;
+use Neusta\ConverterBundle\Populator\CustomContract\ParameterOrder;
+use Neusta\ConverterBundle\Populator\CustomContract\PopulatorContract;
+use Neusta\ConverterBundle\Populator\CustomContractPopulator;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Reference;
+
+final class CustomContractPopulatorPass implements CompilerPassInterface
+{
+    public function process(ContainerBuilder $container): void
+    {
+        foreach ($container->findTaggedServiceIds('neusta_converter.converter') as $id => $attr) {
+            $converter = $container->getDefinition($id);
+            /** @var Reference[] $populatorRefs */
+            $populatorRefs = $converter->getArgument('$populators');
+
+            $populators = [];
+            foreach ($populatorRefs as $populatorRef) {
+                $populatorClass = $container->findDefinition((string) $populatorRef)->getClass();
+
+                if (!$populatorReflection = $container->getReflectionClass($populatorClass)) {
+                    throw new InvalidArgumentException(\sprintf(
+                        'Class "%s" used for service "%s" cannot be found.',
+                        $populatorClass,
+                        $id,
+                    ));
+                }
+
+                if ($populatorReflection->implementsInterface(Populator::class)) {
+                    $populators[] = $populatorRef;
+
+                    continue;
+                }
+
+                $populatorContract = PopulatorContract::fromReflection($populatorReflection);
+
+                $populators[] = (new Definition(CustomContractPopulator::class))->setArguments([
+                    '$populator' => (new Definition(\Closure::class))
+                        ->setFactory([\Closure::class, 'fromCallable'])
+                        ->addArgument([$populatorRef, $populatorContract->methodName]),
+                    '$parameterOrder' => (new Definition(ParameterOrder::class))
+                        ->setFactory([ParameterOrder::class, 'fromArray'])
+                        ->addArgument($populatorContract->parameterOrder->toArray()),
+                ]);
+            }
+
+            $converter->setArgument('$populators', $populators);
+        }
+    }
+}

@@ -97,6 +97,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $container->registerAliasForArgument($id, Converter::class, $this->appendSuffix($id, 'Converter'));
         $container->register($id, $config['converter'])
             ->setPublic(true)
+            ->addTag('neusta_converter.converter')
             ->setArguments([
                 '$factory' => new Reference($targetFactoryId),
                 '$populators' => array_map(
