@@ -21,6 +21,8 @@ final class ParameterOrder
     /** @param list<'source'|'target'|'context'> $order */
     public static function fromArray(array $order): self
     {
+        self::validateOrder($order, 'Parameter order array');
+
         return new self($order);
     }
 
@@ -28,13 +30,7 @@ final class ParameterOrder
     {
         $order = array_map(self::resolveRole(...), $method->getParameters());
 
-        if (!\in_array('source', $order, true) || !\in_array('target', $order, true)) {
-            throw new \LogicException(\sprintf(
-                'Method "%s::%s" must have parameters annotated with both #[Source] and #[Target].',
-                $method->class,
-                $method->name,
-            ));
-        }
+        self::validateOrder($order, \sprintf('Method "%s::%s"', $method->class, $method->name));
 
         return new self($order);
     }
@@ -60,16 +56,65 @@ final class ParameterOrder
      */
     private static function resolveRole(\ReflectionParameter $parameter): string
     {
-        return match (true) {
-            [] !== $parameter->getAttributes(Source::class) => 'source',
-            [] !== $parameter->getAttributes(Target::class) => 'target',
-            [] !== $parameter->getAttributes(Context::class) => 'context',
-            default => throw new \LogicException(\sprintf(
-                'Parameter "$%s" of method "%s::%s" must be annotated with #[Source], #[Target] or #[Context].',
-                $parameter->name,
-                $parameter->getDeclaringClass()?->name,
-                $parameter->getDeclaringFunction()->name,
-            )),
-        };
+        if ([] !== $parameter->getAttributes(Source::class)) {
+            return 'source';
+        }
+
+        if ([] !== $parameter->getAttributes(Target::class)) {
+            return 'target';
+        }
+
+        if ([] !== $parameter->getAttributes(Context::class)) {
+            if (!$parameter->allowsNull()) {
+                throw new \LogicException(\sprintf(
+                    'Parameter "$%s" of method "%s::%s" annotated with #[Context] must be nullable.',
+                    $parameter->name,
+                    $parameter->getDeclaringClass()?->name,
+                    $parameter->getDeclaringFunction()->name,
+                ));
+            }
+
+            return 'context';
+        }
+
+        throw new \LogicException(\sprintf(
+            'Parameter "$%s" of method "%s::%s" must be annotated with #[Source], #[Target] or #[Context].',
+            $parameter->name,
+            $parameter->getDeclaringClass()?->name,
+            $parameter->getDeclaringFunction()->name,
+        ));
+    }
+
+    /**
+     * @param list<mixed> $order
+     */
+    private static function validateOrder(array $order, string $subject): void
+    {
+        foreach ($order as $index => $role) {
+            if (!\in_array($role, ['source', 'target', 'context'], true)) {
+                throw new \LogicException(\sprintf(
+                    '%s contains invalid role "%s" at index %d.',
+                    $subject,
+                    \is_scalar($role) ? $role : get_debug_type($role),
+                    $index,
+                ));
+            }
+        }
+
+        $roleCounts = array_count_values($order);
+
+        if (1 !== ($roleCounts['source'] ?? 0) || 1 !== ($roleCounts['target'] ?? 0)) {
+            throw new \LogicException(\sprintf(
+                '%s must contain exactly one "source" role and exactly one "target" role.',
+                $subject,
+            ));
+        }
+
+        if (($roleCounts['context'] ?? 0) > 1) {
+            throw new \LogicException(\sprintf(
+                '%s must not contain more than one "context" role.',
+                $subject,
+            ));
+        }
     }
 }
