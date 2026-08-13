@@ -13,6 +13,8 @@ use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
@@ -217,6 +219,85 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$accessor', new Reference('property_accessor'));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$targetProperty', 'ageInYears');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
+    }
+
+    public function test_with_mapped_context_and_object_type(): void
+    {
+        $this->load([
+            'context_configurators' => [
+                AgeContextConfigurator::class,
+            ],
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'ageInYears' => [
+                            'objectType' => AgeContext::class,
+                            'property' => 'age',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextObjectType', AgeContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
+    }
+
+    public function test_with_mapped_context_without_context_configurators_does_not_require_object_type(): void
+    {
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'ageInYears' => 'age',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextObjectType', null);
+    }
+
+    public function test_with_mapped_context_missing_object_type_and_global_context_configurators(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "context.ageInYears.objectType" option is required for converter "foobar" because "context_configurators" are configured for it.');
+
+        $this->load([
+            'context_configurators' => [
+                AgeContextConfigurator::class,
+            ],
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'ageInYears' => 'age',
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_mapped_context_missing_object_type_and_local_context_configurators(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "context.ageInYears.objectType" option is required for converter "foobar" because "context_configurators" are configured for it.');
+
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context_configurators' => [
+                        AgeContextConfigurator::class,
+                    ],
+                    'context' => [
+                        'ageInYears' => 'age',
+                    ],
+                ],
+            ],
+        ]);
     }
 
     public function test_with_converting_populator(): void

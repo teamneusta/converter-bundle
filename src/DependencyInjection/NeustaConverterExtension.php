@@ -93,7 +93,13 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ]);
         }
 
+        $contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? []);
+
         foreach ($config['context'] ?? [] as $targetProperty => $contextConfig) {
+            if ($contextConfigurators && !isset($contextConfig['objectType'])) {
+                throw new InvalidConfigurationException(\sprintf('The "context.%s.objectType" option is required for converter "%s" because "context_configurators" are configured for it.', $targetProperty, $id));
+            }
+
             $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
             $container->register($contextPopulatorId, ContextMappingPopulator::class)
                 ->setArguments([
@@ -116,7 +122,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ),
             ]);
 
-        if ($contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? [])) {
+        if ($contextConfigurators) {
             $contextFactoryId = "{$id}.context.factory";
             $container->register($contextFactoryId, ContextFactory::class)
                 ->setArgument('$configurators', array_map(
