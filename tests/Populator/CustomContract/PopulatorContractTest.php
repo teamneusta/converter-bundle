@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Populator\CustomContract;
 
+use Neusta\ConverterBundle\Populator\CustomContract\ParameterOrder;
 use Neusta\ConverterBundle\Populator\CustomContract\PopulatorContract;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContract\AmbiguousCustomContractPopulator;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContract\CustomContractPersonNamePopulator;
@@ -22,7 +23,7 @@ final class PopulatorContractTest extends TestCase
         $contract = PopulatorContract::fromReflection(new \ReflectionClass(CustomContractPersonNamePopulator::class));
 
         self::assertSame('populateName', $contract->methodName);
-        self::assertSame(['source', 'target', 'context'], $contract->parameterOrder->toArray());
+        self::assertSame(ParameterOrder::SourceTargetContext, $contract->parameterOrder);
     }
 
     public function testResolvesAReorderedContract(): void
@@ -30,7 +31,7 @@ final class PopulatorContractTest extends TestCase
         $contract = PopulatorContract::fromReflection(new \ReflectionClass(ReorderedCustomContractPopulator::class));
 
         self::assertSame('populateName', $contract->methodName);
-        self::assertSame(['target', 'context', 'source'], $contract->parameterOrder->toArray());
+        self::assertSame(ParameterOrder::TargetContextSource, $contract->parameterOrder);
     }
 
     /**
@@ -41,7 +42,7 @@ final class PopulatorContractTest extends TestCase
         $contract = PopulatorContract::fromReflection(new \ReflectionClass(InheritingCustomContractPopulator::class));
 
         self::assertSame('populateName', $contract->methodName);
-        self::assertSame(['source', 'target', 'context'], $contract->parameterOrder->toArray());
+        self::assertSame(ParameterOrder::SourceTargetContext, $contract->parameterOrder);
     }
 
     /**
@@ -52,7 +53,7 @@ final class PopulatorContractTest extends TestCase
         $contract = PopulatorContract::fromReflection(new \ReflectionClass(DoubleAnnotatedCustomContractPopulator::class));
 
         self::assertSame('populateName', $contract->methodName);
-        self::assertSame(['source', 'target', 'context'], $contract->parameterOrder->toArray());
+        self::assertSame(ParameterOrder::SourceTargetContext, $contract->parameterOrder);
     }
 
     public function testFailsWithoutAContract(): void

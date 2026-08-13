@@ -41,7 +41,7 @@ final class CustomContractPopulatorPassTest extends TestCase
 
         $wrapper = $this->container->getDefinition('app.populator.populator');
         self::assertSame(CustomContractPopulator::class, $wrapper->getClass());
-        self::assertSame(['source', 'target', 'context'], $wrapper->getArgument('$parameterOrder')->getArgument(0));
+        self::assertSame('source|target|context', $wrapper->getArgument('$parameterOrder')->getArgument(0));
 
         $closure = $wrapper->getArgument('$populator');
         self::assertEquals([new Reference('app.populator'), 'populateName'], $closure->getArgument(0));
@@ -55,7 +55,7 @@ final class CustomContractPopulatorPassTest extends TestCase
         $this->process();
 
         self::assertSame(
-            ['target', 'context', 'source'],
+            'target|context|source',
             $this->container->getDefinition('app.populator.populator')->getArgument('$parameterOrder')->getArgument(0),
         );
     }

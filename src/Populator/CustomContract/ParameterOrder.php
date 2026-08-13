@@ -8,10 +8,21 @@ use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Source;
 use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Target;
 
 /**
+ * The order in which a contract method declares its source, target, and context parameters.
+ *
  * @internal
  */
-final class ParameterOrder
+enum ParameterOrder: string
 {
+    case SourceTarget = 'source|target';
+    case TargetSource = 'target|source';
+    case SourceTargetContext = 'source|target|context';
+    case SourceContextTarget = 'source|context|target';
+    case TargetSourceContext = 'target|source|context';
+    case TargetContextSource = 'target|context|source';
+    case ContextSourceTarget = 'context|source|target';
+    case ContextTargetSource = 'context|target|source';
+
     /** @var array<'source'|'target'|'context', class-string> */
     private const ROLE_ATTRIBUTES = [
         'source' => Source::class,
@@ -19,43 +30,45 @@ final class ParameterOrder
         'context' => Context::class,
     ];
 
-    /** @param list<'source'|'target'|'context'> $order */
-    private function __construct(
-        private readonly array $order,
-    ) {
-    }
-
-    /** @param list<'source'|'target'|'context'> $order */
-    public static function fromArray(array $order): self
-    {
-        self::validateOrder($order, 'Parameter order array');
-
-        return new self($order);
-    }
-
     public static function fromReflection(\ReflectionMethod $method): self
     {
-        $order = array_map(self::resolveRole(...), $method->getParameters());
+        $roles = array_map(self::resolveRole(...), $method->getParameters());
+        $roleCounts = array_count_values($roles);
 
-        self::validateOrder($order, \sprintf('Method "%s::%s"', $method->class, $method->name));
+        // Checked explicitly rather than relying on self::from() below, whose
+        // ValueError would not tell the developer which method is at fault.
+        if (1 !== ($roleCounts['source'] ?? 0) || 1 !== ($roleCounts['target'] ?? 0)) {
+            throw new \LogicException(\sprintf(
+                'Method "%s::%s" must contain exactly one "source" role and exactly one "target" role.',
+                $method->class,
+                $method->name,
+            ));
+        }
 
-        return new self($order);
+        if (($roleCounts['context'] ?? 0) > 1) {
+            throw new \LogicException(\sprintf(
+                'Method "%s::%s" must not contain more than one "context" role.',
+                $method->class,
+                $method->name,
+            ));
+        }
+
+        return self::from(implode('|', $roles));
     }
 
     /** @return list<object|null> */
     public function resolveArgs(object $source, object $target, ?object $context): array
     {
-        return array_map(static fn (string $role) => match ($role) {
-            'source' => $source,
-            'target' => $target,
-            'context' => $context,
-        }, $this->order);
-    }
-
-    /** @return list<'source'|'target'|'context'> */
-    public function toArray(): array
-    {
-        return $this->order;
+        return match ($this) {
+            self::SourceTarget => [$source, $target],
+            self::TargetSource => [$target, $source],
+            self::SourceTargetContext => [$source, $target, $context],
+            self::SourceContextTarget => [$source, $context, $target],
+            self::TargetSourceContext => [$target, $source, $context],
+            self::TargetContextSource => [$target, $context, $source],
+            self::ContextSourceTarget => [$context, $source, $target],
+            self::ContextTargetSource => [$context, $target, $source],
+        };
     }
 
     /**
@@ -96,39 +109,6 @@ final class ParameterOrder
         }
 
         return $roles[0];
-    }
-
-    /**
-     * @param list<mixed> $order
-     */
-    private static function validateOrder(array $order, string $subject): void
-    {
-        foreach ($order as $index => $role) {
-            if (!\in_array($role, array_keys(self::ROLE_ATTRIBUTES), true)) {
-                throw new \LogicException(\sprintf(
-                    '%s contains invalid role "%s" at index %d.',
-                    $subject,
-                    \is_scalar($role) ? $role : get_debug_type($role),
-                    $index,
-                ));
-            }
-        }
-
-        $roleCounts = array_count_values($order);
-
-        if (1 !== ($roleCounts['source'] ?? 0) || 1 !== ($roleCounts['target'] ?? 0)) {
-            throw new \LogicException(\sprintf(
-                '%s must contain exactly one "source" role and exactly one "target" role.',
-                $subject,
-            ));
-        }
-
-        if (($roleCounts['context'] ?? 0) > 1) {
-            throw new \LogicException(\sprintf(
-                '%s must not contain more than one "context" role.',
-                $subject,
-            ));
-        }
     }
 
     private static function describeDeclaringMethod(\ReflectionParameter $parameter): string

@@ -71,8 +71,8 @@ final class CustomContractPopulatorPass implements CompilerPassInterface
                     ->setFactory([\Closure::class, 'fromCallable'])
                     ->addArgument([new Reference($populatorId), $contract->methodName]),
                 '$parameterOrder' => (new Definition(ParameterOrder::class))
-                    ->setFactory([ParameterOrder::class, 'fromArray'])
-                    ->addArgument($contract->parameterOrder->toArray()),
+                    ->setFactory([ParameterOrder::class, 'from'])
+                    ->addArgument($contract->parameterOrder->value),
             ]));
         }
 

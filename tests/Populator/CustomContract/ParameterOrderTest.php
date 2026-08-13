@@ -14,24 +14,22 @@ use PHPUnit\Framework\TestCase;
 final class ParameterOrderTest extends TestCase
 {
     /**
-     * @param list<'source'|'target'|'context'> $expected
-     *
      * @dataProvider validMethods
      */
-    public function testFromReflectionResolvesRoles(string $method, array $expected): void
+    public function testFromReflectionResolvesRoles(string $method, ParameterOrder $expected): void
     {
-        self::assertSame($expected, self::orderOf($method)->toArray());
+        self::assertSame($expected, self::orderOf($method));
     }
 
     /**
-     * @return iterable<string, array{string, list<'source'|'target'|'context'>}>
+     * @return iterable<string, array{string, ParameterOrder}>
      */
     public static function validMethods(): iterable
     {
-        yield 'natural order' => ['sourceTargetContext', ['source', 'target', 'context']];
-        yield 'context in the middle' => ['targetContextSource', ['target', 'context', 'source']];
-        yield 'without context' => ['sourceTarget', ['source', 'target']];
-        yield 'target before source' => ['targetSource', ['target', 'source']];
+        yield 'natural order' => ['sourceTargetContext', ParameterOrder::SourceTargetContext];
+        yield 'context in the middle' => ['targetContextSource', ParameterOrder::TargetContextSource];
+        yield 'without context' => ['sourceTarget', ParameterOrder::SourceTarget];
+        yield 'target before source' => ['targetSource', ParameterOrder::TargetSource];
     }
 
     /**
@@ -64,11 +62,11 @@ final class ParameterOrderTest extends TestCase
         ];
         yield 'two source parameters' => [
             'twoSources',
-            'must contain exactly one "source" role and exactly one "target" role',
+            'Method "' . ParameterOrderMethods::class . '::twoSources" must contain exactly one "source" role and exactly one "target" role.',
         ];
         yield 'missing target' => [
             'missingTarget',
-            'must contain exactly one "source" role and exactly one "target" role',
+            'Method "' . ParameterOrderMethods::class . '::missingTarget" must contain exactly one "source" role and exactly one "target" role.',
         ];
     }
 
@@ -80,7 +78,7 @@ final class ParameterOrderTest extends TestCase
 
         self::assertSame(
             [$target, $context, $source],
-            self::orderOf('targetContextSource')->resolveArgs($source, $target, $context),
+            ParameterOrder::TargetContextSource->resolveArgs($source, $target, $context),
         );
     }
 
@@ -91,7 +89,7 @@ final class ParameterOrderTest extends TestCase
 
         self::assertSame(
             [$source, $target],
-            self::orderOf('sourceTarget')->resolveArgs($source, $target, new GenericContext()),
+            ParameterOrder::SourceTarget->resolveArgs($source, $target, new GenericContext()),
         );
     }
 
@@ -102,38 +100,57 @@ final class ParameterOrderTest extends TestCase
 
         self::assertSame(
             [$source, $target, null],
-            self::orderOf('sourceTargetContext')->resolveArgs($source, $target, null),
+            ParameterOrder::SourceTargetContext->resolveArgs($source, $target, null),
         );
     }
 
-    public function testFromArrayAcceptsValidOrders(): void
+    /**
+     * The enum is only able to make invalid orders unrepresentable as long as it
+     * covers every valid one - and nothing else.
+     */
+    public function testEveryValidRoleCombinationHasExactlyOneCase(): void
     {
-        self::assertSame(['context', 'target', 'source'], ParameterOrder::fromArray(['context', 'target', 'source'])->toArray());
+        $combinations = [
+            ...self::permutationsOf(['source', 'target']),
+            ...self::permutationsOf(['source', 'target', 'context']),
+        ];
+
+        foreach ($combinations as $roles) {
+            self::assertNotNull(
+                ParameterOrder::tryFrom($value = implode('|', $roles)),
+                \sprintf('No enum case for the valid parameter order "%s".', $value),
+            );
+        }
+
+        self::assertCount(
+            \count($combinations),
+            ParameterOrder::cases(),
+            'The enum declares cases beyond the valid parameter orders.',
+        );
     }
 
     /**
-     * @param list<mixed> $order
+     * @param list<string> $items
      *
-     * @dataProvider invalidArrays
+     * @return list<list<string>>
      */
-    public function testFromArrayRejectsInvalidOrders(array $order, string $expectedMessage): void
+    private static function permutationsOf(array $items): array
     {
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage($expectedMessage);
+        if (1 >= \count($items)) {
+            return [$items];
+        }
 
-        ParameterOrder::fromArray($order);
-    }
+        $permutations = [];
+        foreach ($items as $index => $item) {
+            $rest = $items;
+            unset($rest[$index]);
 
-    /**
-     * @return iterable<string, array{list<mixed>, string}>
-     */
-    public static function invalidArrays(): iterable
-    {
-        yield 'unknown role' => [['source', 'target', 'ctx'], 'Parameter order array contains invalid role "ctx" at index 2.'];
-        yield 'non-string role' => [['source', 'target', 42], 'Parameter order array contains invalid role "42" at index 2.'];
-        yield 'missing target' => [['source'], 'must contain exactly one "source" role and exactly one "target" role'];
-        yield 'duplicate target' => [['source', 'target', 'target'], 'must contain exactly one "source" role and exactly one "target" role'];
-        yield 'two contexts' => [['source', 'target', 'context', 'context'], 'must not contain more than one "context" role'];
+            foreach (self::permutationsOf(array_values($rest)) as $permutation) {
+                $permutations[] = [$item, ...$permutation];
+            }
+        }
+
+        return $permutations;
     }
 
     private static function orderOf(string $method): ParameterOrder

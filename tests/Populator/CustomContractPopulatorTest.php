@@ -18,7 +18,7 @@ final class CustomContractPopulatorTest extends TestCase
         $received = [];
         $populator = new CustomContractPopulator(
             static function (...$args) use (&$received): void { $received = $args; },
-            ParameterOrder::fromArray(['target', 'context', 'source']),
+            ParameterOrder::TargetContextSource,
         );
 
         $source = new User();
@@ -35,7 +35,7 @@ final class CustomContractPopulatorTest extends TestCase
         $received = [];
         $populator = new CustomContractPopulator(
             static function (...$args) use (&$received): void { $received = $args; },
-            ParameterOrder::fromArray(['source', 'target']),
+            ParameterOrder::SourceTarget,
         );
 
         $source = new User();
@@ -50,7 +50,7 @@ final class CustomContractPopulatorTest extends TestCase
     {
         $populator = new CustomContractPopulator(
             static fn (Person $person, User $user) => $person->setFullName($user->getFirstname()),
-            ParameterOrder::fromArray(['target', 'source']),
+            ParameterOrder::TargetSource,
         );
 
         $target = new Person();
