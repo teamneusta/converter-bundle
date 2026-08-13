@@ -34,7 +34,7 @@ final class GenericConverter implements Converter
         if (null !== $ctx && !$ctx instanceof Context && !$ctx instanceof GenericContext) {
             trigger_deprecation(
                 'teamneusta/converter-bundle',
-                '1.10.0',
+                '1.11',
                 'Passing a "%s" instance as $ctx that is not an instance of "%s" is deprecated and will not be supported anymore in 2.0.',
                 $ctx::class,
                 Context::class,

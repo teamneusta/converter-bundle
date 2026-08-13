@@ -15,7 +15,7 @@ class GenericContext
     {
         trigger_deprecation(
             'teamneusta/converter-bundle',
-            '1.10.0',
+            '1.11',
             '"%s" is deprecated, use "%s" instead.',
             self::class,
             Context::class,
