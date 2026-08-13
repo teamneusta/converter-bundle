@@ -21,6 +21,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 final class ConvertingPopulator implements Populator
 {
+    /** @var PropertyMappingPopulator<object, object, TContext> */
     private PropertyMappingPopulator $populator;
 
     /**

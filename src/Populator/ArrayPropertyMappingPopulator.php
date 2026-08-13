@@ -22,6 +22,7 @@ final class ArrayPropertyMappingPopulator implements Populator
     /** @var \Closure(mixed, TContext=):mixed|null */
     private ?\Closure $mapper;
     private PropertyAccessorInterface $arrayItemAccessor;
+    /** @var PropertyMappingPopulator<object, object, TContext> */
     private PropertyMappingPopulator $populator;
 
     /**
