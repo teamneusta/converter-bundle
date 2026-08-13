@@ -12,6 +12,13 @@ use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Target;
  */
 final class ParameterOrder
 {
+    /** @var array<'source'|'target'|'context', class-string> */
+    private const ROLE_ATTRIBUTES = [
+        'source' => Source::class,
+        'target' => Target::class,
+        'context' => Context::class,
+    ];
+
     /** @param list<'source'|'target'|'context'> $order */
     private function __construct(
         private readonly array $order,
@@ -56,33 +63,39 @@ final class ParameterOrder
      */
     private static function resolveRole(\ReflectionParameter $parameter): string
     {
-        if ([] !== $parameter->getAttributes(Source::class)) {
-            return 'source';
-        }
-
-        if ([] !== $parameter->getAttributes(Target::class)) {
-            return 'target';
-        }
-
-        if ([] !== $parameter->getAttributes(Context::class)) {
-            if (!$parameter->allowsNull()) {
-                throw new \LogicException(\sprintf(
-                    'Parameter "$%s" of method "%s::%s" annotated with #[Context] must be nullable.',
-                    $parameter->name,
-                    $parameter->getDeclaringClass()?->name,
-                    $parameter->getDeclaringFunction()->name,
-                ));
+        $roles = [];
+        foreach (self::ROLE_ATTRIBUTES as $role => $attribute) {
+            if ($count = \count($parameter->getAttributes($attribute))) {
+                array_push($roles, ...array_fill(0, $count, $role));
             }
-
-            return 'context';
         }
 
-        throw new \LogicException(\sprintf(
-            'Parameter "$%s" of method "%s::%s" must be annotated with #[Source], #[Target] or #[Context].',
-            $parameter->name,
-            $parameter->getDeclaringClass()?->name,
-            $parameter->getDeclaringFunction()->name,
-        ));
+        if ([] === $roles) {
+            throw new \LogicException(\sprintf(
+                'Parameter "$%s" of method "%s" must be annotated with #[Source], #[Target] or #[Context].',
+                $parameter->name,
+                self::describeDeclaringMethod($parameter),
+            ));
+        }
+
+        if (1 < \count($roles)) {
+            throw new \LogicException(\sprintf(
+                'Parameter "$%s" of method "%s" must be annotated with exactly one of #[Source], #[Target] or #[Context], got: %s.',
+                $parameter->name,
+                self::describeDeclaringMethod($parameter),
+                implode(', ', $roles),
+            ));
+        }
+
+        if ('context' === $roles[0] && !$parameter->allowsNull()) {
+            throw new \LogicException(\sprintf(
+                'Parameter "$%s" of method "%s" annotated with #[Context] must be nullable.',
+                $parameter->name,
+                self::describeDeclaringMethod($parameter),
+            ));
+        }
+
+        return $roles[0];
     }
 
     /**
@@ -91,7 +104,7 @@ final class ParameterOrder
     private static function validateOrder(array $order, string $subject): void
     {
         foreach ($order as $index => $role) {
-            if (!\in_array($role, ['source', 'target', 'context'], true)) {
+            if (!\in_array($role, array_keys(self::ROLE_ATTRIBUTES), true)) {
                 throw new \LogicException(\sprintf(
                     '%s contains invalid role "%s" at index %d.',
                     $subject,
@@ -116,5 +129,14 @@ final class ParameterOrder
                 $subject,
             ));
         }
+    }
+
+    private static function describeDeclaringMethod(\ReflectionParameter $parameter): string
+    {
+        return \sprintf(
+            '%s::%s',
+            $parameter->getDeclaringClass()?->name,
+            $parameter->getDeclaringFunction()->name,
+        );
     }
 }

@@ -9,10 +9,14 @@ use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Target;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 
+/**
+ * Adds a second method on top of an inherited contract method - which makes it
+ * ambiguous which one populates.
+ */
 #[AsPopulatorContract]
-interface FirstAmbiguousCustomContractInterface
+interface ExtendedMethodCustomContractInterface extends CustomContractPersonPopulatorInterface
 {
-    public function populateFirst(
+    public function populateAge(
         #[Source] User $user,
         #[Target] Person $person,
     ): void;

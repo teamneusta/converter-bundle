@@ -18,6 +18,10 @@ class NeustaConverterBundle extends Bundle
 
     public function build(ContainerBuilder $container): void
     {
+        // Order matters: both passes run in the default `beforeOptimization` stage
+        // with priority 0, i.e. in registration order. DebugInfoPass has to see the
+        // original populator services, not the wrappers CustomContractPopulatorPass
+        // puts in their place.
         $container->addCompilerPass(new DebugInfoPass());
         $container->addCompilerPass(new CustomContractPopulatorPass());
     }

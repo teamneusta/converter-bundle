@@ -68,6 +68,64 @@ separated Populator or in several of them.
 Skip thinking about the converter context at the moment. It will help you...
 maybe not now but in a few weeks. You will see.
 
+#### Custom populator contracts
+
+The generic `Populator` interface types its parameters as `object`, so your IDE cannot
+offer autocompletion for the actual source and target classes. If you prefer real type
+hints, define your own contract interface instead and annotate it with
+`#[AsPopulatorContract]`:
+
+```php
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\AsPopulatorContract;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Context;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Source;
+use Neusta\ConverterBundle\Populator\CustomContract\Attribute\Target;
+
+#[AsPopulatorContract]
+interface UserToPersonPopulator
+{
+    public function populatePerson(
+        #[Source] User $user,
+        #[Target] Person $person,
+        #[Context] ?GenericContext $context,
+    ): void;
+}
+```
+
+Your populators then implement that interface - without repeating the attributes:
+
+```php
+class PersonNamePopulator implements UserToPersonPopulator
+{
+    public function populatePerson(User $user, Person $person, ?GenericContext $context): void
+    {
+        $person->setFullName($user->getFirstname() . ' ' . $user->getLastname());
+    }
+}
+```
+
+Such populators are configured exactly like regular ones – the bundle wraps them at
+container compile time, so there is no runtime overhead.
+
+A contract interface must follow these rules:
+
+* it is annotated with `#[AsPopulatorContract]`,
+* it declares **exactly one** method,
+* that method has **exactly one** `#[Source]` and **exactly one** `#[Target]` parameter,
+* it may have **at most one** `#[Context]` parameter, which must be nullable,
+* the parameters may be declared in **any order**.
+
+A populator may implement only one contract. An interface extending a contract is fine –
+the most specific one is used. Note that inherited methods count towards the one-method
+rule, so a contract that extends another one must not add a second method.
+
+> [!NOTE]
+> Contract populators are resolved for converters registered through the
+> `neusta_converter` configuration. If you wire a converter as a plain Symfony service
+> yourself, reference the generated wrapper service – it is registered under the id of
+> your populator service suffixed with `.populator`.
+
 ### Configuration
 
 First register the populator as a service:
