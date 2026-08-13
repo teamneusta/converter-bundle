@@ -6,18 +6,21 @@ namespace Neusta\ConverterBundle\Converter\Context;
 
 use Neusta\ConverterBundle\Context;
 
-trigger_deprecation(
-    'teamneusta/converter-bundle',
-    '1.10.0',
-    '"%s" is deprecated, use "%s" instead.',
-    GenericContext::class,
-    Context::class,
-);
-
 class GenericContext
 {
     /** @var array<string, mixed> */
     protected array $values = [];
+
+    public function __construct()
+    {
+        trigger_deprecation(
+            'teamneusta/converter-bundle',
+            '1.10.0',
+            '"%s" is deprecated, use "%s" instead.',
+            self::class,
+            Context::class,
+        );
+    }
 
     public function hasKey(string $key): bool
     {
