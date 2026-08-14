@@ -515,6 +515,13 @@ built-in ones.
 
 ### Adding your own converter and populator types
 
+> [!WARNING]
+> The factory interfaces below are marked `@experimental` and are **not** covered by the backward
+> compatibility promise yet. Their shape will be settled once the first real consumers have exercised
+> them — most likely by replacing the loose parameters with a factory context object (see issue #108).
+> Expect one
+> mechanical adjustment in a future minor if you implement them today.
+
 A converter type is a `Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory`. It
 contributes its own slice of the config tree and creates the service definitions for it, so its
 converter class is free to have whatever constructor it likes:

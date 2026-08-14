@@ -8,6 +8,11 @@ use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
 
+/**
+ * @experimental This class is not covered by the backward compatibility promise yet. Its shape
+ *               will be settled once the first real consumers (see #39, #79) have exercised it -
+ *               most likely by replacing the loose parameters with a factory context object (#108).
+ */
 final class FactoryRegistry
 {
     /** @var array<string, ConverterFactory> */

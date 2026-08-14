@@ -56,6 +56,8 @@ final class NeustaConverterExtension extends ConfigurableExtension
      *
      * The kernel registers all extensions before it calls any `build()`, so this works regardless
      * of the order in which the bundles are registered.
+     *
+     * @experimental Not covered by the backward compatibility promise yet, see `ConverterFactory`.
      */
     public function addConverterFactory(ConverterFactory $factory): void
     {
@@ -66,6 +68,8 @@ final class NeustaConverterExtension extends ConfigurableExtension
      * Registers an additional populator type.
      *
      * @see self::addConverterFactory() for where to call this
+     *
+     * @experimental Not covered by the backward compatibility promise yet, see `PopulatorFactory`.
      */
     public function addPopulatorFactory(PopulatorFactory $factory): void
     {
