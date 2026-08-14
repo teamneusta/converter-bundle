@@ -38,11 +38,6 @@ final class NeustaConverterExtension extends ConfigurableExtension
         return NeustaConverterBundle::ALIAS;
     }
 
-    public function getFactories(): FactoryRegistry
-    {
-        return $this->factories;
-    }
-
     /**
      * Registers an additional converter type. Call this from another bundle's `build()` method:
      *

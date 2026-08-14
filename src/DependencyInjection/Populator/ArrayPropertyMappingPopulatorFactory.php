@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\DependencyInjection\Populator;
 use Neusta\ConverterBundle\Populator\Mapper\ArrayPropertyMapper;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 final class ArrayPropertyMappingPopulatorFactory extends PropertyMappingPopulatorFactory implements PropertyPopulatorFactory
 {
@@ -34,7 +35,7 @@ final class ArrayPropertyMappingPopulatorFactory extends PropertyMappingPopulato
     {
         return (new Definition(ArrayPropertyMapper::class))->setArguments([
             '$sourceArrayItemProperty' => $config['source_array_item'] ?? null,
-            '$arrayItemAccessor' => null,
+            '$arrayItemAccessor' => new Reference('property_accessor'),
             '$mapper' => null,
         ]);
     }

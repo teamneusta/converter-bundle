@@ -176,7 +176,7 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
             '$mapper',
             (new Definition(ArrayPropertyMapper::class))->setArguments([
                 '$sourceArrayItemProperty' => $sourceArrayItemProperty,
-                '$arrayItemAccessor' => null,
+                '$arrayItemAccessor' => new Reference('property_accessor'),
                 '$mapper' => (new Definition(ConverterMapper::class))->setArguments([
                     '$converter' => new Reference(GenericConverter::class),
                 ]),

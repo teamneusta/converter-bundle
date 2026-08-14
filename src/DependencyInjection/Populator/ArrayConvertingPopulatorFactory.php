@@ -41,7 +41,7 @@ final class ArrayConvertingPopulatorFactory extends PropertyMappingPopulatorFact
     {
         return (new Definition(ArrayPropertyMapper::class))->setArguments([
             '$sourceArrayItemProperty' => $config['source_array_item'] ?? null,
-            '$arrayItemAccessor' => null,
+            '$arrayItemAccessor' => new Reference('property_accessor'),
             '$mapper' => (new Definition(ConverterMapper::class))->setArguments([
                 '$converter' => new Reference($config['converter']),
             ]),
