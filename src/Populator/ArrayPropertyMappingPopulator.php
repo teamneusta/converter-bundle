@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\Populator;
 
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator;
+use Neusta\ConverterBundle\Populator\Mapper\ArrayPropertyMapper;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
@@ -18,11 +19,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 final class ArrayPropertyMappingPopulator implements Populator
 {
-    private ?string $sourceArrayItemProperty;
-    /** @var \Closure(mixed, TContext=):mixed|null */
-    private ?\Closure $mapper;
-    private PropertyAccessorInterface $arrayItemAccessor;
-    private PropertyMappingPopulator $populator;
+    private readonly PropertyMappingPopulator $populator;
 
     /**
      * @param \Closure(mixed, TContext=):mixed|null $mapper
@@ -35,14 +32,15 @@ final class ArrayPropertyMappingPopulator implements Populator
         ?PropertyAccessorInterface $arrayItemAccessor = null,
         ?PropertyAccessorInterface $accessor = null,
     ) {
-        $this->sourceArrayItemProperty = $sourceArrayItemProperty;
-        $this->mapper = $mapper;
-        $this->arrayItemAccessor = $arrayItemAccessor ?? PropertyAccess::createPropertyAccessor();
         $this->populator = new PropertyMappingPopulator(
             $targetProperty,
             $sourceArrayProperty,
             null,
-            $this->unwrapAndMap(...),
+            new ArrayPropertyMapper(
+                $sourceArrayItemProperty,
+                $mapper,
+                $arrayItemAccessor ?? PropertyAccess::createPropertyAccessor(),
+            ),
             $accessor,
         );
     }
@@ -53,29 +51,5 @@ final class ArrayPropertyMappingPopulator implements Populator
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
         $this->populator->populate($target, $source, $ctx);
-    }
-
-    /**
-     * @param TContext $ctx
-     *
-     * @return array<mixed>
-     */
-    private function unwrapAndMap(mixed $values, ?object $ctx = null): array
-    {
-        if (!\is_array($values) || [] === $values) {
-            return [];
-        }
-
-        if (null === $this->sourceArrayItemProperty) {
-            return $this->mapper ? array_map(fn ($item) => ($this->mapper)($item, $ctx), $values) : $values;
-        }
-
-        $mapper = fn ($item) => $this->arrayItemAccessor->getValue($item, $this->sourceArrayItemProperty);
-
-        if ($this->mapper) {
-            $mapper = fn ($item) => ($this->mapper)($mapper($item), $ctx);
-        }
-
-        return array_map($mapper, $values);
     }
 }

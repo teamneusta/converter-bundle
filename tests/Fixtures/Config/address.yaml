@@ -1,6 +1,15 @@
 neusta_converter:
-  populator:
+  populators:
     test.person.address.populator:
+      target: address
+      source: address
+      skip_null: true
+      converting:
+        converter: test.address.converter
+
+  # deprecated
+  populator:
+    legacy.test.person.address.populator:
       converter: test.address.converter
       property:
         address:

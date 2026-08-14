@@ -1,9 +1,10 @@
 neusta_converter:
-  converter:
+  converters:
     test.contactnumber.converter:
-      target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\ContactNumberFactory
-      properties:
-        phoneNumber: number
+      generic:
+        target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\ContactNumberFactory
+        properties:
+          phoneNumber: number
 
 services:
   Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\ContactNumberFactory: ~
