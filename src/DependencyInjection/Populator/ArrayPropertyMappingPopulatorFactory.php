@@ -25,6 +25,11 @@ final class ArrayPropertyMappingPopulatorFactory extends PropertyMappingPopulato
         ;
     }
 
+    protected function supportsDefaultValue(): bool
+    {
+        return false;
+    }
+
     protected function getMapperDefinition(array $config): Definition
     {
         return (new Definition(ArrayPropertyMapper::class))->setArguments([

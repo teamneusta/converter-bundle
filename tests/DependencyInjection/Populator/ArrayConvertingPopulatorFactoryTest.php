@@ -10,6 +10,7 @@ use Neusta\ConverterBundle\Populator\Mapper\ArrayPropertyMapper;
 use Neusta\ConverterBundle\Populator\Mapper\ConverterMapper;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\DependencyInjection\NeustaConverterExtensionTestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -142,6 +143,30 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$skipNull', false);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$defaultValue', null);
         $this->assertContainerBuilderHasServiceDefinitionWithMapperArgument('value');
+    }
+
+    /**
+     * `PropertyMappingPopulator` applies the default to the source value *before* the mapper runs,
+     * and `ArrayPropertyMapper` turns anything non-array into `[]` - so a default would be produced
+     * and immediately discarded. Rejecting it beats writing `[]` and calling it a default.
+     */
+    public function test_default_value_is_rejected(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "default" option is not supported for this populator type.');
+
+        $this->load([
+            'populators' => [
+                'foobar' => [
+                    'array_converting' => [
+                        'target' => 'contactNumbers',
+                        'source' => 'phones',
+                        'converter' => GenericConverter::class,
+                        'default' => 'fallback',
+                    ],
+                ],
+            ],
+        ]);
     }
 
     private function assertContainerBuilderHasServiceDefinitionWithMapperArgument(?string $sourceArrayItemProperty): void

@@ -111,6 +111,10 @@ final class Configuration implements ConfigurationInterface
                 ->end()
             ;
 
+            // Conditional population decorates whatever the type produced, so it is available for
+            // every populator type rather than being contributed by a single factory.
+            $this->addConditionConfiguration($typeNode);
+
             $factory->addConfiguration($typeNode);
 
             if ($factory instanceof PropertyPopulatorFactory) {
@@ -128,7 +132,7 @@ final class Configuration implements ConfigurationInterface
 
     private function addDeprecatedPopulatorSection(ArrayNodeDefinition $rootNode): void
     {
-        $rootNode
+        $populatorNode = $rootNode
             ->children()
                 ->arrayNode('populator')
                     ->setDeprecated('teamneusta/converter-bundle', '1.11', 'Please use "neusta_converter.populators" instead.')
@@ -136,6 +140,11 @@ final class Configuration implements ConfigurationInterface
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
+        ;
+
+        $this->addConditionConfiguration($populatorNode);
+
+        $populatorNode
                         ->children()
                             ->enumNode('populator')
                                 ->info('class of the "Populator" implementation')
@@ -173,37 +182,46 @@ final class Configuration implements ConfigurationInterface
                                     ->end()
                                 ->end()
                             ->end()
-                            ->arrayNode('condition')
-                                ->info('Condition for the ConditionalPopulator decorator')
-                                ->children()
-                                    ->scalarNode('property')
-                                        ->info('Property of source or target object that should be checked')
-                                        ->defaultNull()
-                                    ->end()
-                                    ->enumNode('property_base')
-                                        ->info('Base object of the property: "source" or "target"')
-                                        ->values(['source', 'target'])
-                                        ->defaultValue('source')
-                                    ->end()
-                                    ->scalarNode('expected_value')
-                                        ->info('Expected value for the property check')
-                                        ->defaultNull()
-                                    ->end()
-                                    ->scalarNode('expression')
-                                        ->info('Symfony Expression Language condition')
-                                        ->defaultNull()
-                                    ->end()
-                                ->end()
-                                ->validate()
-                                    ->ifTrue(fn ($c) => isset($c['property'], $c['expression']))
-                                    ->thenInvalid('You can only define either "property" or "expression", not both.')
-                                ->end()
-                            ->end()
                         ->end()
                         ->validate()
-                            ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
+                            ->ifTrue(static fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
                             ->thenInvalid('The "property.<target>.source_array_item" option is only supported for array converting populators.')
                         ->end()
+        ;
+    }
+
+    /**
+     * The `condition` node is shared by the new and the deprecated populator section: it decorates
+     * whatever populator was built with a `ConditionalPopulator`.
+     */
+    private function addConditionConfiguration(ArrayNodeDefinition $node): void
+    {
+        $node
+            ->children()
+                ->arrayNode('condition')
+                    ->info('Condition for the ConditionalPopulator decorator')
+                    ->children()
+                        ->scalarNode('property')
+                            ->info('Property of source or target object that should be checked')
+                            ->defaultNull()
+                        ->end()
+                        ->enumNode('property_base')
+                            ->info('Base object of the property: "source" or "target"')
+                            ->values(['source', 'target'])
+                            ->defaultValue('source')
+                        ->end()
+                        ->scalarNode('expected_value')
+                            ->info('Expected value for the property check')
+                            ->defaultNull()
+                        ->end()
+                        ->scalarNode('expression')
+                            ->info('Symfony Expression Language condition')
+                            ->defaultNull()
+                        ->end()
+                    ->end()
+                    ->validate()
+                        ->ifTrue(static fn ($c) => isset($c['property'], $c['expression']))
+                        ->thenInvalid('You can only define either "property" or "expression", not both.')
                     ->end()
                 ->end()
             ->end()

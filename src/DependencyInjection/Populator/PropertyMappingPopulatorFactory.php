@@ -41,12 +41,20 @@ class PropertyMappingPopulatorFactory implements PopulatorFactory
                 ->end()
             ->end()
         ;
+
+        if (!$this->supportsDefaultValue()) {
+            $node
+                ->validate()
+                    ->ifTrue(static fn (array $c) => null !== ($c['default'] ?? null))
+                    ->thenInvalid('The "default" option is not supported for this populator type.')
+                ->end()
+            ;
+        }
     }
 
     final public function create(ContainerBuilder $container, string $id, array $config): void
     {
         $container->register($id, PropertyMappingPopulator::class)
-            ->setPublic(true)
             ->setArguments([
                 '$targetProperty' => $config['target'],
                 '$sourceProperty' => $config['source'] ?? $config['target'],
@@ -63,5 +71,15 @@ class PropertyMappingPopulatorFactory implements PopulatorFactory
     protected function getMapperDefinition(array $config): ?Definition
     {
         return null;
+    }
+
+    /**
+     * The default value is applied to the *source* value before the mapper runs. A mapper that does
+     * not pass scalars through - `ArrayPropertyMapper` returns `[]` for anything non-array - would
+     * silently discard it again, so those types reject the option instead.
+     */
+    protected function supportsDefaultValue(): bool
+    {
+        return true;
     }
 }

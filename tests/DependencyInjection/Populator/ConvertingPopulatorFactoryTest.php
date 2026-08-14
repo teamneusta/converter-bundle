@@ -6,6 +6,7 @@ namespace Neusta\ConverterBundle\Tests\DependencyInjection\Populator;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ConvertingPopulatorFactory;
+use Neusta\ConverterBundle\Populator\ConditionalPopulator;
 use Neusta\ConverterBundle\Populator\Mapper\ConverterMapper;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Tests\DependencyInjection\NeustaConverterExtensionTestCase;
@@ -66,6 +67,51 @@ class ConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$skipNull', false);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$defaultValue', null);
         $this->assertContainerBuilderHasServiceDefinitionWithMapperArgument();
+    }
+
+    /**
+     * The deprecated `populator` section supports `condition`, so the section that replaces it has
+     * to as well - otherwise conditional populators have no migration path.
+     */
+    public function test_with_converting_populator_and_condition(): void
+    {
+        $this->load([
+            'populators' => [
+                'foobar' => [
+                    'converting' => [
+                        'target' => 'address',
+                        'converter' => GenericConverter::class,
+                        'condition' => [
+                            'property' => 'ageInYears',
+                            'expected_value' => 18,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasService('foobar.conditional', ConditionalPopulator::class);
+        self::assertSame('foobar', $this->container->getDefinition('foobar.conditional')->getDecoratedService()[0]);
+    }
+
+    /**
+     * A populator declared on its own is meant to be fetched and referenced, unlike the ones a
+     * converter creates for its own properties.
+     */
+    public function test_standalone_populator_is_public(): void
+    {
+        $this->load([
+            'populators' => [
+                'foobar' => [
+                    'converting' => [
+                        'target' => 'address',
+                        'converter' => GenericConverter::class,
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasPublicService('foobar', PropertyMappingPopulator::class);
     }
 
     private function assertContainerBuilderHasServiceDefinitionWithMapperArgument(): void

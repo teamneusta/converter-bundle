@@ -150,6 +150,14 @@ final class NeustaConverterExtension extends ConfigurableExtension
         ));
 
         $factory->create($container, $id, $config[$type]);
+
+        // A populator declared on its own is meant to be referenced and fetched, unlike the ones a
+        // converter creates for its own `properties`/`context`, which stay private.
+        $container->getDefinition($id)->setPublic(true);
+
+        if (isset($config[$type]['condition'])) {
+            $this->registerConditionalPopulatorConfiguration($id, $config[$type]['condition'], $container);
+        }
     }
 
     /**

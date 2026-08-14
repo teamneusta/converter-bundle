@@ -244,6 +244,31 @@ class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$skipNull', true);
     }
 
+    /**
+     * Populators a converter creates for its own properties/context are an implementation detail:
+     * keeping them private lets the container remove or inline them, and keeps the generated ids
+     * from becoming de-facto public API.
+     */
+    public function test_property_and_context_populators_are_private(): void
+    {
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target' => Person::class,
+                        'properties' => ['mail' => 'email'],
+                        'context' => ['locale' => null],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
+        self::assertFalse($this->container->getDefinition('foobar.populator.mail')->isPublic());
+        self::assertFalse($this->container->getDefinition('foobar.populator.context.locale')->isPublic());
+        self::assertFalse($this->container->getDefinition('foobar.target_factory')->isPublic());
+    }
+
     public function test_with_mapped_context(): void
     {
         $this->load([

@@ -671,9 +671,9 @@ second config file in `ArrayNode::mergeValues()`. Key order therefore stops matc
 order as soon as the configuration is split across several files or environments - an implicit
 contract that would silently break. A sequence makes the order explicit and mergeable.
 
-`condition:` (see [Configuring a condition](#configuring-a-condition)) will become the first consumer
-of the populator side of this mechanism, so conditional population, caching and decorating converters
-all end up following one rule instead of three.
+`condition:` (see [Configuring a condition](#configuring-a-condition)) already works today as a key of
+its own on a populator; it will be moved onto this mechanism once it exists, so conditional
+population, caching and decorating converters all end up following one rule instead of three.
 
 ## Context
 
