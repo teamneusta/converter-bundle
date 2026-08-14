@@ -1,0 +1,28 @@
+neusta_converter:
+  converters:
+    # converter type contributed by ExtendingBundle
+    test.reversing.converter:
+      reversing:
+        target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
+        source: fullName
+        target: fullName
+
+    # populator type contributed by ExtendingBundle, used as a nested property type
+    test.uppercase.converter:
+      generic:
+        target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
+        properties:
+          fullName:
+            source: fullName
+            uppercase:
+              trim: true
+
+  populators:
+    # ... and as a standalone populator
+    test.uppercase.populator:
+      uppercase:
+        target: fullName
+        source: fullName
+
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory: ~

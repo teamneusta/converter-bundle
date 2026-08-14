@@ -48,7 +48,9 @@ final class DebugInfoPass implements CompilerPassInterface
     private function getClassReflection(ContainerBuilder $container, Definition $definition): ?\ReflectionClass
     {
         while ((null === $class = $definition->getClass()) && $definition instanceof ChildDefinition) {
-            if (!$parentId = $definition->getParent()) {
+            // The parent may be missing entirely (e.g. a service provided by a bundle that is not
+            // registered), in which case there is nothing to resolve the class from.
+            if (!($parentId = $definition->getParent()) || !$container->has($parentId)) {
                 break;
             }
 
@@ -91,6 +93,11 @@ final class DebugInfoPass implements CompilerPassInterface
                 $argument instanceof Reference => ['reference', '@' . $argument],
                 \is_scalar($argument) => ['scalar', $argument],
                 \is_array($argument) => ['array', $this->getArgumentInfo($argument)],
+                // Inlined definitions (e.g. the mappers of a converting populator) carry the
+                // references that make up the service graph, so they must be traversed.
+                $argument instanceof Definition => ['array', $this->getArgumentInfo(
+                    ['class' => $argument->getClass()] + $argument->getArguments(),
+                )],
                 \is_object($argument) => ['object', 'object(' . $argument::class . ')'],
                 default => ['unknown', get_debug_type($argument)],
             }),

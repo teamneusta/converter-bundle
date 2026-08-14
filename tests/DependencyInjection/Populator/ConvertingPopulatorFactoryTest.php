@@ -26,9 +26,9 @@ class ConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCase
         $this->load([
             'populators' => [
                 'foobar' => [
-                    'source' => 'sourceTest',
-                    'target' => 'targetTest',
                     'converting' => [
+                        'target' => 'targetTest',
+                        'source' => 'sourceTest',
                         'converter' => GenericConverter::class,
                     ],
                 ],
@@ -50,8 +50,8 @@ class ConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCase
         $this->load([
             'populators' => [
                 'foobar' => [
-                    'target' => 'test',
                     'converting' => [
+                        'target' => 'test',
                         'converter' => GenericConverter::class,
                     ],
                 ],

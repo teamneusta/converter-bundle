@@ -19,6 +19,8 @@ class NeustaConverterBundle extends Bundle
 {
     public const ALIAS = 'neusta_converter';
 
+    private ?NeustaConverterExtension $converterExtension = null;
+
     public function getPath(): string
     {
         return \dirname(__DIR__);
@@ -29,9 +31,14 @@ class NeustaConverterBundle extends Bundle
         $container->addCompilerPass(new DebugInfoPass());
     }
 
+    /**
+     * Must return the very same instance on every call: other bundles register their own factories
+     * on it from their `build()` method, and those registrations have to survive until the config
+     * tree is built.
+     */
     public function getContainerExtension(): NeustaConverterExtension
     {
-        return new NeustaConverterExtension(new FactoryRegistry(
+        return $this->converterExtension ??= new NeustaConverterExtension(new FactoryRegistry(
             [
                 new GenericConverterFactory(),
             ],

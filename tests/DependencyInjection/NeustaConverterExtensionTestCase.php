@@ -51,10 +51,15 @@ abstract class NeustaConverterExtensionTestCase extends AbstractExtensionTestCas
      */
     protected function assertContainerBuilderHasPublicService(string $serviceId, ?string $expectedClass = null): void
     {
-        $this->assertContainerBuilderHasService($serviceId, $expectedClass);
+        if (null !== $expectedClass) {
+            $this->assertContainerBuilderHasService($serviceId, $expectedClass);
+        } else {
+            $this->assertContainerBuilderHasService($serviceId);
+        }
+
         $this->assertTrue(
             $this->container->getDefinition($serviceId)->isPublic(),
-            sprintf('service definition "%s" is "public"', $serviceId),
+            \sprintf('service definition "%s" is "public"', $serviceId),
         );
     }
 }

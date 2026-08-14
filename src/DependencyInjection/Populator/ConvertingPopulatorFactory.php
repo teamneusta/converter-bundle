@@ -28,10 +28,8 @@ final class ConvertingPopulatorFactory extends PropertyMappingPopulatorFactory i
         ;
     }
 
-    protected function getMapperDefinition(array $config): ?Definition
+    protected function getMapperDefinition(array $config): Definition
     {
-        $config = $config[$this->getType()];
-
         return (new Definition(ConverterMapper::class))->setArguments([
             '$converter' => new Reference($config['converter']),
         ]);

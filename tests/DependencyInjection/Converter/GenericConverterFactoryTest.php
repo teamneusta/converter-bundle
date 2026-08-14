@@ -9,9 +9,12 @@ use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
+use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
 use Neusta\ConverterBundle\Tests\DependencyInjection\NeustaConverterExtensionTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Reference;
 
 class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
@@ -42,6 +45,143 @@ class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
         $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [new Reference(PersonNamePopulator::class)]);
+    }
+
+    public function test_with_generic_target_factory(): void
+    {
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target' => [
+                            'class' => Person::class,
+                            'properties' => [
+                                'mail' => 'mail@me.com',
+                            ],
+                        ],
+                        'populators' => [
+                            PersonNamePopulator::class,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
+        $this->assertContainerBuilderHasService('foobar.target_factory', GenericTargetWithPropertiesFactory::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference('foobar.target_factory'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.target_factory', '$type', Person::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.target_factory', '$properties', ['mail' => 'mail@me.com']);
+    }
+
+    public function test_with_generic_target_factory_as_string_shorthand(): void
+    {
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target' => Person::class,
+                        'populators' => [
+                            PersonNamePopulator::class,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasService('foobar.target_factory', GenericTargetWithPropertiesFactory::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.target_factory', '$type', Person::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.target_factory', '$properties', []);
+    }
+
+    public function test_with_generic_target_factory_for_unknown_type(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The target type "UnknownClass" does not exist.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target' => [
+                            'class' => 'UnknownClass',
+                        ],
+                        'populators' => [
+                            PersonNamePopulator::class,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_without_target_and_target_factory(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Either "target" or "target_factory" must be defined.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'populators' => [
+                            PersonNamePopulator::class,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_target_and_target_factory(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Either "target" or "target_factory" must be defined, but not both.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target' => [
+                            'class' => Person::class,
+                        ],
+                        'target_factory' => PersonFactory::class,
+                        'populators' => [
+                            PersonNamePopulator::class,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_without_populators_properties_and_context(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('At least one "populator", "property" or "context" must be defined.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_unknown_converter_type(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'unknown_type' => [],
+                ],
+            ],
+        ]);
     }
 
     public function test_with_mapped_properties(): void

@@ -25,10 +25,8 @@ final class ArrayPropertyMappingPopulatorFactory extends PropertyMappingPopulato
         ;
     }
 
-    protected function getMapperDefinition(array $config): ?Definition
+    protected function getMapperDefinition(array $config): Definition
     {
-        $config = $config[$this->getType()];
-
         return (new Definition(ArrayPropertyMapper::class))->setArguments([
             '$sourceArrayItemProperty' => $config['source_array_item'] ?? null,
             '$arrayItemAccessor' => null,

@@ -7,7 +7,9 @@ namespace Neusta\ConverterBundle\DependencyInjection;
 use Neusta\ConverterBundle\Command\DebugCommand;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
+use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\Condition\ExpressionCondition;
@@ -39,6 +41,35 @@ final class NeustaConverterExtension extends ConfigurableExtension
     public function getFactories(): FactoryRegistry
     {
         return $this->factories;
+    }
+
+    /**
+     * Registers an additional converter type. Call this from another bundle's `build()` method:
+     *
+     *     public function build(ContainerBuilder $container): void
+     *     {
+     *         $extension = $container->getExtension(NeustaConverterBundle::ALIAS);
+     *         \assert($extension instanceof NeustaConverterExtension);
+     *
+     *         $extension->addConverterFactory(new MyConverterFactory());
+     *     }
+     *
+     * The kernel registers all extensions before it calls any `build()`, so this works regardless
+     * of the order in which the bundles are registered.
+     */
+    public function addConverterFactory(ConverterFactory $factory): void
+    {
+        $this->factories->addConverterFactory($factory);
+    }
+
+    /**
+     * Registers an additional populator type.
+     *
+     * @see self::addConverterFactory() for where to call this
+     */
+    public function addPopulatorFactory(PopulatorFactory $factory): void
+    {
+        $this->factories->addPopulatorFactory($factory);
     }
 
     /**
@@ -85,7 +116,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
     private function createConverter(ContainerBuilder $container, string $id, array $config): void
     {
         $type = array_key_first($config) ?? 'unknown';
-        $factory = $this->factories->getConverterFactory($type) ?? throw new InvalidConfigurationException(sprintf(
+        $factory = $this->factories->getConverterFactory($type) ?? throw new InvalidConfigurationException(\sprintf(
             'Unable to create a definition for the converter "%s" because the type "%s" does not exist.',
             $id,
             $type,
@@ -111,7 +142,14 @@ final class NeustaConverterExtension extends ConfigurableExtension
      */
     private function createPopulator(ContainerBuilder $container, string $id, array $config): void
     {
-        $this->factories->getFirstMatchingPopulatorFactory(array_keys($config))->create($container, $id, $config);
+        $type = array_key_first($config) ?? 'unknown';
+        $factory = $this->factories->getPopulatorFactory($type) ?? throw new InvalidConfigurationException(\sprintf(
+            'Unable to create a definition for the populator "%s" because the type "%s" does not exist.',
+            $id,
+            $type,
+        ));
+
+        $factory->create($container, $id, $config[$type]);
     }
 
     /**

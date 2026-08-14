@@ -11,9 +11,11 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class PropertyMappingPopulatorFactory implements PopulatorFactory
 {
+    public const TYPE = 'property_mapping';
+
     public function getType(): string
     {
-        return 'property_mapping';
+        return self::TYPE;
     }
 
     final public function addConfiguration(ArrayNodeDefinition $node): void
@@ -21,11 +23,11 @@ class PropertyMappingPopulatorFactory implements PopulatorFactory
         $node
             ->beforeNormalization()
                 ->ifNull()
-                ->then(fn () => ['source' => null, 'default' => null, 'skip_null' => false])
+                ->then(static fn () => ['source' => null, 'default' => null, 'skip_null' => false])
             ->end()
             ->beforeNormalization()
                 ->ifString()
-                ->then(fn (string $v) => ['source' => $v, 'default' => null, 'skip_null' => false])
+                ->then(static fn (string $v) => ['source' => $v, 'default' => null, 'skip_null' => false])
             ->end()
             ->children()
                 ->scalarNode('source')
@@ -43,11 +45,6 @@ class PropertyMappingPopulatorFactory implements PopulatorFactory
 
     final public function create(ContainerBuilder $container, string $id, array $config): void
     {
-        if (str_ends_with($config['target'], '?')) {
-            $config['target'] = substr($config['target'], 0, -1);
-            $config['skip_null'] = true;
-        }
-
         $container->register($id, PropertyMappingPopulator::class)
             ->setPublic(true)
             ->setArguments([

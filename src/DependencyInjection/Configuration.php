@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
-use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
@@ -53,8 +53,8 @@ final class Configuration implements ConfigurationInterface
 
         $converterNodeBuilder
             ->validate()
-                ->ifTrue(fn ($v) => \count($v) > 1)
-                ->thenInvalid('You cannot set multiple converter types for the same converter.')
+                ->ifTrue(static fn (array $v) => 1 !== \count($v))
+                ->thenInvalid('Exactly one converter type must be set for a converter.')
             ->end()
         ;
     }
@@ -64,7 +64,7 @@ final class Configuration implements ConfigurationInterface
         $converterNodeBuilder = $rootNode
             ->children()
                 ->arrayNode('converter')
-                    ->setDeprecated('teamneusta/converter-bundle', '1.5', 'Please use "neusta_converter.converters" instead.')
+                    ->setDeprecated('teamneusta/converter-bundle', '1.11', 'Please use "neusta_converter.converters" instead.')
                     ->info('Converter configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
@@ -73,7 +73,7 @@ final class Configuration implements ConfigurationInterface
 
         // The deprecated section reuses the generic factory's tree, flattened one level up,
         // so it automatically inherits every feature the "generic" converter type gains.
-        $this->factories->getConverterFactory('generic')?->addConfiguration($converterNodeBuilder, $this->factories);
+        $this->factories->getConverterFactory(GenericConverterFactory::TYPE)?->addConfiguration($converterNodeBuilder, $this->factories);
 
         $converterNodeBuilder
             ->children()
@@ -99,25 +99,31 @@ final class Configuration implements ConfigurationInterface
         ;
 
         foreach ($this->factories->getPopulatorFactories() as $type => $factory) {
-            if (!$factory instanceof PropertyMappingPopulatorFactory) {
-                throw new \LogicException(sprintf('A factory of type "%s" is not supported.', $factory::class));
-            }
+            $typeNode = $populatorNodeBuilder->children()->arrayNode($type);
 
-            $typeNodeBuilder = $populatorNodeBuilder
+            $typeNode
                 ->children()
                     ->scalarNode('target')
+                        ->info('Name of the target property')
                         ->isRequired()
                         ->cannotBeEmpty()
                     ->end()
                 ->end()
             ;
 
-            $factory->addConfiguration($typeNodeBuilder);
+            $factory->addConfiguration($typeNode);
 
             if ($factory instanceof PropertyPopulatorFactory) {
-                $factory->addPropertyConfiguration($typeNodeBuilder->children()->arrayNode($type));
+                $factory->addPropertyConfiguration($typeNode);
             }
         }
+
+        $populatorNodeBuilder
+            ->validate()
+                ->ifTrue(static fn (array $v) => 1 !== \count($v))
+                ->thenInvalid('Exactly one populator type must be set for a populator.')
+            ->end()
+        ;
     }
 
     private function addDeprecatedPopulatorSection(ArrayNodeDefinition $rootNode): void
@@ -125,7 +131,7 @@ final class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('populator')
-                    ->setDeprecated('teamneusta/converter-bundle', '1.5', 'Please use "neusta_converter.populators" instead.')
+                    ->setDeprecated('teamneusta/converter-bundle', '1.11', 'Please use "neusta_converter.populators" instead.')
                     ->info('Populator configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')

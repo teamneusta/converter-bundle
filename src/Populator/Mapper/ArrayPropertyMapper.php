@@ -13,14 +13,18 @@ final class ArrayPropertyMapper
 {
     private PropertyAccessorInterface $arrayItemAccessor;
 
+    /** @var \Closure(mixed, TContext=):mixed|null */
+    private readonly ?\Closure $mapper;
+
     /**
-     * @param \Closure(mixed, TContext=):mixed|null $mapper
+     * @param callable(mixed, TContext=):mixed|null $mapper
      */
     public function __construct(
         private readonly ?string $sourceArrayItemProperty = null,
-        private readonly ?\Closure $mapper = null,
+        ?callable $mapper = null,
         ?PropertyAccessorInterface $arrayItemAccessor = null,
     ) {
+        $this->mapper = null !== $mapper ? $mapper(...) : null;
         $this->arrayItemAccessor = $arrayItemAccessor ?? PropertyAccess::createPropertyAccessor();
     }
 

@@ -6,6 +6,13 @@ neusta_converter:
         properties:
           phoneNumber: number
 
+  populators:
+    test.person.contactnumbers.populator.generated:
+      array_converting:
+        target: contactNumbers
+        source: phones
+        converter: test.contactnumber.converter
+
 services:
   Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\ContactNumberFactory: ~
 

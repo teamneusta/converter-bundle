@@ -27,9 +27,9 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         $this->load([
             'populators' => [
                 'foobar' => [
-                    'source' => 'sourceTest',
-                    'target' => 'targetTest',
                     'array_converting' => [
+                        'source' => 'sourceTest',
+                        'target' => 'targetTest',
                         'converter' => GenericConverter::class,
                     ],
                 ],
@@ -52,8 +52,8 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         $this->load([
             'populators' => [
                 'foobar' => [
-                    'target' => 'test',
                     'array_converting' => [
+                        'target' => 'test',
                         'converter' => GenericConverter::class,
                     ],
                 ],
@@ -75,9 +75,9 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         $this->load([
             'populators' => [
                 'foobar' => [
-                    'source' => 'sourceTest',
-                    'target' => 'targetTest',
                     'array_converting' => [
+                        'source' => 'sourceTest',
+                        'target' => 'targetTest',
                         'converter' => GenericConverter::class,
                         'source_array_item' => 'value',
                     ],
@@ -100,9 +100,9 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         $this->load([
             'populators' => [
                 'foobar' => [
-                    'source' => null,
-                    'target' => 'test',
                     'array_converting' => [
+                        'source' => null,
+                        'target' => 'test',
                         'converter' => GenericConverter::class,
                         'source_array_item' => 'value',
                     ],
@@ -125,8 +125,8 @@ class ArrayConvertingPopulatorFactoryTest extends NeustaConverterExtensionTestCa
         $this->load([
             'populators' => [
                 'foobar' => [
-                    'target' => 'test',
                     'array_converting' => [
+                        'target' => 'test',
                         'converter' => GenericConverter::class,
                         'source_array_item' => 'value',
                     ],

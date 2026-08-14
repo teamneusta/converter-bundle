@@ -19,6 +19,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  */
 final class ArrayPropertyMappingPopulator implements Populator
 {
+    /** @var PropertyMappingPopulator<TSource, TTarget, TContext> */
     private readonly PropertyMappingPopulator $populator;
 
     /**
@@ -32,7 +33,8 @@ final class ArrayPropertyMappingPopulator implements Populator
         ?PropertyAccessorInterface $arrayItemAccessor = null,
         ?PropertyAccessorInterface $accessor = null,
     ) {
-        $this->populator = new PropertyMappingPopulator(
+        /** @var PropertyMappingPopulator<TSource, TTarget, TContext> $populator */
+        $populator = new PropertyMappingPopulator(
             $targetProperty,
             $sourceArrayProperty,
             null,
@@ -43,6 +45,8 @@ final class ArrayPropertyMappingPopulator implements Populator
             ),
             $accessor,
         );
+
+        $this->populator = $populator;
     }
 
     /**

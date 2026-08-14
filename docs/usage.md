@@ -83,21 +83,46 @@ Then declare the following converter in your package config:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-  converter:
+  converters:
     person.converter:
-      target: 
-        class: YourNamespace\Person
-        # optionally pre-initialized values for target properties
-        properties:
+      generic:
+        target:
+          class: YourNamespace\Person
+          # optionally pre-initialized values for target properties
+          properties:
             email: 'mail@me.com'
-      populators:
-        - YourNamespace\PersonNamePopulator
-        # additional populators may follow
+        populators:
+          - YourNamespace\PersonNamePopulator
+          # additional populators may follow
 ```
 
-> [!TIP]
-> You can use a custom implementation of the `Converter` interface via the `converter` keyword.
-> Its constructor *must* contain *exactly* the two parameters `TargetFactory $factory` and `array $populators`.
+The key below the converter id (`generic` here) is the **converter type**. It selects which kind of
+converter is built and which options are available below it. `generic` is the built-in type backed by
+`GenericConverter`; other bundles or your app can add their own types, see
+[Adding your own converter and populator types](#adding-your-own-converter-and-populator-types).
+
+> [!IMPORTANT]
+> The old `neusta_converter.converter` and `neusta_converter.populator` keys (without the type level)
+> are deprecated since 1.11 and will be removed in 2.0. To migrate, rename the key to its plural form
+> and move the existing options one level down, below the type:
+>
+> ```diff
+>  neusta_converter:
+> -  converter:
+> +  converters:
+>     person.converter:
+> -      target_factory: YourNamespace\PersonFactory
+> -      populators:
+> -        - YourNamespace\PersonNamePopulator
+> +      generic:
+> +        target_factory: YourNamespace\PersonFactory
+> +        populators:
+> +          - YourNamespace\PersonNamePopulator
+> ```
+>
+> The deprecated `converter` keyword (the FQCN of a custom `Converter` implementation) has no direct
+> replacement: a converter class with a different constructor is now expressed as its own converter
+> *type*, see [Adding your own converter and populator types](#adding-your-own-converter-and-populator-types).
 
 > [!TIP]
 > You can use a custom implementation of the `TargetTypeFactory` interface via the `target_factory` keyword
@@ -122,13 +147,14 @@ You can use it in your converter config via the `properties` keyword:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-  converter:
+  converters:
     person.converter:
-      target: 
-        class: YourNamespace\Person
-      properties:
-        email: ~
-        phoneNumber: phone
+      generic:
+        target:
+          class: YourNamespace\Person
+        properties:
+          email: ~
+          phoneNumber: phone
 ```
 
 Which will populate
@@ -151,14 +177,15 @@ To set a default value for a property, you can use the `default` keyword:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-  converter:
+  converters:
     person.converter:
-      target: 
-        class: YourNamespace\Person
-      properties:
-        phoneNumber:
-          source: phone
-          default: '0123456789'
+      generic:
+        target:
+          class: YourNamespace\Person
+        properties:
+          phoneNumber:
+            source: phone
+            default: '0123456789'
 ```
 
 The converter will set the value of `phoneNumber` (property of the target object) to `0123456789` if
@@ -175,13 +202,14 @@ You can use it in your converter config via the `context` keyword:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-  converter:
+  converters:
     person.converter:
-      target: 
-        class: YourNamespace\Person
-      context:
-        group: ~
-        locale: language
+      generic:
+        target:
+          class: YourNamespace\Person
+        context:
+          group: ~
+          locale: language
 ```
 
 Which will populate
@@ -266,22 +294,42 @@ Therefore, we have a `ConvertingPopulator` which can be used as follows:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-  converter:
+  converters:
     person.converter:
-      # ...
-      populators:
-        - person.address.populator
+      generic:
+        # ...
+        properties:
+          address:
+            converting:
+              converter: address.converter
 
     address.converter:
-      # ...
+      generic:
+        # ...
+```
 
-# ...
-person.address.populator:
-  class: Neusta\ConverterBundle\Populator\ConvertingPopulator
-  arguments:
-    $converter: '@address.converter'
-    $sourcePropertyName: 'address'
-    $targetPropertyName: 'address'
+The `converting` key below a property is the **populator type**. Without such a key the property is
+mapped as-is (the default `property_mapping` type).
+
+If you need the populator as a standalone service - for example to reuse it in several converters -
+declare it under `populators` instead and reference it by its id:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  populators:
+    person.address.populator:
+      converting:
+        target: address
+        source: address
+        converter: address.converter
+
+  converters:
+    person.converter:
+      generic:
+        # ...
+        populators:
+          - person.address.populator
 ```
 
 Be aware - that both properties have the same name should not lead you think they have the same type.
@@ -350,22 +398,28 @@ Now you have to declare the following populator:
 ```yaml
 # config/packages/neusta_converter.yaml
 neusta_converter:
-  converter:
+  converters:
     person.converter:
-      # ...
-      populators:
-        - person.addresses.populator
+      generic:
+        # ...
+        properties:
+          addresses:
+            array_converting:
+              converter: address.converter
 
     address.converter:
-      # ...
+      generic:
+        # ...
+```
 
-# ...
-person.addresses.populator:
-  class: Neusta\ConverterBundle\Populator\ArrayConvertingPopulator
-  arguments:
-    $converter: '@address.converter'
-    $sourcePropertyName: 'addresses'
-    $targetPropertyName: 'addresses'
+If only a single property of each array item should be converted, add `source_array_item`:
+
+```yaml
+        properties:
+          addresses:
+            array_converting:
+              converter: address.converter
+              source_array_item: value
 ```
 
 There is no new converter but a different populator implementation for this.
@@ -423,6 +477,203 @@ my.condition:
 >         $populator: '@my.populator'
 >         $condition: !closure '@my.condition'
 > ```
+
+### Configuring a condition
+
+Instead of wiring the decorator by hand you can add a `condition` to a populator declared under
+`neusta_converter.populators`:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  populators:
+    person.address.populator:
+      converting:
+        target: address
+        converter: address.converter
+        condition:
+          property: ageInYears   # property of the source object ...
+          property_base: source  # ... or set to "target" for the target object
+          expected_value: 18
+```
+
+Alternatively, use a [Symfony ExpressionLanguage](https://symfony.com/doc/current/components/expression_language.html)
+expression, with `source`, `target` and `context` available as variables:
+
+```yaml
+        condition:
+          expression: 'source.getAgeInYears() >= 18'
+```
+
+`property` and `expression` are mutually exclusive.
+
+## Extending the configuration
+
+The type keyword below a converter or populator id is an extension point: other bundles - or your own
+app - can register additional types, which then become configurable under `neusta_converter` like the
+built-in ones.
+
+### Adding your own converter and populator types
+
+A converter type is a `Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory`. It
+contributes its own slice of the config tree and creates the service definitions for it, so its
+converter class is free to have whatever constructor it likes:
+
+```php
+use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
+
+final class CachingConverterFactory implements ConverterFactory
+{
+    public function getType(): string
+    {
+        return 'caching';
+    }
+
+    // configures `neusta_converter.converters.<id>.caching`
+    public function addConfiguration(ArrayNodeDefinition $node, FactoryRegistry $factories): void
+    {
+        $node
+            ->children()
+                ->scalarNode('key_factory')->isRequired()->end()
+            ->end()
+        ;
+    }
+
+    public function create(ContainerBuilder $container, string $id, array $config, FactoryRegistry $factories): void
+    {
+        $container->register($id, CachingConverter::class)
+            ->setPublic(true)
+            ->setArguments(['$keyFactory' => new Reference($config['key_factory'])]);
+    }
+}
+```
+
+A populator type is a `Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory`. If
+your populator can be expressed as a `PropertyMappingPopulator` with a custom mapper, extend
+`PropertyMappingPopulatorFactory` and only override `getType()` and `getMapperDefinition()` - you then
+inherit the shared `source` / `default` / `skip_null` options:
+
+```php
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\DependencyInjection\Definition;
+
+final class LocalizedPropertyMappingPopulatorFactory extends PropertyMappingPopulatorFactory implements PropertyPopulatorFactory
+{
+    public function getType(): string
+    {
+        return 'localized';
+    }
+
+    // configures the type-specific options
+    public function addPropertyConfiguration(ArrayNodeDefinition $node): void
+    {
+        $node
+            ->children()
+                ->scalarNode('locale')->defaultNull()->end()
+            ->end()
+        ;
+    }
+
+    protected function getMapperDefinition(array $config): Definition
+    {
+        return (new Definition(LocalizedMapper::class))
+            ->setArguments(['$locale' => $config['locale']]);
+    }
+}
+```
+
+Implementing `PropertyPopulatorFactory` in addition to `PopulatorFactory` is what makes a populator
+type usable *inside* a converter's `properties`, not just as a standalone entry under `populators`.
+
+### Registering the types
+
+Register your factories from your bundle's `build()` method:
+
+```php
+use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
+use Neusta\ConverterBundle\NeustaConverterBundle;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
+
+final class MyBundle extends Bundle
+{
+    public function build(ContainerBuilder $container): void
+    {
+        $extension = $container->getExtension(NeustaConverterBundle::ALIAS);
+        \assert($extension instanceof NeustaConverterExtension);
+
+        $extension->addConverterFactory(new CachingConverterFactory());
+        $extension->addPopulatorFactory(new LocalizedPropertyMappingPopulatorFactory());
+    }
+}
+```
+
+The kernel registers *all* extensions before it calls *any* bundle's `build()`, so this works no
+matter in which order the bundles are registered.
+
+Both types are now configurable:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  converters:
+    user.converter:
+      caching:
+        key_factory: YourNamespace\UserKeyFactory
+
+    person.converter:
+      generic:
+        target: YourNamespace\Person
+        properties:
+          description:
+            localized:
+              locale: de
+```
+
+> [!NOTE]
+> Exactly one type may be set per converter, per populator and per property.
+
+### Decorating converters and populators (planned)
+
+> [!WARNING]
+> Not implemented yet - documented here so the config shape is settled before the first decorator
+> ships, because changing it afterwards would be a second breaking change.
+
+Some converters and populators do not *replace* the conversion but wrap it: caching, logging, or the
+existing `ConditionalPopulator`. Those will get their own factory interfaces
+(`DecoratingConverterFactory` / `DecoratingPopulatorFactory`) and their own **ordered** config key,
+next to the single type key:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  converters:
+    person.converter:
+      generic:            # exactly one type, as today
+        target: YourNamespace\Person
+        properties:
+          email: ~
+      decorators:         # an ordered sequence: the first entry is the outermost decorator
+        - cached: { key_factory: YourNamespace\PersonKeyFactory }
+        - logged: ~
+```
+
+It is deliberately a **sequence** rather than sibling keys next to `generic`. Sibling keys would have
+to carry their order implicitly through the YAML key order, and that does not survive: Symfony's
+config component appends defaults in `ArrayNode::finalizeValue()` and appends keys coming from a
+second config file in `ArrayNode::mergeValues()`. Key order therefore stops matching the written
+order as soon as the configuration is split across several files or environments - an implicit
+contract that would silently break. A sequence makes the order explicit and mergeable.
+
+`condition:` (see [Configuring a condition](#configuring-a-condition)) will become the first consumer
+of the populator side of this mechanism, so conditional population, caching and decorating converters
+all end up following one rule instead of three.
 
 ## Context
 
