@@ -7,7 +7,9 @@
 - New immutable `Neusta\ConverterBundle\Context` class, replacing `GenericContext` as the object passed as
   `$ctx` to `Converter`, `Populator` and `TargetFactory`. Unlike `GenericContext`, which stores arbitrary
   values under string keys, `Context` stores one instance per class (`Context::create(new MyContext(...))`)
-  and is immutable (`with()`/`without()` return a new instance).
+  and is immutable (`with()`/`without()` return a new instance). Context objects are read with `get()`, which
+  throws if the requested class is not present, or with `tryGet()`, which returns `null` instead and allows
+  falling back to a default: `$ctx->tryGet(MyContext::class)->value ?? $default`. `has()` checks for presence.
 - `Neusta\ConverterBundle\Context\ContextConfigurator` interface to build up a default context from services.
   Implement `configureContext(Context $ctx): Context` and register the service id via the new
   `context_configurators` option (see below).

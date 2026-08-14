@@ -59,11 +59,11 @@ final class ContextMappingPopulator implements Populator
                 throw new \LogicException('The relevant context object type is not set.');
             }
 
-            if (!$ctx->has($this->contextObjectType)) {
+            if (null === $contextObject = $ctx->tryGet($this->contextObjectType)) {
                 return;
             }
 
-            $readValue = fn () => $this->accessor->getValue($ctx->get($this->contextObjectType), $this->contextProperty);
+            $readValue = fn () => $this->accessor->getValue($contextObject, $this->contextProperty);
         } else {
             throw new \InvalidArgumentException(\sprintf('Invalid context type "%s".', $ctx::class));
         }

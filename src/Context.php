@@ -76,8 +76,20 @@ final class Context
      */
     public function get(string $class): object
     {
-        // @phpstan-ignore-next-line return.type
-        return $this->context[$class]
+        return $this->tryGet($class)
             ?? throw new \InvalidArgumentException(\sprintf('No instance of "%s" was found in the context.', $class));
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return T|null
+     */
+    public function tryGet(string $class): ?object
+    {
+        // @phpstan-ignore-next-line return.type
+        return $this->context[$class] ?? null;
     }
 }
