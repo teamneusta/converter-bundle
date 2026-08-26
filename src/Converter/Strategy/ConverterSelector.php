@@ -6,7 +6,7 @@ namespace Neusta\ConverterBundle\Converter\Strategy;
 
 /**
  * @template TSource of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  */
 interface ConverterSelector
 {

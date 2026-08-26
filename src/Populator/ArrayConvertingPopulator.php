@@ -15,12 +15,13 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
 final class ArrayConvertingPopulator implements Populator
 {
+    /** @var ArrayPropertyMappingPopulator<object, object, TContext> */
     private ArrayPropertyMappingPopulator $populator;
 
     /**

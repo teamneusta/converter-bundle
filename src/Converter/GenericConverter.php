@@ -11,7 +11,7 @@ use Neusta\ConverterBundle\TargetFactory;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  *
  * @implements Converter<TSource, TTarget, TContext>
  */

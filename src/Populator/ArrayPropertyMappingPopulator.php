@@ -12,7 +12,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
@@ -22,6 +22,7 @@ final class ArrayPropertyMappingPopulator implements Populator
     /** @var \Closure(mixed, TContext=):mixed|null */
     private ?\Closure $mapper;
     private PropertyAccessorInterface $arrayItemAccessor;
+    /** @var PropertyMappingPopulator<object, object, TContext> */
     private PropertyMappingPopulator $populator;
 
     /**
