@@ -1,0 +1,9 @@
+neusta_converter:
+  converter:
+    test.person.converter:
+      target: 'Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person'
+      populators:
+        - Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContract\MultipleMethodsCustomContractPopulator
+
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Populator\CustomContract\MultipleMethodsCustomContractPopulator: ~

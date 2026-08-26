@@ -8,9 +8,10 @@ use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
 use Neusta\ConverterBundle\Debug\Model\ServiceArgumentInfo;
 use Neusta\ConverterBundle\Debug\Model\ServiceInfo;
+use Neusta\ConverterBundle\DependencyInjection\DefinitionReflector;
 use Neusta\ConverterBundle\Populator;
+use Neusta\ConverterBundle\Populator\CustomContract\PopulatorContract;
 use Neusta\ConverterBundle\TargetFactory;
-use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -27,13 +28,14 @@ final class DebugInfoPass implements CompilerPassInterface
         $debugInfo = $container->findDefinition(DebugInfo::class);
 
         foreach ($container->getDefinitions() as $id => $definition) {
-            if (!$reflection = $this->getClassReflection($container, $definition)) {
+            if (!$reflection = DefinitionReflector::reflect($container, $definition)) {
                 continue;
             }
 
             $type = match (true) {
                 $reflection->implementsInterface(Converter::class) => 'converter',
-                $reflection->implementsInterface(Populator::class) => 'populator',
+                $reflection->implementsInterface(Populator::class),
+                PopulatorContract::isImplementedBy($reflection) => 'populator',
                 $reflection->implementsInterface(TargetFactory::class) => 'factory',
                 default => null,
             };
@@ -43,23 +45,6 @@ final class DebugInfoPass implements CompilerPassInterface
                 $debugInfo->addMethodCall('add', [$id, $serviceInfo]);
             }
         }
-    }
-
-    private function getClassReflection(ContainerBuilder $container, Definition $definition): ?\ReflectionClass
-    {
-        while ((null === $class = $definition->getClass()) && $definition instanceof ChildDefinition) {
-            if (!$parentId = $definition->getParent()) {
-                break;
-            }
-
-            $definition = $container->findDefinition($parentId);
-        }
-
-        if (null === $class) {
-            return null;
-        }
-
-        return $container->getReflectionClass($class, false);
     }
 
     private function getServiceInfo(string $type, Definition $definition, \ReflectionClass $classReflection): Definition
