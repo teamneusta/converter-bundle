@@ -1,0 +1,30 @@
+#!/bin/bash
+
+TEMPLATE_FILE="./docs/resources/converter_bundle_templates.xml"
+
+if [ ! -f "$TEMPLATE_FILE" ]; then
+  echo "❌ Template-Datei '$TEMPLATE_FILE' nicht gefunden!"
+  exit 1
+fi
+
+# JetBrains Config-Verzeichnis
+CONFIG_BASE="$HOME/.config/JetBrains"
+
+# Suche nach PhpStorm-Verzeichnissen
+PHPSTORM_DIR=$(find "$CONFIG_BASE" -maxdepth 1 -type d -name "PhpStorm*" | sort -V | tail -n1)
+
+if [ -z "$PHPSTORM_DIR" ]; then
+  echo "❌ Kein PhpStorm-Konfigurationsordner gefunden unter $CONFIG_BASE"
+  exit 1
+fi
+
+TEMPLATE_TARGET="$PHPSTORM_DIR/templates"
+
+echo "📁 Gefundener PhpStorm-Ordner: $PHPSTORM_DIR"
+echo "📦 Installiere Template nach: $TEMPLATE_TARGET"
+
+mkdir -p "$TEMPLATE_TARGET"
+cp "$TEMPLATE_FILE" "$TEMPLATE_TARGET/"
+
+echo "✅ Template installiert!"
+echo "🔄 Starte PhpStorm neu, um die Templates zu laden."

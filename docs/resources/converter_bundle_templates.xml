@@ -1,0 +1,69 @@
+<templateSet group="Converter Bundle">
+    <template
+        name="populator_property_mapping"
+        description="populates one property from source to target (optional with mapping and default value)"
+        toReformat="true"
+        toShortenFQNames="false"
+        value="$NAME$.populator:\n    public: true\n    parent: 'neusta_converter.property_mapping_populator'\n    arguments:\n      $sourceProperty: '$SOURCE_PROPERTY$' # can be $this for complete source object\n      $targetProperty: '$TARGET_PROPERTY$'\n      $defaultValue: null   # no default value for missing source property\n      $mapper: null         # $v => $v is default mapper\n      $accessor: null       # Symfony PropertyAccessor will be used\n      $skipNull: false      # null value will be set\n$CURSOR$">
+        <variable name="NAME" expression="" defaultValue="my_property" alwaysStopAt="true" />
+        <variable name="SOURCE_PROPERTY" expression="" defaultValue="sourceProp" alwaysStopAt="true" />
+        <variable name="TARGET_PROPERTY" expression="" defaultValue="targetProp" alwaysStopAt="true" />
+        <context>
+            <option name="YAML" value="true" />
+        </context>
+    </template>
+    <template
+        name="populator_array_property_mapping"
+        description="populates an array property from source to target (optional with mapping and default value)"
+        toReformat="true"
+        toShortenFQNames="false"
+        value="$NAME$.populator:\n    public: true\n    parent: 'neusta_converter.property_mapping_populator'\n    arguments:\n      $sourceProperty: '$SOURCE_PROPERTY$' # can be $this for complete source object\n      $targetProperty: '$TARGET_PROPERTY$'\n      $sourceArrayItemProperty: null # name of the property of source array item which should be populated\n      $mapper: null         # $v => $v is default mapper\n      $accessor: null       # Symfony PropertyAccessor will be used\n      $skipNull: false      # null value will be set\n$CURSOR$">
+        <variable name="NAME" expression="" defaultValue="my_property" alwaysStopAt="true" />
+        <variable name="SOURCE_PROPERTY" expression="" defaultValue="sourceProp" alwaysStopAt="true" />
+        <variable name="TARGET_PROPERTY" expression="" defaultValue="targetProp" alwaysStopAt="true" />
+        <context>
+            <option name="YAML" value="true" />
+        </context>
+    </template>
+    <template
+        name="populator_converting"
+        description="populates a property from source to target by using a converter"
+        toReformat="true"
+        toShortenFQNames="false"
+        value="$NAME$.populator:\n    public: true\n    parent: 'neusta_converter.converting_populator'\n    arguments:\n      $converter: '@$CONVERTER$'\n      $sourcePropertyName: '$SOURCE_PROPERTY$' # can be $this for complete source object\n      $targetPropertyName: '$TARGET_PROPERTY$'\n      $accessor: null                          # Symfony PropertyAccessor will be used\n      $skipNull: false                         # null value will be set\n$CURSOR$">
+        <variable name="NAME" expression="" defaultValue="my_property" alwaysStopAt="true" />
+        <variable name="CONVERTER" expression="" defaultValue="converter" alwaysStopAt="true" />
+        <variable name="SOURCE_PROPERTY" expression="" defaultValue="sourceProp" alwaysStopAt="true" />
+        <variable name="TARGET_PROPERTY" expression="" defaultValue="targetProp" alwaysStopAt="true" />
+        <context>
+            <option name="YAML" value="true" />
+        </context>
+    </template>
+    <template
+        name="populator_converting_array"
+        description="populates an array property from source to target by using a converter for each item"
+        toReformat="true"
+        toShortenFQNames="false"
+        value="$NAME$.populator:\n    public: true\n    parent: 'neusta_converter.converting_populator'\n    arguments:\n      $converter: '@$CONVERTER$'\n      $sourceArrayPropertyName: '$SOURCE_PROPERTY$' # can be $this for complete source object\n      $targetPropertyName: '$TARGET_PROPERTY$'\n      $sourceArrayItemPropertyName: null            # name of the property of source array which should be converted\n      $accessor: null                               # Symfony PropertyAccessor will be used\n      $skipNull: false  # null value will be set\n$CURSOR$">
+        <variable name="NAME" expression="" defaultValue="my_property" alwaysStopAt="true" />
+        <variable name="CONVERTER" expression="" defaultValue="converter" alwaysStopAt="true" />
+        <variable name="SOURCE_PROPERTY" expression="" defaultValue="sourceProp" alwaysStopAt="true" />
+        <variable name="TARGET_PROPERTY" expression="" defaultValue="targetProp" alwaysStopAt="true" />
+        <context>
+            <option name="YAML" value="true" />
+        </context>
+    </template>
+    <template
+        name="populator_context_mapping"
+        description="populates a target property by context"
+        toReformat="true"
+        toShortenFQNames="false"
+        value="$NAME$.populator:\n    public: true\n    class: Neusta\ConverterBundle\Populator\ContextMappingPopulator\n    arguments:\n      $targetProperty: '$TARGET_PROPERTY$'\n      $contextProperty: 'CONTEXT_PROPERTY'  # key in context for value to populate\n      $mapper: null                         # $v => $v is default mapper\n      $accessor: null                       # Symfony PropertyAccessor will be used\n$CURSOR$">
+        <variable name="NAME" expression="" defaultValue="my_property" alwaysStopAt="true" />
+        <variable name="TARGET_PROPERTY" expression="" defaultValue="targetProp" alwaysStopAt="true" />
+        <variable name="CONTEXT_PROPERTY" expression="" defaultValue="ctxProp" alwaysStopAt="true" />
+        <context>
+            <option name="YAML" value="true" />
+        </context>
+    </template>
+</templateSet>
