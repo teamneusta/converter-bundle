@@ -28,8 +28,10 @@
 ### Deprecated
 
 - `Neusta\ConverterBundle\Converter\Context\GenericContext` is deprecated in favor of `Context`. It continues
-  to work exactly as before and remains fully supported until the next major version — no action is required
-  yet.
+  to work as before and remains fully supported until the next major version for converters that don't use
+  `context_configurators`. Converters that *do* declare `context_configurators` (globally or locally) require a
+  `Context` instance — passing a `GenericContext` (or any other non-`Context` object) to them throws an
+  `InvalidArgumentException` immediately, not just a deprecation notice.
 - More generally, passing any `$ctx` to `GenericConverter::convert()` that is neither `Context` nor (still
   supported) `GenericContext` is deprecated too — not just `GenericContext` itself. Everything still works
   unchanged; the notice is only a heads-up that arbitrary custom context types won't be accepted anymore in
