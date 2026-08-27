@@ -123,7 +123,12 @@ final class Configuration implements ConfigurationInterface
                         ->end()
                         ->beforeNormalization()
                             ->ifString()
-                            ->then(fn (string $v) => class_exists($v) ? ['class' => $v] : ['property' => $v])
+                            // A namespace separator is required to opt into the "class" shortcut, so that a plain
+                            // property name (e.g. "locale") is never misread as an unrelated, unnamespaced class
+                            // that happens to be loaded (e.g. ext-intl's global `Locale` class - PHP class name
+                            // lookups are case-insensitive). A class-string shortcut that doesn't resolve to an
+                            // existing class still fails loudly via the "class" node's validation below.
+                            ->then(fn (string $v) => str_contains($v, '\\') ? ['class' => $v] : ['property' => $v])
                         ->end()
                         ->children()
                             ->scalarNode('class')

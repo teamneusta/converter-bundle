@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Converter;
 
 use Neusta\ConverterBundle\Context;
+use Neusta\ConverterBundle\Context\ContextConfigurator;
+use Neusta\ConverterBundle\Context\ContextFactory;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Source\User;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use PHPUnit\Framework\TestCase;
@@ -23,23 +26,49 @@ class ConverterWithDefaultContextTest extends TestCase
     {
         $user = new User();
         $person = new Person();
-        $defaultContext = Context::create(new AgeContext(39));
+        $contextFactory = new ContextFactory([new AgeContextConfigurator()]);
 
         $inner = $this->prophesize(Converter::class);
         $inner->convert($user, Argument::that(
             static fn (Context $ctx) => 39 === $ctx->get(AgeContext::class)->age,
         ))->willReturn($person)->shouldBeCalled();
 
-        $converter = new ConverterWithDefaultContext($inner->reveal(), $defaultContext);
+        $converter = new ConverterWithDefaultContext($inner->reveal(), $contextFactory);
 
         self::assertSame($person, $converter->convert($user));
+    }
+
+    public function test_convert_builds_the_default_context_freshly_on_every_call(): void
+    {
+        $user = new User();
+        $person = new Person();
+
+        $configurator = new class implements ContextConfigurator {
+            public int $calls = 0;
+
+            public function configureContext(Context $ctx): Context
+            {
+                return $ctx->with(new AgeContext(++$this->calls));
+            }
+        };
+        $contextFactory = new ContextFactory([$configurator]);
+
+        $inner = $this->prophesize(Converter::class);
+        $inner->convert($user, Argument::any())->willReturn($person);
+
+        $converter = new ConverterWithDefaultContext($inner->reveal(), $contextFactory);
+
+        $converter->convert($user);
+        $converter->convert($user);
+
+        self::assertSame(2, $configurator->calls);
     }
 
     public function test_convert_merges_given_context_over_default_context(): void
     {
         $user = new User();
         $person = new Person();
-        $defaultContext = Context::create(new AgeContext(39));
+        $contextFactory = new ContextFactory([new AgeContextConfigurator()]);
         $givenContext = Context::create(new AgeContext(22));
 
         $inner = $this->prophesize(Converter::class);
@@ -47,7 +76,7 @@ class ConverterWithDefaultContextTest extends TestCase
             static fn (Context $ctx) => 22 === $ctx->get(AgeContext::class)->age,
         ))->willReturn($person)->shouldBeCalled();
 
-        $converter = new ConverterWithDefaultContext($inner->reveal(), $defaultContext);
+        $converter = new ConverterWithDefaultContext($inner->reveal(), $contextFactory);
 
         self::assertSame($person, $converter->convert($user, $givenContext));
     }
@@ -59,7 +88,7 @@ class ConverterWithDefaultContextTest extends TestCase
         $inner = $this->prophesize(Converter::class);
         $inner->convert(Argument::cetera())->shouldNotBeCalled();
 
-        $converter = new ConverterWithDefaultContext($inner->reveal(), Context::create());
+        $converter = new ConverterWithDefaultContext($inner->reveal(), new ContextFactory([]));
 
         $this->expectException(\InvalidArgumentException::class);
 

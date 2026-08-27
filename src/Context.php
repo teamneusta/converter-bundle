@@ -15,12 +15,7 @@ final class Context
 
     public static function create(object ...$objects): self
     {
-        $context = [];
-        foreach ($objects as $object) {
-            $context[$object::class] = $object;
-        }
-
-        return new self($context);
+        return (new self())->with(...$objects);
     }
 
     public function with(object ...$objects): self

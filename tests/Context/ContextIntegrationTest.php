@@ -59,4 +59,15 @@ class ContextIntegrationTest extends ConfigurableKernelTestCase
 
         self::getContainer()->get('required_context_converter')->convert(new User());
     }
+
+    #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/context.yaml')]
+    public function test_default_context_is_rebuilt_on_every_convert_call(): void
+    {
+        $converter = self::getContainer()->get('counting_context_converter');
+
+        $first = $converter->convert(new User())->getAge();
+        $second = $converter->convert(new User())->getAge();
+
+        self::assertNotSame($first, $second);
+    }
 }

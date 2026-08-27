@@ -25,6 +25,15 @@ neusta_converter:
           class: Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext
           required: true
 
+    counting_context_converter:
+      context_configurators:
+        - Neusta\ConverterBundle\Tests\Fixtures\Context\CountingContextConfigurator
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
+      context:
+        age:
+          class: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
+
 services:
   Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator: ~
   Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContextConfigurator: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Context\CountingContextConfigurator: ~

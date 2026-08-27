@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Command\DebugCommand;
-use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Context\ContextFactory;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
@@ -136,16 +135,12 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     $contextConfigurators,
                 ));
 
-            $contextId = "{$id}.context";
-            $container->register($contextId, Context::class)
-                ->setFactory([new Reference($contextFactoryId), 'create']);
-
             $contextDecoratorId = "{$id}.decorator.context";
             $container->register($contextDecoratorId, ConverterWithDefaultContext::class)
                 ->setDecoratedService($id)
                 ->setArguments([
                     '$inner' => new Reference($contextDecoratorId . '.inner'),
-                    '$context' => new Reference($contextId),
+                    '$contextFactory' => new Reference($contextFactoryId),
                 ]);
         }
     }

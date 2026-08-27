@@ -4,9 +4,12 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Converter;
 
 use Neusta\ConverterBundle\Context;
+use Neusta\ConverterBundle\Context\ContextFactory;
 use Neusta\ConverterBundle\Converter;
 
 /**
+ * @internal wired up automatically by the bundle configuration when "context_configurators" are used
+ *
  * @template TSource of object
  * @template TTarget of object
  *
@@ -19,13 +22,13 @@ final class ConverterWithDefaultContext implements Converter
      */
     public function __construct(
         private readonly Converter $inner,
-        private readonly Context $context,
+        private readonly ContextFactory $contextFactory,
     ) {
     }
 
     public function convert(object $source, ?object $ctx = null): object
     {
-        $context = $this->context;
+        $context = $this->contextFactory->create();
 
         if ($ctx) {
             // @phpstan-ignore-next-line instanceof.alwaysTrue

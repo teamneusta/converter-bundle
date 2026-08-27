@@ -243,8 +243,9 @@ extra options.
 > validated when the container is compiled. If the converter has no `context_configurators` and you still pass the
 > deprecated `GenericContext` (see [UPGRADE.md](../UPGRADE.md)), you may omit `class` and use the short form
 > `context: { group: ~, locale: language }`, exactly as before — a string value there is only treated as a `class`
-> shortcut when it names an existing class. PHP class names are case-insensitive, so in the unlikely case a
-> property name collides with an autoloadable root-namespace class, it would be read as a `class` instead.
+> shortcut when it contains a namespace separator (`\`); a plain, unqualified value like `language` is always
+> treated as `property`, so it can never be misread as an unrelated, unnamespaced class that happens to be loaded
+> (PHP class name lookups are case-insensitive — e.g. ext-intl declares a global `Locale` class).
 
 ### Conversion
 
@@ -572,6 +573,11 @@ neusta_converter:
 As soon as a converter declares `context_configurators` (globally or locally), it automatically builds and uses a
 default `Context` from those configurators — even if the caller doesn't pass one to `convert()`. If the caller does
 pass a `Context`, it is merged on top of the default one, taking precedence per class.
+
+All configurators are re-run on every `convert()` call — the default `Context` is never cached across calls, so a
+configurator reading dynamic or per-request state (e.g. the current locale) always sees up-to-date data. This also
+means a converter nested inside another one (e.g. via `ArrayConvertingPopulator`) re-runs its configurators once
+per source array item.
 
 > [!IMPORTANT]
 > Once a converter uses `context_configurators`, callers must pass either nothing or a `Context` instance — the

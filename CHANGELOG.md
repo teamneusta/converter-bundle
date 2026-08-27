@@ -29,8 +29,8 @@
   before. `class` itself can also be written as a plain class-string value instead of the nested form —
   `context: { locale: App\Context\LocaleContext }` is a shortcut for
   `context: { locale: { class: App\Context\LocaleContext } }`. A string value is only treated as this
-  shortcut when it names an existing class; anything else is still treated as `property`, so the pre-`class`
-  short form (`context: { locale: language }`) keeps working unchanged.
+  shortcut when it contains a namespace separator (`\`); anything else is still treated as `property`, so the
+  pre-`class` short form (`context: { locale: language }`) keeps working unchanged.
 - `neusta_converter.converter.<name>.context.<target>.required` (default `false`) — by default,
   `ContextMappingPopulator` silently skips a mapping (leaving the target property untouched) when the context
   value/object it needs isn't present, or when no context was passed at all. Setting `required: true` makes it
@@ -44,8 +44,12 @@
   `Context` instance — passing a `GenericContext` (or any other non-`Context` object) to them throws an
   `InvalidArgumentException` immediately, not just a deprecation notice.
 - More generally, passing any `$ctx` to `GenericConverter::convert()` that is neither `Context` nor (still
-  supported) `GenericContext` is deprecated too — not just `GenericContext` itself. Everything still works
-  unchanged; the notice is only a heads-up that arbitrary custom context types won't be accepted anymore in
-  the next major version.
+  supported) `GenericContext` is deprecated too — not just `GenericContext` itself. The notice is a heads-up that
+  arbitrary custom context types won't be accepted anymore in the next major version. Your own `TargetFactory`/
+  `Populator` implementations, which receive `$ctx` as-is, keep working unchanged with such a custom context type.
+  `ContextMappingPopulator` (the `context:` YAML mapping) is the one exception: it has always required a
+  `GenericContext`-like object, and now enforces this with an `instanceof` check — a custom `$ctx` type that merely
+  duck-typed `GenericContext`'s `hasKey()`/`getValue()` methods without extending it will throw an
+  `InvalidArgumentException` from that populator instead of being read.
 
 See [UPGRADE.md](UPGRADE.md) for migration instructions and what's planned for the next major version.
