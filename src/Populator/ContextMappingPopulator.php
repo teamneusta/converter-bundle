@@ -34,6 +34,7 @@ final class ContextMappingPopulator implements Populator
         ?\Closure $mapper = null,
         ?PropertyAccessorInterface $accessor = null,
         private ?string $contextClass = null,
+        private bool $required = false,
     ) {
         $this->mapper = $mapper ?? static fn ($v) => $v;
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();
@@ -45,11 +46,19 @@ final class ContextMappingPopulator implements Populator
     public function populate(object $target, object $source, ?object $ctx = null): void
     {
         if (!$ctx) {
+            if ($this->required) {
+                $this->fail('No context was provided.');
+            }
+
             return;
         }
 
         if ($ctx instanceof GenericContext) {
             if (!$ctx->hasKey($this->contextProperty)) {
+                if ($this->required) {
+                    $this->fail(\sprintf('The context does not contain a value for "%s".', $this->contextProperty));
+                }
+
                 return;
             }
 
@@ -60,6 +69,10 @@ final class ContextMappingPopulator implements Populator
             }
 
             if (null === $contextObject = $ctx->tryGet($this->contextClass)) {
+                if ($this->required) {
+                    $this->fail(\sprintf('The context does not contain an instance of "%s".', $this->contextClass));
+                }
+
                 return;
             }
 
@@ -73,5 +86,13 @@ final class ContextMappingPopulator implements Populator
         } catch (\Throwable $exception) {
             throw new PopulationException($this->contextProperty, $this->targetProperty, $exception);
         }
+    }
+
+    /**
+     * @throws PopulationException
+     */
+    private function fail(string $message): never
+    {
+        throw new PopulationException($this->contextProperty, $this->targetProperty, new \RuntimeException($message));
     }
 }

@@ -31,6 +31,10 @@
   `context: { locale: { class: App\Context\LocaleContext } }`. A string value is only treated as this
   shortcut when it names an existing class; anything else is still treated as `property`, so the pre-`class`
   short form (`context: { locale: language }`) keeps working unchanged.
+- `neusta_converter.converter.<name>.context.<target>.required` (default `false`) — by default,
+  `ContextMappingPopulator` silently skips a mapping (leaving the target property untouched) when the context
+  value/object it needs isn't present, or when no context was passed at all. Setting `required: true` makes it
+  throw a `PopulationException` in those cases instead.
 
 ### Deprecated
 

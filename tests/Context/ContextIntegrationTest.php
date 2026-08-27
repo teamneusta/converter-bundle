@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests\Context;
 
 use Neusta\ConverterBundle\Context;
+use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext;
@@ -49,5 +50,13 @@ class ContextIntegrationTest extends ConfigurableKernelTestCase
 
         self::assertSame(39, $person->getAge());
         self::assertSame('en', $person->getLocale());
+    }
+
+    #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/context.yaml')]
+    public function test_required_context_converter_throws_when_object_is_missing(): void
+    {
+        $this->expectException(PopulationException::class);
+
+        self::getContainer()->get('required_context_converter')->convert(new User());
     }
 }

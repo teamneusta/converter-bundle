@@ -214,15 +214,29 @@ context:
     property: language
 ```
 
+The `required` option (see below) is also only available in this long form — the class-string shortcut can't carry
+extra options.
+
 > [!IMPORTANT]
 > The context and the target property must be of the same type for this to work.
 
 > [!IMPORTANT]
-> If the relevant object (`GroupContext`/`LanguageContext` above) is not present in the `Context` passed to
-> `convert()`, the populator silently does nothing and leaves the target property untouched — no default is applied
-> and no exception is thrown. This is different from a `property` that doesn't exist on that object at all (e.g. a
-> typo): that is not checked when the container is compiled and instead throws a `PopulationException` — naming
-> both properties — the first time `convert()` is called.
+> By default, if the relevant object (`GroupContext`/`LanguageContext` above) is not present in the `Context`
+> passed to `convert()` — or if no context was passed at all — the populator silently does nothing and leaves the
+> target property untouched: no default is applied and no exception is thrown. Set `required: true` to fail
+> loudly instead:
+>
+> ```yaml
+> context:
+>   group:
+>     class: YourNamespace\Context\GroupContext
+>     required: true
+> ```
+>
+> With `required: true`, a missing `GroupContext` (or a missing context altogether) throws a `PopulationException`
+> at conversion time. This is different from a `property` that doesn't exist on the object at all (e.g. a typo):
+> that is never checked when the container is compiled — regardless of `required` — and always throws a
+> `PopulationException`, naming both properties, the first time `convert()` is called.
 
 > [!NOTE]
 > `class` is required as soon as the converter uses `context_configurators` (see [Context](#context)) — this is

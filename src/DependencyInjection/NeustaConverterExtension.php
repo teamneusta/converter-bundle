@@ -113,6 +113,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     '$contextProperty' => $contextProperty,
                     '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
+                    '$required' => $contextConfig['required'] ?? false,
                 ]);
         }
 
