@@ -16,10 +16,7 @@ neusta_converter:
       context:
         age:
           objectType: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
-          property: age
-        locale:
-          objectType: Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext
-          property: language
+        locale: Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext
 
 services:
   Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator: ~

@@ -37,7 +37,8 @@ $ctx = (new GenericContext())->setValue('locale', 'de');
 $ctx = Context::create(new LocaleContext('de'));
 ```
 
-Populators reading from the context need the `objectType` of the object they read from:
+Populators reading from the context need the `objectType` of the object they read from. Since `LocaleContext` has
+only one property, its name doesn't even need to be repeated — a plain class-string is enough:
 
 ```yaml
 # before
@@ -46,9 +47,7 @@ context:
 
 # after
 context:
-  locale:
-    objectType: App\Context\LocaleContext
-    property: locale
+  locale: App\Context\LocaleContext
 ```
 
 ### Migrating a custom (non-`GenericContext`) `$ctx`

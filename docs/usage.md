@@ -181,24 +181,38 @@ neusta_converter:
       target: 
         class: YourNamespace\Person
       context:
-        group:
-          objectType: YourNamespace\Context\GroupContext
-        locale:
-          objectType: YourNamespace\Context\LanguageContext
-          property: language
+        group: YourNamespace\Context\GroupContext
+        locale: YourNamespace\Context\LanguageContext
 ```
 
-Which will populate
+A plain class-string value like above is a shortcut for `objectType: YourNamespace\Context\GroupContext`. Which
+property is read off that object is resolved in this order:
+
+1. an explicit `property` key, if you give one,
+2. the object's only property, if it has exactly one,
+3. otherwise the target property name itself.
+
+So, assuming `GroupContext` has a single property `name` and `LanguageContext` has a single property `language`,
+the example above will populate
 
 `group` (property of the target object)
 
-with `group` (property of the `GroupContext` object)
+with `name` (the only property of the `GroupContext` object)
 
 and
 
 `locale` (property of the target object)
 
-with `language` (property of the `LanguageContext` object).
+with `language` (the only property of the `LanguageContext` object).
+
+For a context object with more than one property (or to just rename explicitly), use the long form with `property`:
+
+```yaml
+context:
+  locale:
+    objectType: YourNamespace\Context\LanguageContext
+    property: language
+```
 
 > [!IMPORTANT]
 > The context and the target property must be of the same type for this to work.
@@ -212,7 +226,8 @@ with `language` (property of the `LanguageContext` object).
 > `objectType` is required as soon as the converter uses `context_configurators` (see [Context](#context)) — this is
 > validated when the container is compiled. If the converter has no `context_configurators` and you still pass the
 > deprecated `GenericContext` (see [UPGRADE.md](../UPGRADE.md)), you may omit `objectType` and use the short form
-> `context: { group: ~, locale: language }`, exactly as before.
+> `context: { group: ~, locale: language }`, exactly as before — a string value there is only treated as an
+> `objectType` shortcut when it names an existing class.
 
 ### Conversion
 

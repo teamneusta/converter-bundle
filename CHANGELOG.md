@@ -24,6 +24,13 @@
 - `neusta_converter.converter.<name>.context.<target>.objectType` — for `context:` property mappings, tells
   `ContextMappingPopulator` which object inside the new `Context` to read `property` from. Required as soon as
   the converter uses `context_configurators`; validated at container-compile time.
+- `property` may be omitted for a `context:` mapping that declares `objectType`: if that class has exactly
+  one (non-static) property, its name is used automatically; otherwise the target property name is used, as
+  before. `objectType` itself can also be written as a plain class-string value instead of the nested form —
+  `context: { locale: App\Context\LocaleContext }` is a shortcut for
+  `context: { locale: { objectType: App\Context\LocaleContext } }`. A string value is only treated as this
+  shortcut when it names an existing class; anything else is still treated as `property`, so the pre-`objectType`
+  short form (`context: { locale: language }`) keeps working unchanged.
 
 ### Deprecated
 

@@ -15,6 +15,8 @@ use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\MultiValueContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
@@ -294,6 +296,114 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
                     ],
                     'context' => [
                         'ageInYears' => 'age',
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_mapped_context_infers_property_from_single_property_object_type(): void
+    {
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'ageInYears' => [
+                            'objectType' => AgeContext::class,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextObjectType', AgeContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
+    }
+
+    public function test_with_mapped_context_explicit_property_wins_over_inference(): void
+    {
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'age' => [
+                            'objectType' => AgeContext::class,
+                            'property' => 'somethingElse',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.age', '$contextProperty', 'somethingElse');
+    }
+
+    public function test_with_mapped_context_falls_back_to_target_property_for_multi_property_object_type(): void
+    {
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'someTarget' => [
+                            'objectType' => MultiValueContext::class,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.someTarget', '$contextProperty', 'someTarget');
+    }
+
+    public function test_with_mapped_context_class_string_shortcut(): void
+    {
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'locale' => LanguageContext::class,
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.locale', '$contextObjectType', LanguageContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.locale', '$contextProperty', 'language');
+    }
+
+    public function test_with_mapped_context_non_class_string_is_still_treated_as_property(): void
+    {
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'ageInYears' => 'age',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextObjectType', null);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
+    }
+
+    public function test_with_mapped_context_invalid_object_type(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'locale' => [
+                            'objectType' => 'App\\Does\\Not\\Exist',
+                        ],
                     ],
                 ],
             ],

@@ -100,12 +100,17 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 throw new InvalidConfigurationException(\sprintf('The "context.%s.objectType" option is required for converter "%s" because "context_configurators" are configured for it.', $targetProperty, $id));
             }
 
+            $contextObjectType = $contextConfig['objectType'] ?? null;
+            $contextProperty = $contextConfig['property']
+                ?? (null !== $contextObjectType ? self::inferContextProperty($contextObjectType) : null)
+                ?? $targetProperty;
+
             $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
             $container->register($contextPopulatorId, ContextMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
-                    '$contextObjectType' => $contextConfig['objectType'] ?? null,
-                    '$contextProperty' => $contextConfig['property'] ?? $targetProperty,
+                    '$contextObjectType' => $contextObjectType,
+                    '$contextProperty' => $contextProperty,
                     '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
                 ]);
@@ -213,5 +218,18 @@ final class NeustaConverterExtension extends ConfigurableExtension
     private function appendSuffix(string $value, string $suffix): string
     {
         return str_ends_with($value, $suffix) ? $value : $value . $suffix;
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private static function inferContextProperty(string $class): ?string
+    {
+        $properties = array_values(array_filter(
+            (new \ReflectionClass($class))->getProperties(),
+            static fn (\ReflectionProperty $property) => !$property->isStatic(),
+        ));
+
+        return 1 === \count($properties) ? $properties[0]->getName() : null;
     }
 }
