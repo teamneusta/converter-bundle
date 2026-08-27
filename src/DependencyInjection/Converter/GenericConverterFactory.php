@@ -7,6 +7,10 @@ namespace Neusta\ConverterBundle\DependencyInjection\Converter;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
 use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -80,7 +84,7 @@ final class GenericConverterFactory implements ConverterFactory
                     ->arrayPrototype()
         ;
 
-        $factories->getContextMappingPopulatorFactory()->addConfiguration($contextNodeBuilder);
+        $this->getContextMappingPopulatorFactory($factories)->addConfiguration($contextNodeBuilder);
 
         $propertiesNodeBuilder = $node
             ->children()
@@ -91,13 +95,13 @@ final class GenericConverterFactory implements ConverterFactory
                     ->arrayPrototype()
         ;
 
-        $factories->getDefaultPopulatorFactory()->addConfiguration($propertiesNodeBuilder);
+        $this->getDefaultPopulatorFactory($factories)->addConfiguration($propertiesNodeBuilder);
 
-        $propertyTypes = array_keys($factories->getPropertyPopulatorFactories());
+        $propertyPopulatorFactories = $this->getPropertyPopulatorFactories($factories);
+        $propertyTypes = array_keys($propertyPopulatorFactories);
 
-        foreach ($propertyTypes as $type) {
-            $factories->getPropertyPopulatorFactories()[$type]
-                ->addPropertyConfiguration($propertiesNodeBuilder->children()->arrayNode($type));
+        foreach ($propertyPopulatorFactories as $type => $propertyPopulatorFactory) {
+            $propertyPopulatorFactory->addPropertyConfiguration($propertiesNodeBuilder->children()->arrayNode($type));
         }
 
         // Without an explicit type key a property falls back to the default populator type, so at
@@ -133,9 +137,9 @@ final class GenericConverterFactory implements ConverterFactory
 
             // Inside `properties` the populator type is a nested key, while a populator factory
             // always receives a flat config. Flatten it so both entry points share one contract.
-            $populatorFactory = $factories->getPropertyPopulatorFactoryFor($sourceConfig);
+            $populatorFactory = $this->getPropertyPopulatorFactoryFor($factories, $sourceConfig);
             $typeConfig = $sourceConfig[$populatorFactory->getType()] ?? [];
-            $sourceConfig = array_diff_key($sourceConfig, $factories->getPropertyPopulatorFactories());
+            $sourceConfig = array_diff_key($sourceConfig, $this->getPropertyPopulatorFactories($factories));
 
             $populatorFactory->create(
                 $container,
@@ -147,7 +151,7 @@ final class GenericConverterFactory implements ConverterFactory
         foreach ($config['context'] ?? [] as $targetProperty => $contextConfig) {
             $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
 
-            $factories->getContextMappingPopulatorFactory()->create(
+            $this->getContextMappingPopulatorFactory($factories)->create(
                 $container,
                 $contextPopulatorId,
                 ['target' => $targetProperty] + $contextConfig,
@@ -164,6 +168,74 @@ final class GenericConverterFactory implements ConverterFactory
                     $config['populators'],
                 ),
             ]);
+    }
+
+    /**
+     * The `context` key above is built on top of this type, so it must always be registered.
+     */
+    private function getContextMappingPopulatorFactory(FactoryRegistry $factories): ContextMappingPopulatorFactory
+    {
+        $factory = $factories->getPopulatorFactory(ContextMappingPopulatorFactory::TYPE);
+
+        if (!$factory instanceof ContextMappingPopulatorFactory) {
+            throw new \LogicException(\sprintf(
+                'The mandatory populator factory for the type "%s" is not registered. Expected an instance of "%s", got "%s".',
+                ContextMappingPopulatorFactory::TYPE,
+                ContextMappingPopulatorFactory::class,
+                get_debug_type($factory),
+            ));
+        }
+
+        return $factory;
+    }
+
+    /**
+     * The default populator type is what a property mapping without an explicit type key resolves
+     * to, e.g. `properties: { fullName: name }`.
+     */
+    private function getDefaultPopulatorFactory(FactoryRegistry $factories): PropertyMappingPopulatorFactory
+    {
+        $factory = $factories->getPopulatorFactory(PropertyMappingPopulatorFactory::TYPE);
+
+        if (!$factory instanceof PropertyMappingPopulatorFactory) {
+            throw new \LogicException(\sprintf(
+                'The mandatory populator factory for the default type "%s" is not registered. Expected an instance of "%s", got "%s".',
+                PropertyMappingPopulatorFactory::TYPE,
+                PropertyMappingPopulatorFactory::class,
+                get_debug_type($factory),
+            ));
+        }
+
+        return $factory;
+    }
+
+    /**
+     * Resolves the populator factory for a single property mapping. The type is expressed as a
+     * nested key (e.g. `converting`); without one the default type applies.
+     *
+     * @param array<string, mixed> $propertyConfig
+     */
+    private function getPropertyPopulatorFactoryFor(FactoryRegistry $factories, array $propertyConfig): PopulatorFactory
+    {
+        $propertyPopulatorFactories = $this->getPropertyPopulatorFactories($factories);
+        $types = array_keys(array_intersect_key($propertyConfig, $propertyPopulatorFactories));
+
+        if (\count($types) > 1) {
+            throw new \LogicException(\sprintf(
+                'Only one populator type can be set per property, got "%s".',
+                implode('", "', $types),
+            ));
+        }
+
+        return $factories->getPopulatorFactory($types[0] ?? '') ?? $this->getDefaultPopulatorFactory($factories);
+    }
+
+    /**
+     * @return array<string, PropertyPopulatorFactory>
+     */
+    private function getPropertyPopulatorFactories(FactoryRegistry $factories): array
+    {
+        return array_filter($factories->getPopulatorFactories(), static fn ($factory) => $factory instanceof PropertyPopulatorFactory);
     }
 
     private function ensureSuffix(string $value, string $suffix): string

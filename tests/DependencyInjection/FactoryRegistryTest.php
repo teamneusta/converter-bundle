@@ -7,10 +7,8 @@ namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
-use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayConvertingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ConvertingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
-use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -146,59 +144,5 @@ final class FactoryRegistryTest extends TestCase
             {
             }
         });
-    }
-
-    public function test_default_populator_factory_is_mandatory(): void
-    {
-        $registry = new FactoryRegistry([], []);
-
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('The mandatory populator factory for the default type "property_mapping" is not registered.');
-
-        $registry->getDefaultPopulatorFactory();
-    }
-
-    public function test_context_mapping_populator_factory_is_mandatory(): void
-    {
-        $registry = new FactoryRegistry([], []);
-
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('The mandatory populator factory for the type "context_mapping" is not registered.');
-
-        $registry->getContextMappingPopulatorFactory();
-    }
-
-    public function test_resolves_the_property_populator_factory_by_type_key(): void
-    {
-        $registry = new FactoryRegistry([], [
-            new PropertyMappingPopulatorFactory(),
-            new ConvertingPopulatorFactory(),
-        ]);
-
-        self::assertInstanceOf(
-            ConvertingPopulatorFactory::class,
-            $registry->getPropertyPopulatorFactoryFor(['source' => 'foo', 'converting' => ['converter' => 'x']]),
-        );
-        self::assertInstanceOf(
-            PropertyMappingPopulatorFactory::class,
-            $registry->getPropertyPopulatorFactoryFor(['source' => 'foo']),
-        );
-    }
-
-    public function test_resolving_a_property_populator_factory_with_multiple_types_fails(): void
-    {
-        $registry = new FactoryRegistry([], [
-            new PropertyMappingPopulatorFactory(),
-            new ConvertingPopulatorFactory(),
-            new ArrayConvertingPopulatorFactory(),
-        ]);
-
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Only one populator type can be set per property, got "converting", "array_converting".');
-
-        $registry->getPropertyPopulatorFactoryFor([
-            'converting' => ['converter' => 'x'],
-            'array_converting' => ['converter' => 'y'],
-        ]);
     }
 }

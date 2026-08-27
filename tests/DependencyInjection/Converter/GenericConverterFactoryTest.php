@@ -7,6 +7,8 @@ namespace Neusta\ConverterBundle\Tests\DependencyInjection\Converter;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulatorFactory;
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
@@ -17,6 +19,7 @@ use Neusta\ConverterBundle\Tests\Fixtures\Context\MultiValueContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -536,5 +539,30 @@ class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$targetProperty', 'locale');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$sourceProperty', 'locale');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$defaultValue', 'en');
+    }
+
+    /**
+     * `property_mapping` and `context_mapping` are mandatory built-ins (see `NeustaConverterBundle`);
+     * these two tests guard that wiring by constructing an incomplete `FactoryRegistry` directly -
+     * `NeustaConverterExtensionTestCase::load()` always adds both, so it can't simulate "missing".
+     */
+    public function test_default_populator_factory_must_be_registered(): void
+    {
+        $factories = new FactoryRegistry([], [new ContextMappingPopulatorFactory()]);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The mandatory populator factory for the default type "property_mapping" is not registered.');
+
+        (new GenericConverterFactory())->addConfiguration(new ArrayNodeDefinition('generic'), $factories);
+    }
+
+    public function test_context_mapping_populator_factory_must_be_registered(): void
+    {
+        $factories = new FactoryRegistry([], []);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The mandatory populator factory for the type "context_mapping" is not registered.');
+
+        (new GenericConverterFactory())->addConfiguration(new ArrayNodeDefinition('generic'), $factories);
     }
 }

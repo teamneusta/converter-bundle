@@ -4,10 +4,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
-use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
-use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
-use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
 
 /**
  * @experimental This class is not covered by the backward compatibility promise yet. Its shape
@@ -127,74 +124,5 @@ final class FactoryRegistry
     public function getPopulatorFactory(string $type): ?PopulatorFactory
     {
         return $this->populatorFactories[$type] ?? null;
-    }
-
-    /**
-     * The default populator type is what a property mapping without an explicit type key resolves
-     * to, e.g. `properties: { fullName: name }`.
-     */
-    public function getDefaultPopulatorFactory(): PropertyMappingPopulatorFactory
-    {
-        $factory = $this->getPopulatorFactory(PropertyMappingPopulatorFactory::TYPE);
-
-        if (!$factory instanceof PropertyMappingPopulatorFactory) {
-            throw new \LogicException(\sprintf(
-                'The mandatory populator factory for the default type "%s" is not registered. Expected an instance of "%s", got "%s".',
-                PropertyMappingPopulatorFactory::TYPE,
-                PropertyMappingPopulatorFactory::class,
-                get_debug_type($factory),
-            ));
-        }
-
-        return $factory;
-    }
-
-    /**
-     * `GenericConverterFactory` builds its `context` key on top of this type, so it must always be
-     * registered - the same mandatory-built-in role `getDefaultPopulatorFactory()` plays for
-     * `property_mapping`.
-     */
-    public function getContextMappingPopulatorFactory(): ContextMappingPopulatorFactory
-    {
-        $factory = $this->getPopulatorFactory(ContextMappingPopulatorFactory::TYPE);
-
-        if (!$factory instanceof ContextMappingPopulatorFactory) {
-            throw new \LogicException(\sprintf(
-                'The mandatory populator factory for the type "%s" is not registered. Expected an instance of "%s", got "%s".',
-                ContextMappingPopulatorFactory::TYPE,
-                ContextMappingPopulatorFactory::class,
-                get_debug_type($factory),
-            ));
-        }
-
-        return $factory;
-    }
-
-    /**
-     * Resolves the populator factory for a single property mapping. The type is expressed as a
-     * nested key (e.g. `converting`); without one the default type applies.
-     *
-     * @param array<string, mixed> $propertyConfig
-     */
-    public function getPropertyPopulatorFactoryFor(array $propertyConfig): PopulatorFactory
-    {
-        $types = array_keys(array_intersect_key($propertyConfig, $this->getPropertyPopulatorFactories()));
-
-        if (\count($types) > 1) {
-            throw new \LogicException(\sprintf(
-                'Only one populator type can be set per property, got "%s".',
-                implode('", "', $types),
-            ));
-        }
-
-        return $this->populatorFactories[$types[0] ?? null] ?? $this->getDefaultPopulatorFactory();
-    }
-
-    /**
-     * @return array<string, PropertyPopulatorFactory>
-     */
-    public function getPropertyPopulatorFactories(): array
-    {
-        return array_filter($this->populatorFactories, static fn ($factory) => $factory instanceof PropertyPopulatorFactory);
     }
 }
