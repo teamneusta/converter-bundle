@@ -32,6 +32,9 @@
   `build()` method. See [Adding your own converter and populator types](docs/usage.md#adding-your-own-converter-and-populator-types).
   **These interfaces are `@experimental` and not yet covered by the backward compatibility promise** — expect
   one mechanical adjustment (bundling the loose parameters into a factory context object) in a future minor.
+  Registering a converter type named `context_configurators` or `decorators`, or a populator type named
+  `decorators`, fails immediately with an `InvalidArgumentException` — those names are reserved for keys
+  the bundle itself puts as a sibling of the type key.
 - New immutable `Neusta\ConverterBundle\Context` class, replacing `GenericContext` as the object passed as
   `$ctx` to `Converter`, `Populator` and `TargetFactory`. Unlike `GenericContext`, which stores arbitrary
   values under string keys, `Context` stores one instance per class (`Context::create(new MyContext(...))`)

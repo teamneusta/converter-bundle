@@ -44,6 +44,64 @@ final class FactoryRegistryTest extends TestCase
         self::assertCount(1, $registry->getPopulatorFactories());
     }
 
+    /**
+     * "context_configurators" and "decorators" are siblings of the type key at
+     * `neusta_converter.converters.<name>.*`, so a converter type can never be named after one of
+     * them - otherwise a future bundle version adding a new reserved key could silently collide
+     * with a type name a project already registered.
+     */
+    public function test_registering_a_converter_factory_with_a_reserved_type_fails(): void
+    {
+        $registry = new FactoryRegistry([], []);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The converter type "context_configurators" (registered by');
+
+        $registry->addConverterFactory(new class implements ConverterFactory {
+            public function getType(): string
+            {
+                return 'context_configurators';
+            }
+
+            public function addConfiguration(ArrayNodeDefinition $node, FactoryRegistry $factories): void
+            {
+            }
+
+            public function create(ContainerBuilder $container, string $id, array $config, FactoryRegistry $factories): void
+            {
+            }
+        });
+    }
+
+    /**
+     * "decorators" is reserved for both converters and populators, even though it isn't implemented
+     * for populators yet - "condition"/"target" are nested inside the type key today, but the
+     * planned decorator mechanism (see docs/usage.md) will put "decorators" next to it, the same way
+     * "context_configurators" already sits next to a converter's type key.
+     */
+    public function test_registering_a_populator_factory_with_a_reserved_type_fails(): void
+    {
+        $registry = new FactoryRegistry([], []);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The populator type "decorators" (registered by');
+
+        $registry->addPopulatorFactory(new class implements PopulatorFactory {
+            public function getType(): string
+            {
+                return 'decorators';
+            }
+
+            public function addConfiguration(ArrayNodeDefinition $node): void
+            {
+            }
+
+            public function create(ContainerBuilder $container, string $id, array $config): void
+            {
+            }
+        });
+    }
+
     public function test_registering_a_conflicting_converter_factory_fails(): void
     {
         $registry = new FactoryRegistry([new GenericConverterFactory()], []);

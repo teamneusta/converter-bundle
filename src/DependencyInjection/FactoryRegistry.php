@@ -15,6 +15,12 @@ use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactor
  */
 final class FactoryRegistry
 {
+    /** Reserved: sibling keys of the converter type, see docs/usage.md. */
+    private const RESERVED_CONVERTER_TYPES = ['context_configurators', 'decorators'];
+
+    /** Reserved: sibling keys of the populator type, see docs/usage.md. */
+    private const RESERVED_POPULATOR_TYPES = ['decorators'];
+
     /** @var array<string, ConverterFactory> */
     private array $converterFactories = [];
     /** @var array<string, PopulatorFactory> */
@@ -37,6 +43,8 @@ final class FactoryRegistry
 
     public function addConverterFactory(ConverterFactory $factory): void
     {
+        $this->assertTypeIsNotReserved($factory, self::RESERVED_CONVERTER_TYPES, 'converter');
+
         if ($this->isNewFactory($this->converterFactories, $factory, 'converter')) {
             $this->converterFactories[$factory->getType()] = $factory;
         }
@@ -44,8 +52,25 @@ final class FactoryRegistry
 
     public function addPopulatorFactory(PopulatorFactory $factory): void
     {
+        $this->assertTypeIsNotReserved($factory, self::RESERVED_POPULATOR_TYPES, 'populator');
+
         if ($this->isNewFactory($this->populatorFactories, $factory, 'populator')) {
             $this->populatorFactories[$factory->getType()] = $factory;
+        }
+    }
+
+    /**
+     * @param list<string> $reservedTypes
+     */
+    private function assertTypeIsNotReserved(ConverterFactory|PopulatorFactory $factory, array $reservedTypes, string $kind): void
+    {
+        if (\in_array($factory->getType(), $reservedTypes, true)) {
+            throw new \InvalidArgumentException(\sprintf(
+                'The %s type "%s" (registered by "%s") is reserved for bundle configuration and cannot be used as a type name.',
+                $kind,
+                $factory->getType(),
+                $factory::class,
+            ));
         }
     }
 

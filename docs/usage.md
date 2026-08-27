@@ -694,6 +694,13 @@ neusta_converter:
 > [!NOTE]
 > Exactly one type may be set per converter, per populator and per property.
 
+> [!NOTE]
+> `context_configurators` and `decorators` are reserved converter type names; `decorators` is also
+> reserved for populators. They are keys the bundle itself puts as a sibling of the type key (see
+> [Context](#context) and [Decorating converters and populators](#decorating-converters-and-populators-planned)
+> below), so a converter/populator type registered under one of them is rejected immediately, with a
+> clear error, instead of silently colliding with a future bundle version that adds one.
+
 ### Decorating converters and populators (planned)
 
 > [!WARNING]
