@@ -158,6 +158,16 @@ final class FactoryRegistryTest extends TestCase
         $registry->getDefaultPopulatorFactory();
     }
 
+    public function test_context_mapping_populator_factory_is_mandatory(): void
+    {
+        $registry = new FactoryRegistry([], []);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The mandatory populator factory for the type "context_mapping" is not registered.');
+
+        $registry->getContextMappingPopulatorFactory();
+    }
+
     public function test_resolves_the_property_populator_factory_by_type_key(): void
     {
         $registry = new FactoryRegistry([], [

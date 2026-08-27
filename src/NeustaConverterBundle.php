@@ -10,6 +10,7 @@ use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayConvertingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayPropertyMappingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ConvertingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -47,6 +48,7 @@ class NeustaConverterBundle extends Bundle
                 new ArrayPropertyMappingPopulatorFactory(),
                 new ConvertingPopulatorFactory(),
                 new ArrayConvertingPopulatorFactory(),
+                new ContextMappingPopulatorFactory(),
             ],
         ));
     }

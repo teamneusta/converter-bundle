@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
@@ -141,6 +142,27 @@ final class FactoryRegistry
                 'The mandatory populator factory for the default type "%s" is not registered. Expected an instance of "%s", got "%s".',
                 PropertyMappingPopulatorFactory::TYPE,
                 PropertyMappingPopulatorFactory::class,
+                get_debug_type($factory),
+            ));
+        }
+
+        return $factory;
+    }
+
+    /**
+     * `GenericConverterFactory` builds its `context` key on top of this type, so it must always be
+     * registered - the same mandatory-built-in role `getDefaultPopulatorFactory()` plays for
+     * `property_mapping`.
+     */
+    public function getContextMappingPopulatorFactory(): ContextMappingPopulatorFactory
+    {
+        $factory = $this->getPopulatorFactory(ContextMappingPopulatorFactory::TYPE);
+
+        if (!$factory instanceof ContextMappingPopulatorFactory) {
+            throw new \LogicException(\sprintf(
+                'The mandatory populator factory for the type "%s" is not registered. Expected an instance of "%s", got "%s".',
+                ContextMappingPopulatorFactory::TYPE,
+                ContextMappingPopulatorFactory::class,
                 get_debug_type($factory),
             ));
         }

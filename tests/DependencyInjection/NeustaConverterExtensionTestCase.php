@@ -9,6 +9,7 @@ use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory
 use Neusta\ConverterBundle\DependencyInjection\FactoryRegistry;
 use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayConvertingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyMappingPopulatorFactory;
 
 abstract class NeustaConverterExtensionTestCase extends AbstractExtensionTestCase
@@ -26,6 +27,9 @@ abstract class NeustaConverterExtensionTestCase extends AbstractExtensionTestCas
         }
         if (!\in_array($legacyFactory = new ArrayConvertingPopulatorFactory(), $populatorFactories, false)) {
             $populatorFactories[] = $legacyFactory;
+        }
+        if (!\in_array($mandatoryFactory = new ContextMappingPopulatorFactory(), $populatorFactories, false)) {
+            $populatorFactories[] = $mandatoryFactory;
         }
 
         return [

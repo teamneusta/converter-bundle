@@ -275,6 +275,30 @@ extra options.
 > treated as `property`, so it can never be misread as an unrelated, unnamespaced class that happens to be loaded
 > (PHP class name lookups are case-insensitive — e.g. ext-intl declares a global `Locale` class).
 
+Under the hood, `context:` is the `context_mapping` populator type. Like every populator type, it is also usable
+on its own under `populators:` — for example to reuse the same context mapping across several converters:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  populators:
+    person.locale.populator:
+      context_mapping:
+        target: locale
+        class: YourNamespace\Context\LanguageContext
+
+  converters:
+    person.converter:
+      generic:
+        target: YourNamespace\Person
+        populators:
+          - person.locale.populator
+```
+
+> [!NOTE]
+> `context_mapping` does not implement `PropertyPopulatorFactory`, so it can't be nested inside `properties:`
+> the way `converting`/`array_converting` can.
+
 ### Conversion
 
 And now if you want to convert `User`s into `Person`s just type in your code:

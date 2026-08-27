@@ -23,7 +23,10 @@
   ```
 
   The same applies to `neusta_converter.populators`, whose entries now carry their type as the single key of
-  that level (`converting`, `array_converting`, `property_mapping`, `array_property_mapping`).
+  that level (`converting`, `array_converting`, `property_mapping`, `array_property_mapping`, `context_mapping`).
+- `context_mapping` — the populator type behind the `context:` key (see below) is now also usable on its own
+  under `neusta_converter.populators`, the same way `converting`/`array_converting`/etc. already are, so a
+  context mapping can be shared across several converters instead of being repeated in each one's `context:`.
 - `Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory` and
   `Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory` (plus
   `PropertyPopulatorFactory` for types usable inside `properties:`) as extension points: another bundle or the
