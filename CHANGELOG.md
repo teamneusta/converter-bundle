@@ -36,6 +36,15 @@
   value/object it needs isn't present, or when no context was passed at all. Setting `required: true` makes it
   throw a `PopulationException` in those cases instead.
 
+### Fixed
+
+- `neusta:converter:debug` (and the generated HTML chart) no longer show two confusing entries for any
+  decorated `Converter`/`Populator`/`TargetFactory` — one under its configured id reflecting the pre-decoration
+  service, and one under an internal, decorator-generated id. It's now reported once, under its configured id,
+  reflecting the actually active (decorated) behavior. This pre-existing bug affected, for example, a `populator:`
+  using `condition:` (decorated by `ConditionalPopulator`); the new `context_configurators` option (decorating a
+  converter with `ConverterWithDefaultContext`) hits the same case.
+
 ### Deprecated
 
 - `Neusta\ConverterBundle\Converter\Context\GenericContext` is deprecated in favor of `Context`. It continues
