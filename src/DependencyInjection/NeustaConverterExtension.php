@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Command\DebugCommand;
+use Neusta\ConverterBundle\Context\ContextFactory;
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\Condition\ExpressionCondition;
@@ -35,8 +37,10 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2) . '/config'));
         $loader->load('services.yaml');
 
+        $globalContextConfigurators = $mergedConfig['context_configurators'];
+
         foreach ($mergedConfig['converter'] as $converterId => $converter) {
-            $this->registerConverterConfiguration($converterId, $converter, $container);
+            $this->registerConverterConfiguration($converterId, $converter, $globalContextConfigurators, $container);
         }
 
         foreach ($mergedConfig['populator'] as $populatorId => $populator) {
@@ -51,9 +55,14 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
     /**
      * @param array<string, mixed> $config
+     * @param array<string>        $globalContextConfigurators
      */
-    private function registerConverterConfiguration(string $id, array $config, ContainerBuilder $container): void
-    {
+    private function registerConverterConfiguration(
+        string $id,
+        array $config,
+        array $globalContextConfigurators,
+        ContainerBuilder $container,
+    ): void {
         $targetFactoryId = $config['target_factory'] ?? "{$id}.target_factory";
         if (!isset($config['target_factory'])) {
             $targetClass = $config['target']['class'];
@@ -83,14 +92,27 @@ final class NeustaConverterExtension extends ConfigurableExtension
                 ]);
         }
 
-        foreach ($config['context'] ?? [] as $targetProperty => $contextProperty) {
+        $contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? []);
+
+        foreach ($config['context'] ?? [] as $targetProperty => $contextConfig) {
+            if ($contextConfigurators && !isset($contextConfig['class'])) {
+                throw new InvalidConfigurationException(\sprintf('The "context.%s.class" option is required for converter "%s" because "context_configurators" are configured for it.', $targetProperty, $id));
+            }
+
+            $contextClass = $contextConfig['class'] ?? null;
+            $contextProperty = $contextConfig['property']
+                ?? (null !== $contextClass ? self::inferContextProperty($contextClass) : null)
+                ?? $targetProperty;
+
             $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
             $container->register($contextPopulatorId, ContextMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
-                    '$contextProperty' => $contextProperty ?? $targetProperty,
+                    '$contextClass' => $contextClass,
+                    '$contextProperty' => $contextProperty,
                     '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
+                    '$required' => $contextConfig['required'] ?? false,
                 ]);
         }
 
@@ -104,6 +126,23 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     $config['populators'],
                 ),
             ]);
+
+        if ($contextConfigurators) {
+            $contextFactoryId = "{$id}.context.factory";
+            $container->register($contextFactoryId, ContextFactory::class)
+                ->setArgument('$configurators', array_map(
+                    static fn (string $configurator) => new Reference($configurator),
+                    $contextConfigurators,
+                ));
+
+            $contextDecoratorId = "{$id}.decorator.context";
+            $container->register($contextDecoratorId, ConverterWithDefaultContext::class)
+                ->setDecoratedService($id)
+                ->setArguments([
+                    '$inner' => new Reference($contextDecoratorId . '.inner'),
+                    '$contextFactory' => new Reference($contextFactoryId),
+                ]);
+        }
     }
 
     /**
@@ -175,5 +214,18 @@ final class NeustaConverterExtension extends ConfigurableExtension
     private function appendSuffix(string $value, string $suffix): string
     {
         return str_ends_with($value, $suffix) ? $value : $value . $suffix;
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private static function inferContextProperty(string $class): ?string
+    {
+        $properties = array_values(array_filter(
+            (new \ReflectionClass($class))->getProperties(),
+            static fn (\ReflectionProperty $property) => !$property->isStatic(),
+        ));
+
+        return 1 === \count($properties) ? $properties[0]->getName() : null;
     }
 }
