@@ -223,7 +223,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
     }
 
-    public function test_with_mapped_context_and_object_type(): void
+    public function test_with_mapped_context_and_class(): void
     {
         $this->load([
             'context_configurators' => [
@@ -234,7 +234,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
                     'target_factory' => PersonFactory::class,
                     'context' => [
                         'ageInYears' => [
-                            'objectType' => AgeContext::class,
+                            'class' => AgeContext::class,
                             'property' => 'age',
                         ],
                     ],
@@ -242,11 +242,11 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
             ],
         ]);
 
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextObjectType', AgeContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', AgeContext::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
     }
 
-    public function test_with_mapped_context_without_context_configurators_does_not_require_object_type(): void
+    public function test_with_mapped_context_without_context_configurators_does_not_require_class(): void
     {
         $this->load([
             'converter' => [
@@ -259,13 +259,13 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
             ],
         ]);
 
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextObjectType', null);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', null);
     }
 
-    public function test_with_mapped_context_missing_object_type_and_global_context_configurators(): void
+    public function test_with_mapped_context_missing_class_and_global_context_configurators(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('The "context.ageInYears.objectType" option is required for converter "foobar" because "context_configurators" are configured for it.');
+        $this->expectExceptionMessage('The "context.ageInYears.class" option is required for converter "foobar" because "context_configurators" are configured for it.');
 
         $this->load([
             'context_configurators' => [
@@ -282,10 +282,10 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         ]);
     }
 
-    public function test_with_mapped_context_missing_object_type_and_local_context_configurators(): void
+    public function test_with_mapped_context_missing_class_and_local_context_configurators(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('The "context.ageInYears.objectType" option is required for converter "foobar" because "context_configurators" are configured for it.');
+        $this->expectExceptionMessage('The "context.ageInYears.class" option is required for converter "foobar" because "context_configurators" are configured for it.');
 
         $this->load([
             'converter' => [
@@ -302,7 +302,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         ]);
     }
 
-    public function test_with_mapped_context_infers_property_from_single_property_object_type(): void
+    public function test_with_mapped_context_infers_property_from_single_property_class(): void
     {
         $this->load([
             'converter' => [
@@ -310,14 +310,14 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
                     'target_factory' => PersonFactory::class,
                     'context' => [
                         'ageInYears' => [
-                            'objectType' => AgeContext::class,
+                            'class' => AgeContext::class,
                         ],
                     ],
                 ],
             ],
         ]);
 
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextObjectType', AgeContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', AgeContext::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
     }
 
@@ -329,7 +329,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
                     'target_factory' => PersonFactory::class,
                     'context' => [
                         'age' => [
-                            'objectType' => AgeContext::class,
+                            'class' => AgeContext::class,
                             'property' => 'somethingElse',
                         ],
                     ],
@@ -340,7 +340,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.age', '$contextProperty', 'somethingElse');
     }
 
-    public function test_with_mapped_context_falls_back_to_target_property_for_multi_property_object_type(): void
+    public function test_with_mapped_context_falls_back_to_target_property_for_multi_property_class(): void
     {
         $this->load([
             'converter' => [
@@ -348,7 +348,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
                     'target_factory' => PersonFactory::class,
                     'context' => [
                         'someTarget' => [
-                            'objectType' => MultiValueContext::class,
+                            'class' => MultiValueContext::class,
                         ],
                     ],
                 ],
@@ -371,7 +371,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
             ],
         ]);
 
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.locale', '$contextObjectType', LanguageContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.locale', '$contextClass', LanguageContext::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.locale', '$contextProperty', 'language');
     }
 
@@ -388,11 +388,11 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
             ],
         ]);
 
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextObjectType', null);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', null);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
     }
 
-    public function test_with_mapped_context_invalid_object_type(): void
+    public function test_with_mapped_context_invalid_class(): void
     {
         $this->expectException(InvalidConfigurationException::class);
 
@@ -402,7 +402,7 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
                     'target_factory' => PersonFactory::class,
                     'context' => [
                         'locale' => [
-                            'objectType' => 'App\\Does\\Not\\Exist',
+                            'class' => 'App\\Does\\Not\\Exist',
                         ],
                     ],
                 ],

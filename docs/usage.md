@@ -170,7 +170,7 @@ need to write a custom populator for this, as this bundle already contains the `
 case.
 
 Context data lives inside typed objects stored in a `Context` (see [Context](#context) below), so you need to tell
-the populator which object to read the property from via `objectType`. Use it in your converter config via the
+the populator which object to read the property from via `class`. Use it in your converter config via the
 `context` keyword:
 
 ```yaml
@@ -185,7 +185,7 @@ neusta_converter:
         locale: YourNamespace\Context\LanguageContext
 ```
 
-A plain class-string value like above is a shortcut for `objectType: YourNamespace\Context\GroupContext`. Which
+A plain class-string value like above is a shortcut for `class: YourNamespace\Context\GroupContext`. Which
 property is read off that object is resolved in this order:
 
 1. an explicit `property` key, if you give one,
@@ -210,7 +210,7 @@ For a context object with more than one property (or to just rename explicitly),
 ```yaml
 context:
   locale:
-    objectType: YourNamespace\Context\LanguageContext
+    class: YourNamespace\Context\LanguageContext
     property: language
 ```
 
@@ -225,11 +225,12 @@ context:
 > both properties — the first time `convert()` is called.
 
 > [!NOTE]
-> `objectType` is required as soon as the converter uses `context_configurators` (see [Context](#context)) — this is
+> `class` is required as soon as the converter uses `context_configurators` (see [Context](#context)) — this is
 > validated when the container is compiled. If the converter has no `context_configurators` and you still pass the
-> deprecated `GenericContext` (see [UPGRADE.md](../UPGRADE.md)), you may omit `objectType` and use the short form
-> `context: { group: ~, locale: language }`, exactly as before — a string value there is only treated as an
-> `objectType` shortcut when it names an existing class.
+> deprecated `GenericContext` (see [UPGRADE.md](../UPGRADE.md)), you may omit `class` and use the short form
+> `context: { group: ~, locale: language }`, exactly as before — a string value there is only treated as a `class`
+> shortcut when it names an existing class. PHP class names are case-insensitive, so in the unlikely case a
+> property name collides with an autoloadable root-namespace class, it would be read as a `class` instead.
 
 ### Conversion
 
@@ -551,8 +552,7 @@ neusta_converter:
       context_configurators:
         - App\Context\TenantContextConfigurator
       context:
-        locale:
-          objectType: App\Context\LocaleContext
+        locale: App\Context\LocaleContext
 ```
 
 As soon as a converter declares `context_configurators` (globally or locally), it automatically builds and uses a
@@ -564,8 +564,8 @@ pass a `Context`, it is merged on top of the default one, taking precedence per 
 > deprecated `GenericContext` (or any other non-`Context` object) is rejected with an `InvalidArgumentException`.
 
 > [!IMPORTANT]
-> Once a converter uses `context_configurators`, every entry under its `context:` mapping must declare `objectType`
-> explicitly — this is validated when the container is compiled.
+> Once a converter uses `context_configurators`, every entry under its `context:` mapping must set a `class`
+> (nested key or class-string shortcut) — this is validated when the container is compiled.
 
 ### Migrating from `GenericContext`
 

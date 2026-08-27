@@ -37,7 +37,7 @@ $ctx = (new GenericContext())->setValue('locale', 'de');
 $ctx = Context::create(new LocaleContext('de'));
 ```
 
-Populators reading from the context need the `objectType` of the object they read from. Since `LocaleContext` has
+Populators reading from the context need the `class` of the object they read from. Since `LocaleContext` has
 only one property, its name doesn't even need to be repeated — a plain class-string is enough:
 
 ```yaml

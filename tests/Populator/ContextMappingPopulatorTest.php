@@ -99,7 +99,7 @@ class ContextMappingPopulatorTest extends TestCase
         self::assertNull($person->getAge());
     }
 
-    public function test_populateWithNewContext_missing_objectType_throws(): void
+    public function test_populateWithNewContext_missing_class_throws(): void
     {
         $populator = new ContextMappingPopulator('age', 'age');
         $user = new User();

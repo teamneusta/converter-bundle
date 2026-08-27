@@ -26,14 +26,14 @@ final class ContextMappingPopulator implements Populator
 
     /**
      * @param \Closure(mixed, Context|TContext=):mixed|null $mapper
-     * @param class-string|null                             $contextObjectType
+     * @param class-string|null                             $contextClass
      */
     public function __construct(
         private string $targetProperty,
         private string $contextProperty,
         ?\Closure $mapper = null,
         ?PropertyAccessorInterface $accessor = null,
-        private ?string $contextObjectType = null,
+        private ?string $contextClass = null,
     ) {
         $this->mapper = $mapper ?? static fn ($v) => $v;
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();
@@ -55,11 +55,11 @@ final class ContextMappingPopulator implements Populator
 
             $readValue = fn () => $ctx->getValue($this->contextProperty);
         } elseif ($ctx instanceof Context) {
-            if (!isset($this->contextObjectType)) {
-                throw new \LogicException('The relevant context object type is not set.');
+            if (!isset($this->contextClass)) {
+                throw new \LogicException('The relevant context class is not set.');
             }
 
-            if (null === $contextObject = $ctx->tryGet($this->contextObjectType)) {
+            if (null === $contextObject = $ctx->tryGet($this->contextClass)) {
                 return;
             }
 

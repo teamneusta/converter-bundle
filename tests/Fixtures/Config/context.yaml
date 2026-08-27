@@ -7,7 +7,7 @@ neusta_converter:
       target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
       context:
         age:
-          objectType: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
+          class: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
 
     global_and_local_context_converter:
       context_configurators:
@@ -15,7 +15,7 @@ neusta_converter:
       target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
       context:
         age:
-          objectType: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
+          class: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
         locale: Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext
 
 services:

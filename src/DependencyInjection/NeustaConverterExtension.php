@@ -96,20 +96,20 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? []);
 
         foreach ($config['context'] ?? [] as $targetProperty => $contextConfig) {
-            if ($contextConfigurators && !isset($contextConfig['objectType'])) {
-                throw new InvalidConfigurationException(\sprintf('The "context.%s.objectType" option is required for converter "%s" because "context_configurators" are configured for it.', $targetProperty, $id));
+            if ($contextConfigurators && !isset($contextConfig['class'])) {
+                throw new InvalidConfigurationException(\sprintf('The "context.%s.class" option is required for converter "%s" because "context_configurators" are configured for it.', $targetProperty, $id));
             }
 
-            $contextObjectType = $contextConfig['objectType'] ?? null;
+            $contextClass = $contextConfig['class'] ?? null;
             $contextProperty = $contextConfig['property']
-                ?? (null !== $contextObjectType ? self::inferContextProperty($contextObjectType) : null)
+                ?? (null !== $contextClass ? self::inferContextProperty($contextClass) : null)
                 ?? $targetProperty;
 
             $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
             $container->register($contextPopulatorId, ContextMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
-                    '$contextObjectType' => $contextObjectType,
+                    '$contextClass' => $contextClass,
                     '$contextProperty' => $contextProperty,
                     '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
