@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Command\DebugCommand;
+use Neusta\ConverterBundle\Context\ContextFactory;
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
@@ -87,12 +89,14 @@ final class NeustaConverterExtension extends ConfigurableExtension
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__, 2) . '/config'));
         $loader->load('services.yaml');
 
+        $globalContextConfigurators = $mergedConfig['context_configurators'];
+
         foreach ($mergedConfig['converters'] as $id => $converter) {
-            $this->createConverter($container, $id, $converter);
+            $this->createConverter($container, $id, $converter, $globalContextConfigurators);
         }
 
         foreach ($mergedConfig['converter'] as $id => $converter) {
-            $this->createDeprecatedConverter($container, $id, $converter);
+            $this->createDeprecatedConverter($container, $id, $converter, $globalContextConfigurators);
         }
 
         foreach ($mergedConfig['populators'] as $id => $populator) {
@@ -111,29 +115,91 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
     /**
      * @param array<string, mixed> $config
+     * @param array<string>        $globalContextConfigurators
      */
-    private function createConverter(ContainerBuilder $container, string $id, array $config): void
+    private function createConverter(ContainerBuilder $container, string $id, array $config, array $globalContextConfigurators): void
     {
-        $type = array_key_first($config) ?? 'unknown';
+        $types = array_keys(array_intersect_key($config, $this->factories->getConverterFactories()));
+        $type = $types[0] ?? 'unknown';
         $factory = $this->factories->getConverterFactory($type) ?? throw new InvalidConfigurationException(\sprintf(
             'Unable to create a definition for the converter "%s" because the type "%s" does not exist.',
             $id,
             $type,
         ));
 
+        $contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? []);
+        $this->assertContextMappingsHaveClass($id, $config[$type]['context'] ?? [], $contextConfigurators);
+
         $factory->create($container, $id, $config[$type], $this->factories);
+
+        $this->registerContextConfigurators($container, $id, $contextConfigurators);
     }
 
     /**
      * @param array<string, mixed> $config
+     * @param array<string>        $globalContextConfigurators
      */
-    private function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config): void
+    private function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config, array $globalContextConfigurators): void
     {
         $genericConverterFactory = $this->factories->getConverterFactory('generic');
         \assert($genericConverterFactory instanceof GenericConverterFactory);
 
+        // The deprecated section flattens the generic converter's tree one level up (no type key),
+        // so "context_configurators" and "context" sit next to each other directly on $config here -
+        // unlike the new "converters" section, where "context" is nested under the type key.
+        $contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? []);
+        $this->assertContextMappingsHaveClass($id, $config['context'] ?? [], $contextConfigurators);
+
         $genericConverterFactory->create($container, $id, $config, $this->factories);
         $container->getDefinition($id)->setClass($config['converter']);
+
+        $this->registerContextConfigurators($container, $id, $contextConfigurators);
+    }
+
+    /**
+     * @param array<string, array{class?: ?string}> $contextMappings
+     * @param array<string>                         $contextConfigurators
+     */
+    private function assertContextMappingsHaveClass(string $id, array $contextMappings, array $contextConfigurators): void
+    {
+        if (!$contextConfigurators) {
+            return;
+        }
+
+        foreach ($contextMappings as $targetProperty => $contextConfig) {
+            if (!isset($contextConfig['class'])) {
+                throw new InvalidConfigurationException(\sprintf('The "context.%s.class" option is required for converter "%s" because "context_configurators" are configured for it.', $targetProperty, $id));
+            }
+        }
+    }
+
+    /**
+     * Wraps the converter at `$id` with `ConverterWithDefaultContext` when it has any
+     * `context_configurators` (global or converter-specific) - this is a type-agnostic decoration,
+     * applied purely by service id, so it works for any converter type, not just "generic".
+     *
+     * @param array<string> $contextConfigurators
+     */
+    private function registerContextConfigurators(ContainerBuilder $container, string $id, array $contextConfigurators): void
+    {
+        if (!$contextConfigurators) {
+            return;
+        }
+
+        $contextFactoryId = "{$id}.context.factory";
+        $container->register($contextFactoryId, ContextFactory::class)
+            ->setArgument('$configurators', array_map(
+                static fn (string $configurator) => new Reference($configurator),
+                $contextConfigurators,
+            ));
+
+        $contextDecoratorId = "{$id}.decorator.context";
+        $container->register($contextDecoratorId, ConverterWithDefaultContext::class)
+            ->setDecoratedService($id)
+            ->setArguments([
+                '$inner' => new Reference($contextDecoratorId . '.inner'),
+                '$contextFactory' => new Reference($contextFactoryId),
+            ]);
     }
 
     /**

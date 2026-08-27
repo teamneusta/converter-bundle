@@ -26,7 +26,28 @@ final class DebugInfoPass implements CompilerPassInterface
 
         $debugInfo = $container->findDefinition(DebugInfo::class);
 
+        // Maps the id of a decorated service to the id of its decorator, so that a decorated
+        // service (e.g. a converter wrapped by ConverterWithDefaultContext) is reported under its
+        // original, friendly id with the decorator's (i.e. the actually active) behavior - instead
+        // of as two separate, confusing entries. This runs before Symfony's DecoratorServicePass,
+        // so getDecoratedService() is still populated on decorator definitions at this point.
+        $decoratorIds = [];
         foreach ($container->getDefinitions() as $id => $definition) {
+            if ($decoratedService = $definition->getDecoratedService()) {
+                $decoratorIds[$decoratedService[0]] = $id;
+            }
+        }
+
+        foreach ($container->getDefinitions() as $id => $definition) {
+            if ($definition->getDecoratedService()) {
+                continue;
+            }
+
+            $resolvedId = $id;
+            while (isset($decoratorIds[$resolvedId])) {
+                $definition = $container->getDefinition($resolvedId = $decoratorIds[$resolvedId]);
+            }
+
             if (!$reflection = $this->getClassReflection($container, $definition)) {
                 continue;
             }

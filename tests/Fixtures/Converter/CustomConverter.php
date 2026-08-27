@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Fixtures\Converter;
 
+use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\TargetFactory;
@@ -14,7 +15,7 @@ use Neusta\ConverterBundle\TargetFactory;
  *
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  *
  * @implements Converter<TSource, TTarget, TContext>
  */
@@ -31,8 +32,8 @@ final class CustomConverter implements Converter
     }
 
     /**
-     * @param TSource  $source
-     * @param TContext $ctx
+     * @param TSource          $source
+     * @param Context|TContext $ctx
      *
      * @return TTarget
      */

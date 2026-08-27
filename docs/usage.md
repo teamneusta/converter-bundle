@@ -45,11 +45,10 @@ You should use the Converter-and-Populator-pattern. But how?!
 Implement one or several populators:
 
 ```php
-use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Populator;
 
 /**
- * @implements Populator<User, Person, GenericContext>
+ * @implements Populator<User, Person>
  */
 class PersonNamePopulator implements Populator
 {
@@ -197,7 +196,9 @@ If you just want to map a single property from the context to the target without
 need to write a custom populator for this, as this bundle already contains the `ContextMappingPopulator` for this use
 case.
 
-You can use it in your converter config via the `context` keyword:
+Context data lives inside typed objects stored in a `Context` (see [Context](#context) below), so you need to tell
+the populator which object to read the property from via `class`. Use it in your converter config via the
+`context` keyword:
 
 ```yaml
 # config/packages/neusta_converter.yaml
@@ -208,31 +209,78 @@ neusta_converter:
         target:
           class: YourNamespace\Person
         context:
-          group: ~
-          locale: language
+          group: YourNamespace\Context\GroupContext
+          locale: YourNamespace\Context\LanguageContext
 ```
 
-Which will populate
+A plain class-string value like above is a shortcut for `class: YourNamespace\Context\GroupContext`. Which
+property is read off that object is resolved in this order:
+
+1. an explicit `property` key, if you give one,
+2. the object's only property, if it has exactly one,
+3. otherwise the target property name itself.
+
+So, assuming `GroupContext` has a single property `name` and `LanguageContext` has a single property `language`,
+the example above will populate
 
 `group` (property of the target object)
 
-with `group` (property of the context object)
+with `name` (the only property of the `GroupContext` object)
 
 and
 
 `locale` (property of the target object)
 
-with `language` (property of the context object).
+with `language` (the only property of the `LanguageContext` object).
+
+For a context object with more than one property (or to just rename explicitly), use the long form with `property`:
+
+```yaml
+context:
+  locale:
+    class: YourNamespace\Context\LanguageContext
+    property: language
+```
+
+The `required` option (see below) is also only available in this long form — the class-string shortcut can't carry
+extra options.
 
 > [!IMPORTANT]
 > The context and the target property must be of the same type for this to work.
+
+> [!IMPORTANT]
+> By default, if the relevant object (`GroupContext`/`LanguageContext` above) is not present in the `Context`
+> passed to `convert()` — or if no context was passed at all — the populator silently does nothing and leaves the
+> target property untouched: no default is applied and no exception is thrown. Set `required: true` to fail
+> loudly instead:
+>
+> ```yaml
+> context:
+>   group:
+>     class: YourNamespace\Context\GroupContext
+>     required: true
+> ```
+>
+> With `required: true`, a missing `GroupContext` (or a missing context altogether) throws a `PopulationException`
+> at conversion time. This is different from a `property` that doesn't exist on the object at all (e.g. a typo):
+> that is never checked when the container is compiled — regardless of `required` — and always throws a
+> `PopulationException`, naming both properties, the first time `convert()` is called.
+
+> [!NOTE]
+> `class` is required as soon as the converter uses `context_configurators` (see [Context](#context)) — this is
+> validated when the container is compiled. If the converter has no `context_configurators` and you still pass the
+> deprecated `GenericContext` (see [UPGRADE.md](../UPGRADE.md)), you may omit `class` and use the short form
+> `context: { group: ~, locale: language }`, exactly as before — a string value there is only treated as a `class`
+> shortcut when it contains a namespace separator (`\`); a plain, unqualified value like `language` is always
+> treated as `property`, so it can never be misread as an unrelated, unnamespaced class that happens to be loaded
+> (PHP class name lookups are case-insensitive — e.g. ext-intl declares a global `Locale` class).
 
 ### Conversion
 
 And now if you want to convert `User`s into `Person`s just type in your code:
 
 ```php
-/** @var Converter<User, Person, GenericContext> */
+/** @var Converter<User, Person> */
 $converter = $this->getContainer()->get('person.converter');
 ...
 $person = $this->converter->convert($user);
@@ -681,31 +729,132 @@ contract that would silently break. A sequence makes the order explicit and merg
 `condition:` (see [Configuring a condition](#configuring-a-condition)) already works today as a key of
 its own on a populator; it will be moved onto this mechanism once it exists, so conditional
 population, caching and decorating converters all end up following one rule instead of three.
+`context_configurators` (see [Context](#context)) is the converter-side counterpart: it already
+decorates the converter with `ConverterWithDefaultContext` today and will move onto `decorators:` the
+same way.
 
 ## Context
 
 Sometimes you will need parameterized conversion which is not depending on the objects themselves.
 Think about environment parameters, localization or other specifications of your app.
-This information can be put inside a `GenericContext` object and called with your conversion:
+
+This information is put inside a `Context` object and passed along with your conversion. Unlike a plain
+key/value bag, `Context` stores at most one instance per class, so each piece of context data gets its own small,
+typed class:
 
 ```php
-$ctx = new \Neusta\ConverterBundle\Converter\Context\GenericContext();
-$ctx->setValue('locale', 'de');
-...
-$target = $this->converter->convert($source, $ctx);
-```
+namespace App\Context;
 
-The factory and the populators will be called with that context as well, so that they can read and use it:
-
-```php
-// inside the Populator implementation
-if ($ctx && $ctx->hasKey('locale')) {
-    $locale = $ctx->getValue('locale');
+final class LocaleContext
+{
+    public function __construct(
+        public readonly string $locale,
+    ) {
+    }
 }
 ```
 
-Internally the `GenericContext` is only an associative array, but the interface allows you to adapt your own
-implementation of a domain-oriented context and use it in your populators as you like.
+```php
+use Neusta\ConverterBundle\Context;
 
-You can use the context in factories and populators with custom implementation,
-but it is also possible to use the property mapping like described in section [mapping context](#mapping-context).
+$ctx = Context::create(new LocaleContext('de'));
+$person = $this->converter->convert($user, $ctx);
+```
+
+`Context` is immutable — every mutating method returns a new instance:
+
+* `with(object ...$objects)` — returns a new `Context` with the given objects added (or replaced, by class).
+* `without(object|class-string $value)` — returns a new `Context` with the given object/class removed.
+* `has(class-string $class)` — checks whether an instance of that class is present.
+* `get(class-string $class)` — returns the instance, throwing `InvalidArgumentException` if it's not present.
+* `tryGet(class-string $class)` — returns the instance, or `null` if it's not present — handy for an optional
+  context with a fallback: `$ctx->tryGet(LocaleContext::class)->locale ?? 'en'`.
+
+The factory and the populators are called with that context as well, so they can read and use it:
+
+```php
+// inside the Populator implementation
+public function populate(object $target, object $source, ?object $ctx = null): void
+{
+    if ($ctx instanceof Context && $ctx->has(LocaleContext::class)) {
+        $locale = $ctx->get(LocaleContext::class)->locale;
+    }
+}
+```
+
+You can use the context in factories and populators with custom implementation, but it is also possible to use the
+property mapping like described in section [mapping context](#mapping-context).
+
+### Default context via `ContextConfigurator`
+
+If part of the context (e.g. the current locale, tenant, or feature flags) should be available to a converter
+regardless of what the caller passes in, implement `ContextConfigurator`:
+
+```php
+namespace App\Context;
+
+use Neusta\ConverterBundle\Context;
+use Neusta\ConverterBundle\Context\ContextConfigurator;
+
+final class LocaleContextConfigurator implements ContextConfigurator
+{
+    public function __construct(
+        private readonly RequestStack $requestStack,
+    ) {
+    }
+
+    public function configureContext(Context $ctx): Context
+    {
+        $locale = $this->requestStack->getCurrentRequest()?->getLocale() ?? 'en';
+
+        return $ctx->with(new LocaleContext($locale));
+    }
+}
+```
+
+Register it as a service and reference it either globally (applied to every converter) or per converter:
+
+```yaml
+# config/packages/neusta_converter.yaml
+neusta_converter:
+  # applied to all converters
+  context_configurators:
+    - App\Context\LocaleContextConfigurator
+
+  converters:
+    person.converter:
+      generic:
+        target: YourNamespace\Person
+        context:
+          locale: App\Context\LocaleContext
+      # applied only to this converter, in addition to the global ones
+      context_configurators:
+        - App\Context\TenantContextConfigurator
+```
+
+`context_configurators` is a sibling of the type key (`generic` above), not nested inside it: it drives the
+`ConverterWithDefaultContext` decorator, which wraps the converter service by id regardless of its type — so it
+works the same way for a custom converter type as it does for `generic`.
+
+As soon as a converter declares `context_configurators` (globally or locally), it automatically builds and uses a
+default `Context` from those configurators — even if the caller doesn't pass one to `convert()`. If the caller does
+pass a `Context`, it is merged on top of the default one, taking precedence per class.
+
+All configurators are re-run on every `convert()` call — the default `Context` is never cached across calls, so a
+configurator reading dynamic or per-request state (e.g. the current locale) always sees up-to-date data. This also
+means a converter nested inside another one (e.g. via `ArrayConvertingPopulator`) re-runs its configurators once
+per source array item.
+
+> [!IMPORTANT]
+> Once a converter uses `context_configurators`, callers must pass either nothing or a `Context` instance — the
+> deprecated `GenericContext` (or any other non-`Context` object) is rejected with an `InvalidArgumentException`.
+
+> [!IMPORTANT]
+> Once a converter uses `context_configurators`, every entry under its `context:` mapping must set a `class`
+> (nested key or class-string shortcut) — this is validated when the container is compiled.
+
+### Migrating from `GenericContext`
+
+`Neusta\ConverterBundle\Converter\Context\GenericContext` — the old key/value context bag — is deprecated in favor
+of `Context` and will be removed in the next major version. See [UPGRADE.md](../UPGRADE.md) for migration
+instructions.

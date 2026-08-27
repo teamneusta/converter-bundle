@@ -3,21 +3,22 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator\Mapper;
 
+use Neusta\ConverterBundle\Context;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
- * @template TContext of object|null
+ * @template TContext of object|null = null
  */
 final class ArrayPropertyMapper
 {
     private PropertyAccessorInterface $arrayItemAccessor;
 
-    /** @var \Closure(mixed, TContext=):mixed|null */
+    /** @var \Closure(mixed, Context|TContext=):mixed|null */
     private readonly ?\Closure $mapper;
 
     /**
-     * @param callable(mixed, TContext=):mixed|null $mapper
+     * @param callable(mixed, Context|TContext=):mixed|null $mapper
      */
     public function __construct(
         private readonly ?string $sourceArrayItemProperty = null,
@@ -29,7 +30,7 @@ final class ArrayPropertyMapper
     }
 
     /**
-     * @param TContext $ctx
+     * @param Context|TContext $ctx
      *
      * @return array<mixed>
      */

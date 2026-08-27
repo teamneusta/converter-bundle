@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator;
 
+use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -12,18 +13,18 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
 final class PropertyMappingPopulator implements Populator
 {
-    /** @var \Closure(mixed, TContext=):mixed */
+    /** @var \Closure(mixed, Context|TContext=):mixed */
     private \Closure $mapper;
     private PropertyAccessorInterface $accessor;
 
     /**
-     * @param callable(mixed, TContext=):mixed|null $mapper
+     * @param callable(mixed, Context|TContext=):mixed|null $mapper
      */
     public function __construct(
         private string $targetProperty,

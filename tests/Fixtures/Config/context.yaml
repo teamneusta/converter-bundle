@@ -1,0 +1,39 @@
+neusta_converter:
+  context_configurators:
+    - Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator
+
+  converter:
+    global_context_converter:
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
+      context:
+        age:
+          class: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
+
+    global_and_local_context_converter:
+      context_configurators:
+        - Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContextConfigurator
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
+      context:
+        age:
+          class: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
+        locale: Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext
+
+    required_context_converter:
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
+      context:
+        locale:
+          class: Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext
+          required: true
+
+    counting_context_converter:
+      context_configurators:
+        - Neusta\ConverterBundle\Tests\Fixtures\Context\CountingContextConfigurator
+      target: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person
+      context:
+        age:
+          class: Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext
+
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContextConfigurator: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Context\CountingContextConfigurator: ~

@@ -58,10 +58,38 @@ final class GenericConverterFactory implements ConverterFactory
                     ->prototype('scalar')->end()
                 ->end()
                 ->arrayNode('context')
-                    ->info('Mapping of context properties (value) to target properties (key)')
+                    ->info('Mapping of context objects/properties (value) to target properties (key)')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('target')
-                    ->prototype('scalar')->end()
+                    ->arrayPrototype()
+                        ->beforeNormalization()
+                            ->ifNull()
+                            ->then(static fn () => ['property' => null])
+                        ->end()
+                        ->beforeNormalization()
+                            ->ifString()
+                            // A namespace separator is required to opt into the "class" shortcut, so that a plain
+                            // property name (e.g. "locale") is never misread as an unrelated, unnamespaced class
+                            // that happens to be loaded (e.g. ext-intl's global `Locale` class - PHP class name
+                            // lookups are case-insensitive). A class-string shortcut that doesn't resolve to an
+                            // existing class still fails loudly via the "class" node's validation below.
+                            ->then(static fn (string $v) => str_contains($v, '\\') ? ['class' => $v] : ['property' => $v])
+                        ->end()
+                        ->children()
+                            ->scalarNode('class')
+                                ->info('Class of the context object to read "property" from')
+                                ->validate()
+                                    ->ifTrue(static fn ($v) => null !== $v && !class_exists($v))
+                                    ->thenInvalid('The context object class %s does not exist.')
+                                ->end()
+                            ->end()
+                            ->scalarNode('property')->end()
+                            ->booleanNode('required')
+                                ->info('Whether to fail instead of silently skipping the mapping if the context value/object is missing')
+                                ->defaultFalse()
+                            ->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end()
             ->validate()
@@ -140,14 +168,21 @@ final class GenericConverterFactory implements ConverterFactory
             );
         }
 
-        foreach ($config['context'] ?? [] as $targetProperty => $contextProperty) {
+        foreach ($config['context'] ?? [] as $targetProperty => $contextConfig) {
+            $contextClass = $contextConfig['class'] ?? null;
+            $contextProperty = $contextConfig['property']
+                ?? (null !== $contextClass ? self::inferContextProperty($contextClass) : null)
+                ?? $targetProperty;
+
             $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
             $container->register($contextPopulatorId, ContextMappingPopulator::class)
                 ->setArguments([
                     '$targetProperty' => $targetProperty,
-                    '$contextProperty' => $contextProperty ?? $targetProperty,
+                    '$contextClass' => $contextClass,
+                    '$contextProperty' => $contextProperty,
                     '$mapper' => null,
                     '$accessor' => new Reference('property_accessor'),
+                    '$required' => $contextConfig['required'] ?? false,
                 ]);
         }
 
@@ -166,5 +201,18 @@ final class GenericConverterFactory implements ConverterFactory
     private function ensureSuffix(string $value, string $suffix): string
     {
         return str_ends_with($value, $suffix) ? $value : $value . $suffix;
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private static function inferContextProperty(string $class): ?string
+    {
+        $properties = array_values(array_filter(
+            (new \ReflectionClass($class))->getProperties(),
+            static fn (\ReflectionProperty $property) => !$property->isStatic(),
+        ));
+
+        return 1 === \count($properties) ? $properties[0]->getName() : null;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Converter;
 
+use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Converter\GenericConverter;
@@ -77,5 +78,61 @@ class GenericConverterTest extends TestCase
 
         // Test Assertion
         self::assertEquals('en', $target->getLocale());
+    }
+
+    public function testConvertTriggersDeprecationForNonContextCtx(): void
+    {
+        $converter = new GenericConverter(new PersonFactory(), []);
+        $source = new User();
+        $ctx = new \stdClass();
+
+        $deprecations = $this->captureDeprecations(static fn () => $converter->convert($source, $ctx));
+
+        self::assertCount(1, $deprecations);
+        self::assertStringContainsString('stdClass', $deprecations[0]);
+        self::assertStringContainsString(Context::class, $deprecations[0]);
+    }
+
+    public function testConvertDoesNotTriggerDeprecationForContext(): void
+    {
+        $converter = new GenericConverter(new PersonFactory(), []);
+        $source = new User();
+        $ctx = Context::create();
+
+        $deprecations = $this->captureDeprecations(static fn () => $converter->convert($source, $ctx));
+
+        self::assertCount(0, $deprecations);
+    }
+
+    public function testConvertDoesNotTriggerAdditionalDeprecationForGenericContext(): void
+    {
+        $converter = new GenericConverter(new PersonFactory(), []);
+        $source = new User();
+        $ctx = new GenericContext();
+
+        $deprecations = $this->captureDeprecations(static fn () => $converter->convert($source, $ctx));
+
+        self::assertCount(0, $deprecations);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function captureDeprecations(\Closure $closure): array
+    {
+        $deprecations = [];
+        set_error_handler(static function (int $errno, string $errstr) use (&$deprecations): bool {
+            $deprecations[] = $errstr;
+
+            return true;
+        }, \E_USER_DEPRECATED);
+
+        try {
+            $closure();
+        } finally {
+            restore_error_handler();
+        }
+
+        return $deprecations;
     }
 }

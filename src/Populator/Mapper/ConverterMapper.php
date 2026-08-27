@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator\Mapper;
 
+use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Exception\ConverterException;
 
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  */
 final class ConverterMapper
 {
@@ -22,8 +23,8 @@ final class ConverterMapper
     }
 
     /**
-     * @param TSource  $source
-     * @param TContext $ctx
+     * @param TSource          $source
+     * @param Context|TContext $ctx
      *
      * @return TTarget
      *

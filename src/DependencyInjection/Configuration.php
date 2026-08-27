@@ -26,12 +26,32 @@ final class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder(NeustaConverterBundle::ALIAS);
         $rootNode = $treeBuilder->getRootNode();
 
+        $this->addContextConfiguratorsSection($rootNode);
         $this->addConverterSection($rootNode);
         $this->addDeprecatedConverterSection($rootNode);
         $this->addPopulatorSection($rootNode);
         $this->addDeprecatedPopulatorSection($rootNode);
 
         return $treeBuilder;
+    }
+
+    /**
+     * Shared by the root node (global configurators, applied to every converter) and by each
+     * converter prototype (converter-specific configurators, applied in addition to the global
+     * ones). It is a sibling of the type key rather than nested inside it: the
+     * `ConverterWithDefaultContext` decorator it drives works by service id and is type-agnostic,
+     * so it must be configurable for any converter type - not just "generic".
+     */
+    private function addContextConfiguratorsSection(ArrayNodeDefinition $node): void
+    {
+        $node
+            ->children()
+                ->arrayNode('context_configurators')
+                    ->info('Service ids of the "ContextConfigurator"s')
+                    ->prototype('scalar')->end()
+                ->end()
+            ->end()
+        ;
     }
 
     private function addConverterSection(ArrayNodeDefinition $rootNode): void
@@ -47,13 +67,20 @@ final class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
         ;
 
+        $this->addContextConfiguratorsSection($converterNodeBuilder);
+
         foreach ($this->factories->getConverterFactories() as $type => $factory) {
             $factory->addConfiguration($converterNodeBuilder->children()->arrayNode($type), $this->factories);
         }
 
+        // "context_configurators" is a prototyped array node, so - unlike the type nodes - it always
+        // finalizes to at least `[]` even when absent. Counting all present keys would therefore
+        // always be off by one; only the registered type keys decide whether a type was set.
+        $converterTypes = array_keys($this->factories->getConverterFactories());
+
         $converterNodeBuilder
             ->validate()
-                ->ifTrue(static fn (array $v) => 1 !== \count($v))
+                ->ifTrue(static fn (array $v) => 1 !== \count(array_intersect(array_keys($v), $converterTypes)))
                 ->thenInvalid('Exactly one converter type must be set for a converter.')
             ->end()
         ;
@@ -71,8 +98,11 @@ final class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
         ;
 
+        $this->addContextConfiguratorsSection($converterNodeBuilder);
+
         // The deprecated section reuses the generic factory's tree, flattened one level up,
-        // so it automatically inherits every feature the "generic" converter type gains.
+        // so it automatically inherits every feature the "generic" converter type gains -
+        // including "context" and "context_configurators".
         $this->factories->getConverterFactory(GenericConverterFactory::TYPE)?->addConfiguration($converterNodeBuilder, $this->factories);
 
         $converterNodeBuilder

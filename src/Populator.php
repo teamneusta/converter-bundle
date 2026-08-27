@@ -7,14 +7,14 @@ namespace Neusta\ConverterBundle;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  */
 interface Populator
 {
     /**
-     * @param TTarget  $target
-     * @param TSource  $source
-     * @param TContext $ctx
+     * @param TTarget          $target
+     * @param TSource          $source
+     * @param Context|TContext $ctx
      */
     public function populate(object $target, object $source, ?object $ctx = null): void;
 }

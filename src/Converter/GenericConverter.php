@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Converter;
 
+use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\Context\GenericContext;
 use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\TargetFactory;
 
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  *
  * @implements Converter<TSource, TTarget, TContext>
  */
@@ -27,14 +29,18 @@ final class GenericConverter implements Converter
     ) {
     }
 
-    /**
-     * @param TSource  $source
-     * @param TContext $ctx
-     *
-     * @return TTarget
-     */
     public function convert(object $source, ?object $ctx = null): object
     {
+        if (null !== $ctx && !$ctx instanceof Context && !$ctx instanceof GenericContext) {
+            trigger_deprecation(
+                'teamneusta/converter-bundle',
+                '1.11',
+                'Passing a "%s" instance as $ctx that is not an instance of "%s" is deprecated and will not be supported anymore in 2.0.',
+                $ctx::class,
+                Context::class,
+            );
+        }
+
         $target = $this->factory->create($ctx);
 
         foreach ($this->populators as $populator) {

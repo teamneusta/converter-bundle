@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
+use Neusta\ConverterBundle\Context\ContextFactory;
 use Neusta\ConverterBundle\Converter;
+use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
 use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator;
 use Neusta\ConverterBundle\Tests\Fixtures\Converter\CustomConverter;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
@@ -152,6 +157,71 @@ class DeprecatedConverterSectionTest extends NeustaConverterExtensionTestCase
                     'target_factory' => PersonFactory::class,
                     'populators' => [
                         PersonNamePopulator::class,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Proves the delegation for the new "context" shape (class/property/required) as well.
+     */
+    public function test_with_mapped_context_and_class(): void
+    {
+        $this->load([
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'ageInYears' => [
+                            'class' => AgeContext::class,
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasService('foobar.populator.context.ageInYears', ContextMappingPopulator::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', AgeContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$required', true);
+    }
+
+    /**
+     * "context_configurators" also works flattened on the deprecated section - global and local -
+     * and decorates the converter with `ConverterWithDefaultContext` just like the new section does.
+     */
+    public function test_with_context_configurators(): void
+    {
+        $this->load([
+            'context_configurators' => [AgeContextConfigurator::class],
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'ageInYears' => ['class' => AgeContext::class],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasService('foobar.context.factory', ContextFactory::class);
+        $this->assertContainerBuilderHasService('foobar.decorator.context', ConverterWithDefaultContext::class);
+    }
+
+    public function test_with_mapped_context_missing_class_and_context_configurators(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "context.ageInYears.class" option is required for converter "foobar" because "context_configurators" are configured for it.');
+
+        $this->load([
+            'context_configurators' => [AgeContextConfigurator::class],
+            'converter' => [
+                'foobar' => [
+                    'target_factory' => PersonFactory::class,
+                    'context' => [
+                        'ageInYears' => 'age',
                     ],
                 ],
             ],

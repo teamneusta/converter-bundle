@@ -6,12 +6,12 @@ namespace Neusta\ConverterBundle;
 
 /**
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  */
 interface TargetFactory
 {
     /**
-     * @param TContext $ctx
+     * @param Context|TContext $ctx
      *
      * @return TTarget
      */

@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
+use Neusta\ConverterBundle\Context\ContextFactory;
+use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayPropertyMappingPopulatorFactory;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -141,6 +145,115 @@ class NeustaConverterExtensionTest extends NeustaConverterExtensionTestCase
             new Reference('foobar.populator.name'),
             new Reference('foobar.populator.ageInYears'),
             new Reference('foobar.populator.context.locale'),
+        ]);
+    }
+
+    /**
+     * "context_configurators" is a prototyped array node and therefore always present (as `[]`) in
+     * a converter's config, unlike the type nodes. A converter that sets only this key must still be
+     * rejected by the "exactly one type" check - and with the right message, not a bogus "the type
+     * context_configurators does not exist".
+     */
+    public function test_converter_with_only_context_configurators_still_requires_a_type(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Exactly one converter type must be set for a converter.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'context_configurators' => [AgeContextConfigurator::class],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * The converse of the guard above: a type key together with "context_configurators" must both
+     * validate and dispatch to the right factory.
+     */
+    public function test_converter_with_type_and_context_configurators_is_decorated(): void
+    {
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'context' => [
+                            'ageInYears' => ['class' => AgeContext::class],
+                        ],
+                    ],
+                    'context_configurators' => [AgeContextConfigurator::class],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasPublicService('foobar');
+        $this->assertContainerBuilderHasService('foobar.context.factory', ContextFactory::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.context.factory', '$configurators', [new Reference(AgeContextConfigurator::class)]);
+        $this->assertContainerBuilderHasService('foobar.decorator.context', ConverterWithDefaultContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.decorator.context', '$inner', new Reference('foobar.decorator.context.inner'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.decorator.context', '$contextFactory', new Reference('foobar.context.factory'));
+    }
+
+    /**
+     * A converter without any "context_configurators" (global or local) must not be decorated at
+     * all - no `ContextFactory`, no `ConverterWithDefaultContext` wrapper.
+     */
+    public function test_converter_without_context_configurators_is_not_decorated(): void
+    {
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'populators' => [PersonNamePopulator::class],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertFalse($this->container->hasDefinition('foobar.context.factory'));
+        self::assertFalse($this->container->hasDefinition('foobar.decorator.context'));
+    }
+
+    public function test_with_mapped_context_missing_class_and_global_context_configurators(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "context.ageInYears.class" option is required for converter "foobar" because "context_configurators" are configured for it.');
+
+        $this->load([
+            'context_configurators' => [AgeContextConfigurator::class],
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'context' => [
+                            'ageInYears' => 'age',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_mapped_context_missing_class_and_local_context_configurators(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "context.ageInYears.class" option is required for converter "foobar" because "context_configurators" are configured for it.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'context' => [
+                            'ageInYears' => 'age',
+                        ],
+                    ],
+                    'context_configurators' => [AgeContextConfigurator::class],
+                ],
+            ],
         ]);
     }
 }

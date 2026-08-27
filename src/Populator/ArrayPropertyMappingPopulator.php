@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Populator;
 
+use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Exception\PopulationException;
 use Neusta\ConverterBundle\Populator;
 use Neusta\ConverterBundle\Populator\Mapper\ArrayPropertyMapper;
@@ -13,7 +14,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  *
  * @implements Populator<TSource, TTarget, TContext>
  */
@@ -23,7 +24,7 @@ final class ArrayPropertyMappingPopulator implements Populator
     private readonly PropertyMappingPopulator $populator;
 
     /**
-     * @param \Closure(mixed, TContext=):mixed|null $mapper
+     * @param \Closure(mixed, Context|TContext=):mixed|null $mapper
      */
     public function __construct(
         string $targetProperty,

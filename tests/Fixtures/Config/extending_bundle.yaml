@@ -7,6 +7,16 @@ neusta_converter:
         source: fullName
         target: fullName
 
+    # "context_configurators" decorates by service id regardless of the converter type, so it must
+    # also work for a converter type contributed by another bundle, not just "generic".
+    test.reversing.converter.with_context:
+      reversing:
+        target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
+        source: fullName
+        target: fullName
+      context_configurators:
+        - Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator
+
     # populator type contributed by ExtendingBundle, used as a nested property type
     test.uppercase.converter:
       generic:
@@ -26,3 +36,4 @@ neusta_converter:
 
 services:
   Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory: ~
+  Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator: ~

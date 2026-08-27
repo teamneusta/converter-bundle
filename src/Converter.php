@@ -9,13 +9,13 @@ use Neusta\ConverterBundle\Exception\ConverterException;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  */
 interface Converter
 {
     /**
-     * @param TSource  $source
-     * @param TContext $ctx
+     * @param TSource          $source
+     * @param Context|TContext $ctx
      *
      * @return TTarget target type of your conversion
      *

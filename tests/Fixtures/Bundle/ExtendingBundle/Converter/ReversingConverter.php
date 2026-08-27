@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\Fixtures\Bundle\ExtendingBundle\Converter;
 
+use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\TargetFactory;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
@@ -15,7 +16,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null
+ * @template TContext of object|null = null
  *
  * @implements Converter<TSource, TTarget, TContext>
  */
@@ -33,8 +34,8 @@ final class ReversingConverter implements Converter
     }
 
     /**
-     * @param TSource  $source
-     * @param TContext $ctx
+     * @param TSource          $source
+     * @param Context|TContext $ctx
      *
      * @return TTarget
      */
