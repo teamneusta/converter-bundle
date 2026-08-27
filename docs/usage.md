@@ -220,7 +220,9 @@ context:
 > [!IMPORTANT]
 > If the relevant object (`GroupContext`/`LanguageContext` above) is not present in the `Context` passed to
 > `convert()`, the populator silently does nothing and leaves the target property untouched — no default is applied
-> and no exception is thrown.
+> and no exception is thrown. This is different from a `property` that doesn't exist on that object at all (e.g. a
+> typo): that is not checked when the container is compiled and instead throws a `PopulationException` — naming
+> both properties — the first time `convert()` is called.
 
 > [!NOTE]
 > `objectType` is required as soon as the converter uses `context_configurators` (see [Context](#context)) — this is
