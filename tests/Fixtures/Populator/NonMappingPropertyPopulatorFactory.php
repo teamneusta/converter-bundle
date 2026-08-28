@@ -12,9 +12,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * A property populator type that does *not* extend `PropertyMappingPopulatorFactory` - proves that
- * `properties.<target>.default` is rejected purely via the `PropertyPopulatorFactory` contract, for
- * types that don't happen to share the built-in convenience base class.
+ * A property populator type that does *not* extend `PropertyMappingPopulatorFactory` - proves that a
+ * fully independent `PropertyPopulatorFactory` implementation works end-to-end inside `properties:`.
+ * It has no "default" option at all, unlike the built-in types.
  */
 final class NonMappingPropertyPopulatorFactory implements PopulatorFactory, PropertyPopulatorFactory
 {
@@ -25,15 +25,17 @@ final class NonMappingPropertyPopulatorFactory implements PopulatorFactory, Prop
 
     public function addConfiguration(ArrayNodeDefinition $node): void
     {
+        $node
+            ->children()
+                ->scalarNode('source')
+                    ->defaultValue(null)
+                ->end()
+            ->end()
+        ;
     }
 
     public function addPropertyConfiguration(ArrayNodeDefinition $node): void
     {
-    }
-
-    public function supportsDefaultValue(): bool
-    {
-        return false;
     }
 
     public function create(ContainerBuilder $container, string $id, array $config): void
@@ -41,7 +43,7 @@ final class NonMappingPropertyPopulatorFactory implements PopulatorFactory, Prop
         $container->register($id, PropertyMappingPopulator::class)
             ->setArguments([
                 '$targetProperty' => $config['target'],
-                '$sourceProperty' => $config['target'],
+                '$sourceProperty' => $config['source'] ?? $config['target'],
                 '$defaultValue' => null,
                 '$mapper' => null,
                 '$accessor' => new Reference('property_accessor'),

@@ -23,8 +23,8 @@ neusta_converter:
         target_factory: Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory
         properties:
           fullName:
-            source: fullName
             uppercase:
+              source: fullName
               trim: true
 
   populators:

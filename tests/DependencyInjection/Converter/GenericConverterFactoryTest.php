@@ -550,14 +550,15 @@ class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
     }
 
     /**
-     * `supportsDefaultValue()` is declared on `PropertyPopulatorFactory` itself, so it's enforced for
-     * any type implementing that interface directly - not just ones that happen to extend the
-     * `PropertyMappingPopulatorFactory` convenience base class (see `NonMappingPropertyPopulatorFactory`).
+     * Each type declares its own fields via its own `addConfiguration()`, called on its own node
+     * (see `NonMappingPropertyPopulatorFactory`, which doesn't extend `PropertyMappingPopulatorFactory`
+     * and never declares "default") - so an unsupported field is structurally absent, not merely
+     * rejected after the fact.
      */
-    public function test_property_with_custom_type_rejecting_default_value(): void
+    public function test_property_with_custom_type_has_no_default_option(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('The "default" option is not supported for this populator type.');
+        $this->expectExceptionMessage('Unrecognized option "default" under "neusta_converter.converters.foobar.generic.properties.name.non_mapping"');
 
         $this->load([
             'converters' => [
@@ -566,8 +567,9 @@ class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
                         'target_factory' => PersonFactory::class,
                         'properties' => [
                             'name' => [
-                                'default' => 'John Doe',
-                                'non_mapping' => [],
+                                'non_mapping' => [
+                                    'default' => 'John Doe',
+                                ],
                             ],
                         ],
                     ],

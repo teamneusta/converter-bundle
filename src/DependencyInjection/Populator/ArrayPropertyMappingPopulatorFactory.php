@@ -26,7 +26,7 @@ final class ArrayPropertyMappingPopulatorFactory extends PropertyMappingPopulato
         ;
     }
 
-    public function supportsDefaultValue(): bool
+    protected function supportsDefaultValue(): bool
     {
         return false;
     }

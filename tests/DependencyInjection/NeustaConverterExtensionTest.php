@@ -97,7 +97,7 @@ class NeustaConverterExtensionTest extends NeustaConverterExtensionTestCase
     public function test_property_with_multiple_populator_types(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('You cannot set multiple populator types for the same property.');
+        $this->expectExceptionMessage('Exactly one populator type must be set for a property.');
 
         $this->load([
             'converters' => [
@@ -152,8 +152,10 @@ class NeustaConverterExtensionTest extends NeustaConverterExtensionTestCase
                         'target_factory' => PersonFactory::class,
                         'properties' => [
                             'name' => [
-                                'default' => 'John Doe',
-                                'array_converting' => ['converter' => 'some.converter'],
+                                'array_converting' => [
+                                    'converter' => 'some.converter',
+                                    'default' => 'John Doe',
+                                ],
                             ],
                         ],
                     ],
@@ -174,8 +176,10 @@ class NeustaConverterExtensionTest extends NeustaConverterExtensionTestCase
                         'target_factory' => PersonFactory::class,
                         'properties' => [
                             'name' => [
-                                'default' => 'John Doe',
-                                'array_property_mapping' => ['source_array_item' => 'value'],
+                                'array_property_mapping' => [
+                                    'source_array_item' => 'value',
+                                    'default' => 'John Doe',
+                                ],
                             ],
                         ],
                     ],

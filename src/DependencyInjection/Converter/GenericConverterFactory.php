@@ -107,36 +107,33 @@ final class GenericConverterFactory implements ConverterFactory
                     ->arrayPrototype()
         ;
 
-        $defaultPopulatorFactory = $this->getDefaultPopulatorFactory($factories);
-        $defaultPopulatorFactory->addConfiguration($propertiesNodeBuilder);
+        $allPropertyTypeFactories = $this->getAllPropertyTypeFactories($factories);
+        $propertyTypes = array_keys($allPropertyTypeFactories);
 
-        $propertyPopulatorFactories = $this->getPropertyPopulatorFactories($factories);
-        $propertyTypes = array_keys($propertyPopulatorFactories);
-
-        foreach ($propertyPopulatorFactories as $type => $propertyPopulatorFactory) {
-            $propertyPopulatorFactory->addPropertyConfiguration($propertiesNodeBuilder->children()->arrayNode($type));
+        // Every type - including the default one - gets its own node, like a standalone
+        // `populators.<id>.<type>` entry (see `Configuration::addPopulatorSection()`).
+        foreach ($allPropertyTypeFactories as $type => $factory) {
+            $typeNode = $propertiesNodeBuilder->children()->arrayNode($type);
+            $factory->addConfiguration($typeNode);
+            if ($factory instanceof PropertyPopulatorFactory) {
+                $factory->addPropertyConfiguration($typeNode);
+            }
         }
 
-        // Without an explicit type key a property falls back to the default populator type, so at
-        // most one type key may be present - otherwise one of them would silently be ignored.
+        // A bare scalar/null value, or a map without an explicit type key, is the shorthand for the
+        // default type - the same shorthand `properties: { name: sourceProp }` supported before every
+        // type had its own key.
         $propertiesNodeBuilder
-            ->validate()
-                ->ifTrue(static fn (array $c) => \count(array_intersect(array_keys($c), $propertyTypes)) > 1)
-                ->thenInvalid('You cannot set multiple populator types for the same property.')
+            ->beforeNormalization()
+                ->ifTrue(static fn ($v) => null === $v || \is_string($v) || (\is_array($v) && !array_intersect(array_keys($v), $propertyTypes)))
+                ->then(static fn ($v) => [PropertyMappingPopulatorFactory::TYPE => $v])
             ->end()
         ;
 
-        // The "default" field is shared/top-level (see above), but whether it's actually supported
-        // depends on the selected type - e.g. array types discard it silently, so they reject it.
         $propertiesNodeBuilder
             ->validate()
-                ->ifTrue(static function (array $c) use ($propertyPopulatorFactories, $propertyTypes, $defaultPopulatorFactory): bool {
-                    $type = array_values(array_intersect(array_keys($c), $propertyTypes))[0] ?? null;
-                    $factory = null !== $type ? $propertyPopulatorFactories[(string) $type] : $defaultPopulatorFactory;
-
-                    return !$factory->supportsDefaultValue() && null !== ($c['default'] ?? null);
-                })
-                ->thenInvalid('The "default" option is not supported for this populator type.')
+                ->ifTrue(static fn (array $c) => 1 !== \count(array_intersect(array_keys($c), $propertyTypes)))
+                ->thenInvalid('Exactly one populator type must be set for a property.')
             ->end()
         ;
     }
@@ -152,29 +149,26 @@ final class GenericConverterFactory implements ConverterFactory
                 ]);
         }
 
-        $propertyPopulatorFactories = $this->getPropertyPopulatorFactories($factories);
+        $allPropertyTypeFactories = $this->getAllPropertyTypeFactories($factories);
 
-        foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
+        foreach ($config['properties'] ?? [] as $targetProperty => $propertyConfig) {
             // A trailing "?" on the target property is the shorthand for "skip_null: true". It only
             // exists here because the target property is a YAML key and cannot carry options.
-            if (str_ends_with($targetProperty, '?')) {
+            $skipNull = str_ends_with($targetProperty, '?');
+            if ($skipNull) {
                 $targetProperty = substr($targetProperty, 0, -1);
-                $sourceConfig['skip_null'] = true;
             }
 
             $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
 
-            // Inside `properties` the populator type is a nested key, while a populator factory
-            // always receives a flat config. Flatten it so both entry points share one contract.
-            $populatorFactory = $this->getPropertyPopulatorFactoryFor($factories, $propertyPopulatorFactories, $sourceConfig);
-            $typeConfig = $sourceConfig[$populatorFactory->getType()] ?? [];
-            $sourceConfig = array_diff_key($sourceConfig, $propertyPopulatorFactories);
+            // Normalization (see addConfiguration()) guarantees exactly one type key is present.
+            $type = (string) array_key_first(array_intersect_key($propertyConfig, $allPropertyTypeFactories));
+            $typeConfig = $propertyConfig[$type];
+            if ($skipNull) {
+                $typeConfig['skip_null'] = true;
+            }
 
-            $populatorFactory->create(
-                $container,
-                $propertyPopulatorId,
-                ['target' => $targetProperty] + $sourceConfig + $typeConfig,
-            );
+            $allPropertyTypeFactories[$type]->create($container, $propertyPopulatorId, ['target' => $targetProperty] + $typeConfig);
         }
 
         if ($config['context'] ?? []) {
@@ -243,32 +237,17 @@ final class GenericConverterFactory implements ConverterFactory
     }
 
     /**
-     * Resolves the populator factory for a single property mapping. The type is expressed as a
-     * nested key (e.g. `converting`); without one the default type applies.
+     * All populator types usable inside `properties:`, keyed by type name - the default type plus
+     * every type implementing `PropertyPopulatorFactory`. `addConfiguration()`'s normalization
+     * guarantees a property's config always has exactly one of these type names as its only key.
      *
-     * @param array<string, PropertyPopulatorFactory> $propertyPopulatorFactories
-     * @param array<string, mixed>                    $propertyConfig
+     * @return array<string, PopulatorFactory>
      */
-    private function getPropertyPopulatorFactoryFor(FactoryRegistry $factories, array $propertyPopulatorFactories, array $propertyConfig): PopulatorFactory
+    private function getAllPropertyTypeFactories(FactoryRegistry $factories): array
     {
-        $types = array_keys(array_intersect_key($propertyConfig, $propertyPopulatorFactories));
+        $propertyPopulatorFactories = array_filter($factories->getPopulatorFactories(), static fn ($factory) => $factory instanceof PropertyPopulatorFactory);
 
-        if (\count($types) > 1) {
-            throw new \LogicException(\sprintf(
-                'Only one populator type can be set per property, got "%s".',
-                implode('", "', $types),
-            ));
-        }
-
-        return $factories->getPopulatorFactory($types[0] ?? '') ?? $this->getDefaultPopulatorFactory($factories);
-    }
-
-    /**
-     * @return array<string, PropertyPopulatorFactory>
-     */
-    private function getPropertyPopulatorFactories(FactoryRegistry $factories): array
-    {
-        return array_filter($factories->getPopulatorFactories(), static fn ($factory) => $factory instanceof PropertyPopulatorFactory);
+        return [PropertyMappingPopulatorFactory::TYPE => $this->getDefaultPopulatorFactory($factories)] + $propertyPopulatorFactories;
     }
 
     private function ensureSuffix(string $value, string $suffix): string
