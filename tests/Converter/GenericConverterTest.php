@@ -91,6 +91,12 @@ class GenericConverterTest extends TestCase
         self::assertCount(1, $deprecations);
         self::assertStringContainsString('stdClass', $deprecations[0]);
         self::assertStringContainsString(Context::class, $deprecations[0]);
+        // the notice must not imply passing a Context instance is a fix: a converter with
+        // "context:" mappings and no "class:" set fails on a Context too (LogicException) - the
+        // thing that actually still works today is a (deprecated) GenericContext instance
+        self::assertStringContainsString('context:', $deprecations[0]);
+        self::assertStringContainsString('InvalidArgumentException', $deprecations[0]);
+        self::assertStringContainsString(GenericContext::class, $deprecations[0]);
     }
 
     public function testConvertDoesNotTriggerDeprecationForContext(): void
