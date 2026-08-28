@@ -59,6 +59,11 @@
   `ContextMappingPopulator` (the `context:` YAML mapping) is the one exception: it has always required a
   `GenericContext`-like object, and now enforces this with an `instanceof` check — a custom `$ctx` type that merely
   duck-typed `GenericContext`'s `hasKey()`/`getValue()` methods without extending it will throw an
-  `InvalidArgumentException` from that populator instead of being read.
+  `InvalidArgumentException` from that populator instead of being read. Passing a `Context` instance instead
+  does *not* sidestep this: for a converter that maps `context:` properties without `class:` set (the only
+  shape where `class:` isn't required by the bundle config), `ContextMappingPopulator` throws a
+  `LogicException` on a `Context` — `class:` is de facto already mandatory as soon as you use `Context` with a
+  `context:` mapping. The (deprecated) `GenericContext` remains the only `$ctx` type that still works for such
+  a converter today.
 
 See [UPGRADE.md](UPGRADE.md) for migration instructions and what's planned for the next major version.
