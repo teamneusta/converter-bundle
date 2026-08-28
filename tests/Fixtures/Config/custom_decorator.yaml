@@ -1,0 +1,13 @@
+neusta_converter:
+  converter:
+    test.person.converter:
+      target: 'Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person'
+      properties:
+        fullName: ~
+
+services:
+  Neusta\ConverterBundle\Tests\Fixtures\Converter\NoopConverterDecorator:
+    decorates: test.person.converter
+    decoration_inner_name: 'test.person.converter.custom_inner_name'
+    arguments:
+      - '@test.person.converter.custom_inner_name'

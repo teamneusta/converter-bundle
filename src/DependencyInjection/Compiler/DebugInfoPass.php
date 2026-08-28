@@ -45,24 +45,43 @@ final class DebugInfoPass implements CompilerPassInterface
 
             $resolvedId = $id;
             while (isset($decoratorIds[$resolvedId])) {
-                $definition = $container->getDefinition($resolvedId = $decoratorIds[$resolvedId]);
+                $decoratorId = $decoratorIds[$resolvedId];
+                $decoratorDefinition = $container->getDefinition($decoratorId);
+                $decoratedService = $decoratorDefinition->getDecoratedService() ?? [$resolvedId, null];
+
+                // The wrapped definition is about to be replaced by the decorator's own info
+                // (below), which discards its actual behavior (e.g. a GenericConverter's
+                // $factory/$populators). Register it under the id DecoratorServicePass will rename
+                // it to, so the decorator's reference to its inner service still resolves and the
+                // debug/chart graph can keep walking into it. It's marked internal so it stays out
+                // of the top-level listing - only the friendly, outermost id below is user-facing.
+                $renamedId = $decoratedService[1] ?: $decoratorId . '.inner';
+                $this->addServiceInfo($container, $debugInfo, $renamedId, $definition, internal: true);
+
+                $definition = $decoratorDefinition;
+                $resolvedId = $decoratorId;
             }
 
-            if (!$reflection = $this->getClassReflection($container, $definition)) {
-                continue;
-            }
+            $this->addServiceInfo($container, $debugInfo, $id, $definition);
+        }
+    }
 
-            $type = match (true) {
-                $reflection->implementsInterface(Converter::class) => 'converter',
-                $reflection->implementsInterface(Populator::class) => 'populator',
-                $reflection->implementsInterface(TargetFactory::class) => 'factory',
-                default => null,
-            };
+    private function addServiceInfo(ContainerBuilder $container, Definition $debugInfo, string $id, Definition $definition, bool $internal = false): void
+    {
+        if (!$reflection = $this->getClassReflection($container, $definition)) {
+            return;
+        }
 
-            if ($type) {
-                $serviceInfo = $this->getServiceInfo($type, $definition, $reflection);
-                $debugInfo->addMethodCall('add', [$id, $serviceInfo]);
-            }
+        $type = match (true) {
+            $reflection->implementsInterface(Converter::class) => 'converter',
+            $reflection->implementsInterface(Populator::class) => 'populator',
+            $reflection->implementsInterface(TargetFactory::class) => 'factory',
+            default => null,
+        };
+
+        if ($type) {
+            $serviceInfo = $this->getServiceInfo($type, $definition, $reflection);
+            $debugInfo->addMethodCall('add', [$id, $serviceInfo, $internal]);
         }
     }
 
