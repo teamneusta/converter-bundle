@@ -61,6 +61,25 @@ class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [new Reference(PersonNamePopulator::class)]);
     }
 
+    public function test_id_ending_with_converter_does_not_duplicate_suffix(): void
+    {
+        $this->load([
+            'converters' => [
+                'myConverter' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'populators' => [
+                            PersonNamePopulator::class,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasPublicService('myConverter', GenericConverter::class);
+        $this->assertContainerBuilderHasAlias(Converter::class . ' $myConverter', 'myConverter');
+    }
+
     public function test_with_generic_target_factory(): void
     {
         $this->load([
