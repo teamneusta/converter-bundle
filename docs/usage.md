@@ -577,7 +577,11 @@ pass a `Context`, it is merged on top of the default one, taking precedence per 
 All configurators are re-run on every `convert()` call — the default `Context` is never cached across calls, so a
 configurator reading dynamic or per-request state (e.g. the current locale) always sees up-to-date data. This also
 means a converter nested inside another one (e.g. via `ArrayConvertingPopulator`) re-runs its configurators once
-per source array item.
+per source array item. It is seeded with whatever `Context` the caller or an outer converter already resolved,
+so a configurator reading or producing expensive state should check `$ctx->has(YourClass::class)` first and
+return `$ctx` unchanged when it's already set: for a class an ancestor already provided, your own value would be
+discarded anyway (the ancestor's always takes precedence); for a class only your configurator produces, skipping
+isn't possible (there's nothing to check for) and your value is kept as usual.
 
 > [!IMPORTANT]
 > Once a converter uses `context_configurators`, callers must pass either nothing or a `Context` instance — the

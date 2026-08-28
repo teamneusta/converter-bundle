@@ -16,9 +16,10 @@ final class ContextFactory
     ) {
     }
 
-    public function create(): Context
+    /** @param Context|null $seed an already-resolved context configurators can check via has() to skip redundant work */
+    public function create(?Context $seed = null): Context
     {
-        $context = Context::create();
+        $context = $seed ?? Context::create();
 
         foreach ($this->configurators as $configurator) {
             $context = $configurator->configureContext($context);

@@ -81,6 +81,39 @@ class ConverterWithDefaultContextTest extends TestCase
         self::assertSame($person, $converter->convert($user, $givenContext));
     }
 
+    public function test_convert_seeds_context_factory_so_a_configurator_can_skip_redundant_work(): void
+    {
+        $user = new User();
+        $person = new Person();
+
+        $configurator = new class implements ContextConfigurator {
+            public int $calls = 0;
+
+            public function configureContext(Context $ctx): Context
+            {
+                if ($ctx->has(AgeContext::class)) {
+                    return $ctx;
+                }
+
+                ++$this->calls;
+
+                return $ctx->with(new AgeContext(39));
+            }
+        };
+        $contextFactory = new ContextFactory([$configurator]);
+        $givenContext = Context::create(new AgeContext(22));
+
+        $inner = $this->prophesize(Converter::class);
+        $inner->convert($user, Argument::that(
+            static fn (Context $ctx) => 22 === $ctx->get(AgeContext::class)->age,
+        ))->willReturn($person)->shouldBeCalled();
+
+        $converter = new ConverterWithDefaultContext($inner->reveal(), $contextFactory);
+
+        self::assertSame($person, $converter->convert($user, $givenContext));
+        self::assertSame(0, $configurator->calls);
+    }
+
     public function test_convert_rejects_context_that_is_not_the_new_context_type(): void
     {
         $user = new User();

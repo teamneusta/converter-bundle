@@ -20,7 +20,12 @@
 
   A converter that declares `context_configurators` (globally or locally) automatically receives a default
   `Context`, built from those configurators, as `$ctx` — even if the caller doesn't pass one. If the caller
-  does pass a `Context`, it is merged on top of the default one, taking precedence per class.
+  does pass a `Context`, it is merged on top of the default one, taking precedence per class. This also applies
+  when the converter is called as a nested step of another conversion: the already-resolved `Context` it's
+  called with is seeded into its own default-context resolution, so a `ContextConfigurator` can check
+  `$ctx->has(YourClass::class)` and skip its own (possibly expensive) work for a class an ancestor already
+  provided — its result would be overridden for that class anyway. A class only that configurator produces is
+  unaffected and still added as usual.
 - `neusta_converter.converter.<name>.context.<target>.class` — for `context:` property mappings, tells
   `ContextMappingPopulator` which object inside the new `Context` to read `property` from. Required as soon as
   the converter uses `context_configurators`; validated at container-compile time.
