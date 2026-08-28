@@ -35,9 +35,10 @@ final class GenericConverter implements Converter
             trigger_deprecation(
                 'teamneusta/converter-bundle',
                 '1.11',
-                'Passing a "%s" instance as $ctx that is not an instance of "%s" is deprecated and will not be supported anymore in 2.0.',
+                'Passing a "%s" instance as $ctx that is not an instance of "%s" is deprecated and will not be supported anymore in 2.0. If this converter maps any "context:" properties, it already throws an InvalidArgumentException today - pass a (deprecated) "%s" instance instead to keep it working.',
                 $ctx::class,
                 Context::class,
+                GenericContext::class,
             );
         }
 

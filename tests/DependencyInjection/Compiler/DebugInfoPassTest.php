@@ -8,7 +8,9 @@ use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\Converter\GenericConverter;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
 use Neusta\ConverterBundle\Populator\ConditionalPopulator;
+use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Neusta\ConverterBundle\Tests\ConfigurableKernelTestCase;
+use Neusta\ConverterBundle\Tests\Fixtures\Converter\NoopConverterDecorator;
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 class DebugInfoPassTest extends ConfigurableKernelTestCase
@@ -26,7 +28,32 @@ class DebugInfoPassTest extends ConfigurableKernelTestCase
 
         // the raw, internal decorator id must not show up as a separate entry
         self::assertNull($debugInfo->service('global_context_converter.decorator.context'));
-        self::assertNull($debugInfo->service('global_context_converter.decorator.context.inner'));
+
+        // but the wrapped GenericConverter's own behavior (factory/populators) must still be
+        // reachable - under the id DecoratorServicePass will rename it to - so the debug chart
+        // can walk from the decorator into what it actually delegates to
+        $inner = $debugInfo->service('global_context_converter.decorator.context.inner');
+        self::assertNotNull($inner);
+        self::assertSame('converter', $inner->type);
+        self::assertSame(GenericConverter::class, $inner->class);
+
+        // the internal linking entry must not leak into the top-level listing either
+        self::assertArrayNotHasKey('global_context_converter.decorator.context.inner', $debugInfo->services('converter'));
+    }
+
+    #[ConfigureContainer(__DIR__ . '/../../Fixtures/Config/custom_decorator.yaml')]
+    public function test_decorator_with_a_custom_renamed_inner_id_is_still_resolved(): void
+    {
+        $debugInfo = self::getContainer()->get(DebugInfo::class);
+
+        $service = $debugInfo->service('test.person.converter');
+
+        self::assertNotNull($service);
+        self::assertSame(NoopConverterDecorator::class, $service->class);
+
+        $inner = $debugInfo->service('test.person.converter.custom_inner_name');
+        self::assertNotNull($inner);
+        self::assertSame(GenericConverter::class, $inner->class);
     }
 
     #[ConfigureContainer(__DIR__ . '/../../Fixtures/Config/person_simple.yaml')]
@@ -55,5 +82,10 @@ class DebugInfoPassTest extends ConfigurableKernelTestCase
         self::assertSame(ConditionalPopulator::class, $service->class);
 
         self::assertNull($debugInfo->service('conditional_person_address_populator.conditional'));
+
+        $inner = $debugInfo->service('conditional_person_address_populator.conditional.inner');
+        self::assertNotNull($inner);
+        self::assertSame('populator', $inner->type);
+        self::assertSame(ConvertingPopulator::class, $inner->class);
     }
 }
