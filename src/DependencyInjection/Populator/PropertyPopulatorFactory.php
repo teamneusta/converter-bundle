@@ -18,4 +18,10 @@ interface PropertyPopulatorFactory
      * `neusta_converter.populators.<id>.<type>.`.
      */
     public function addPropertyConfiguration(ArrayNodeDefinition $node): void;
+
+    /**
+     * Whether the shared `default` option of the `properties` shorthand applies to this type - e.g.
+     * a mapper that discards a scalar default (like `ArrayPropertyMapper`) must reject it.
+     */
+    public function supportsDefaultValue(): bool;
 }

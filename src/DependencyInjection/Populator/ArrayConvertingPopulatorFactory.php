@@ -32,7 +32,7 @@ final class ArrayConvertingPopulatorFactory extends PropertyMappingPopulatorFact
         ;
     }
 
-    protected function supportsDefaultValue(): bool
+    public function supportsDefaultValue(): bool
     {
         return false;
     }

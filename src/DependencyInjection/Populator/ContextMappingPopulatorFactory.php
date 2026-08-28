@@ -54,6 +54,14 @@ final class ContextMappingPopulatorFactory implements PopulatorFactory
     public function create(ContainerBuilder $container, string $id, array $config): void
     {
         $contextClass = $config['class'] ?? null;
+
+        if (null !== $contextClass) {
+            // inferContextProperty() below bakes a reflection snapshot of $contextClass into the
+            // compiled container; without this, adding/removing a property on $contextClass wouldn't
+            // invalidate an already-warmed container cache.
+            $container->addObjectResource($contextClass);
+        }
+
         $contextProperty = $config['property']
             ?? (null !== $contextClass ? self::inferContextProperty($contextClass) : null)
             ?? $config['target'];

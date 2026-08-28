@@ -116,6 +116,74 @@ class NeustaConverterExtensionTest extends NeustaConverterExtensionTestCase
         ]);
     }
 
+    public function test_property_configured_with_and_without_skip_null_suffix(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('A target property cannot be configured both with and without the "?" (skip_null) suffix.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => 'a',
+                            'name?' => 'b',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * `array_converting`/`array_property_mapping` discard a scalar "default" silently (their mapper
+     * always returns an array), so - unlike the default `property_mapping` type - they must reject it.
+     */
+    public function test_property_with_array_converting_type_rejects_default(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "default" option is not supported for this populator type.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => [
+                                'default' => 'John Doe',
+                                'array_converting' => ['converter' => 'some.converter'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_property_with_array_property_mapping_type_rejects_default(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "default" option is not supported for this populator type.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => [
+                                'default' => 'John Doe',
+                                'array_property_mapping' => ['source_array_item' => 'value'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
     /**
      * Population order is load-bearing: later populators overwrite what earlier ones wrote.
      * Explicitly configured populators run first, then property populators, then context populators.

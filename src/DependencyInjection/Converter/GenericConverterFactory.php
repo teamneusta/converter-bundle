@@ -92,10 +92,23 @@ final class GenericConverterFactory implements ConverterFactory
                     ->info('Mapping of source properties (value) to target properties (key)')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('target')
+                    // "?" is just a skip_null marker, so "foo" and "foo?" are the same property.
+                    ->validate()
+                        ->ifTrue(static function (array $c): bool {
+                            $targets = array_map(
+                                static fn (string $k) => str_ends_with($k, '?') ? substr($k, 0, -1) : $k,
+                                array_keys($c),
+                            );
+
+                            return \count($targets) !== \count(array_unique($targets));
+                        })
+                        ->thenInvalid('A target property cannot be configured both with and without the "?" (skip_null) suffix.')
+                    ->end()
                     ->arrayPrototype()
         ;
 
-        $this->getDefaultPopulatorFactory($factories)->addConfiguration($propertiesNodeBuilder);
+        $defaultPopulatorFactory = $this->getDefaultPopulatorFactory($factories);
+        $defaultPopulatorFactory->addConfiguration($propertiesNodeBuilder);
 
         $propertyPopulatorFactories = $this->getPropertyPopulatorFactories($factories);
         $propertyTypes = array_keys($propertyPopulatorFactories);
@@ -112,6 +125,20 @@ final class GenericConverterFactory implements ConverterFactory
                 ->thenInvalid('You cannot set multiple populator types for the same property.')
             ->end()
         ;
+
+        // The "default" field is shared/top-level (see above), but whether it's actually supported
+        // depends on the selected type - e.g. array types discard it silently, so they reject it.
+        $propertiesNodeBuilder
+            ->validate()
+                ->ifTrue(static function (array $c) use ($propertyPopulatorFactories, $propertyTypes, $defaultPopulatorFactory): bool {
+                    $type = array_values(array_intersect(array_keys($c), $propertyTypes))[0] ?? null;
+                    $factory = null !== $type ? $propertyPopulatorFactories[(string) $type] : $defaultPopulatorFactory;
+
+                    return !$factory->supportsDefaultValue() && null !== ($c['default'] ?? null);
+                })
+                ->thenInvalid('The "default" option is not supported for this populator type.')
+            ->end()
+        ;
     }
 
     public function create(ContainerBuilder $container, string $id, array $config, FactoryRegistry $factories): void
@@ -125,6 +152,8 @@ final class GenericConverterFactory implements ConverterFactory
                 ]);
         }
 
+        $propertyPopulatorFactories = $this->getPropertyPopulatorFactories($factories);
+
         foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
             // A trailing "?" on the target property is the shorthand for "skip_null: true". It only
             // exists here because the target property is a YAML key and cannot carry options.
@@ -137,9 +166,9 @@ final class GenericConverterFactory implements ConverterFactory
 
             // Inside `properties` the populator type is a nested key, while a populator factory
             // always receives a flat config. Flatten it so both entry points share one contract.
-            $populatorFactory = $this->getPropertyPopulatorFactoryFor($factories, $sourceConfig);
+            $populatorFactory = $this->getPropertyPopulatorFactoryFor($factories, $propertyPopulatorFactories, $sourceConfig);
             $typeConfig = $sourceConfig[$populatorFactory->getType()] ?? [];
-            $sourceConfig = array_diff_key($sourceConfig, $this->getPropertyPopulatorFactories($factories));
+            $sourceConfig = array_diff_key($sourceConfig, $propertyPopulatorFactories);
 
             $populatorFactory->create(
                 $container,
@@ -148,14 +177,18 @@ final class GenericConverterFactory implements ConverterFactory
             );
         }
 
-        foreach ($config['context'] ?? [] as $targetProperty => $contextConfig) {
-            $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
+        if ($config['context'] ?? []) {
+            $contextMappingPopulatorFactory = $this->getContextMappingPopulatorFactory($factories);
 
-            $this->getContextMappingPopulatorFactory($factories)->create(
-                $container,
-                $contextPopulatorId,
-                ['target' => $targetProperty] + $contextConfig,
-            );
+            foreach ($config['context'] as $targetProperty => $contextConfig) {
+                $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
+
+                $contextMappingPopulatorFactory->create(
+                    $container,
+                    $contextPopulatorId,
+                    ['target' => $targetProperty] + $contextConfig,
+                );
+            }
         }
 
         $container->registerAliasForArgument($id, Converter::class, $this->ensureSuffix($id, 'Converter'));
@@ -213,11 +246,11 @@ final class GenericConverterFactory implements ConverterFactory
      * Resolves the populator factory for a single property mapping. The type is expressed as a
      * nested key (e.g. `converting`); without one the default type applies.
      *
-     * @param array<string, mixed> $propertyConfig
+     * @param array<string, PropertyPopulatorFactory> $propertyPopulatorFactories
+     * @param array<string, mixed>                    $propertyConfig
      */
-    private function getPropertyPopulatorFactoryFor(FactoryRegistry $factories, array $propertyConfig): PopulatorFactory
+    private function getPropertyPopulatorFactoryFor(FactoryRegistry $factories, array $propertyPopulatorFactories, array $propertyConfig): PopulatorFactory
     {
-        $propertyPopulatorFactories = $this->getPropertyPopulatorFactories($factories);
         $types = array_keys(array_intersect_key($propertyConfig, $propertyPopulatorFactories));
 
         if (\count($types) > 1) {

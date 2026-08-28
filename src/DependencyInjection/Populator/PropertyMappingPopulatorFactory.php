@@ -77,8 +77,11 @@ class PropertyMappingPopulatorFactory implements PopulatorFactory
      * The default value is applied to the *source* value before the mapper runs. A mapper that does
      * not pass scalars through - `ArrayPropertyMapper` returns `[]` for anything non-array - would
      * silently discard it again, so those types reject the option instead.
+     *
+     * Public so `GenericConverterFactory` can validate the shared `default` field of the `properties`
+     * shorthand against whichever type is actually selected for a given property.
      */
-    protected function supportsDefaultValue(): bool
+    public function supportsDefaultValue(): bool
     {
         return true;
     }

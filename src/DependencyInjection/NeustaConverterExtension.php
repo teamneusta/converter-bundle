@@ -11,6 +11,7 @@ use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
 use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
 use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulatorFactory;
 use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
 use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
@@ -100,7 +101,7 @@ final class NeustaConverterExtension extends ConfigurableExtension
         }
 
         foreach ($mergedConfig['populators'] as $id => $populator) {
-            $this->createPopulator($container, $id, $populator);
+            $this->createPopulator($container, $id, $populator, $globalContextConfigurators);
         }
 
         foreach ($mergedConfig['populator'] as $id => $populator) {
@@ -204,8 +205,9 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
     /**
      * @param array<string, mixed> $config
+     * @param array<string>        $globalContextConfigurators
      */
-    private function createPopulator(ContainerBuilder $container, string $id, array $config): void
+    private function createPopulator(ContainerBuilder $container, string $id, array $config, array $globalContextConfigurators): void
     {
         $type = array_key_first($config) ?? 'unknown';
         $factory = $this->factories->getPopulatorFactory($type) ?? throw new InvalidConfigurationException(\sprintf(
@@ -213,6 +215,14 @@ final class NeustaConverterExtension extends ConfigurableExtension
             $id,
             $type,
         ));
+
+        // Global configurators decorate every converter, so any converter could end up using this.
+        if ($globalContextConfigurators && ContextMappingPopulatorFactory::TYPE === $type && !isset($config[$type]['class'])) {
+            throw new InvalidConfigurationException(\sprintf(
+                'The "context_mapping.class" option is required for populator "%s" because global "context_configurators" are configured.',
+                $id,
+            ));
+        }
 
         $factory->create($container, $id, $config[$type]);
 

@@ -190,6 +190,9 @@ final class Configuration implements ConfigurationInterface
                                 ->info('Mapping of source property to target property')
                                 ->normalizeKeys(false)
                                 ->useAttributeAsKey('target')
+                                // required: createDeprecatedPopulator() needs at least one mapping
+                                ->isRequired()
+                                ->requiresAtLeastOneElement()
                                 ->arrayPrototype()
                                     ->beforeNormalization()
                                         ->ifNull()

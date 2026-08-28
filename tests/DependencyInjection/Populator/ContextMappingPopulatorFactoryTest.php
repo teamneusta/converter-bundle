@@ -8,6 +8,7 @@ use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulator
 use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Tests\DependencyInjection\NeustaConverterExtensionTestCase;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext;
+use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\MultiValueContext;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -119,5 +120,59 @@ class ContextMappingPopulatorFactoryTest extends NeustaConverterExtensionTestCas
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Global "context_configurators" decorate every converter, so a standalone context_mapping
+     * populator without "class" is never safe - unlike an embedded `context:` mapping, it has no
+     * single owning converter to check against, so this is the only case caught at compile time.
+     */
+    public function test_missing_class_and_global_context_configurators(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "context_mapping.class" option is required for populator "foobar" because global "context_configurators" are configured.');
+
+        $this->load([
+            'context_configurators' => [AgeContextConfigurator::class],
+            'populators' => [
+                'foobar' => [
+                    'context_mapping' => [
+                        'target' => 'locale',
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_with_class_and_global_context_configurators(): void
+    {
+        $this->load([
+            'context_configurators' => [AgeContextConfigurator::class],
+            'populators' => [
+                'foobar' => [
+                    'context_mapping' => [
+                        'target' => 'ageInYears',
+                        'class' => AgeContext::class,
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasService('foobar', ContextMappingPopulator::class);
+    }
+
+    public function test_missing_class_without_context_configurators(): void
+    {
+        $this->load([
+            'populators' => [
+                'foobar' => [
+                    'context_mapping' => [
+                        'target' => 'locale',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasService('foobar', ContextMappingPopulator::class);
     }
 }

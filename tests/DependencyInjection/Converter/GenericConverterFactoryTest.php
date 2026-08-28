@@ -18,6 +18,7 @@ use Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\MultiValueContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
+use Neusta\ConverterBundle\Tests\Fixtures\Populator\NonMappingPropertyPopulatorFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -29,6 +30,13 @@ class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
     {
         return [
             new GenericConverterFactory(),
+        ];
+    }
+
+    protected function getPopulatorFactories(): array
+    {
+        return [
+            new NonMappingPropertyPopulatorFactory(),
         ];
     }
 
@@ -539,6 +547,33 @@ class GenericConverterFactoryTest extends NeustaConverterExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$targetProperty', 'locale');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$sourceProperty', 'locale');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$defaultValue', 'en');
+    }
+
+    /**
+     * `supportsDefaultValue()` is declared on `PropertyPopulatorFactory` itself, so it's enforced for
+     * any type implementing that interface directly - not just ones that happen to extend the
+     * `PropertyMappingPopulatorFactory` convenience base class (see `NonMappingPropertyPopulatorFactory`).
+     */
+    public function test_property_with_custom_type_rejecting_default_value(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "default" option is not supported for this populator type.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => [
+                                'default' => 'John Doe',
+                                'non_mapping' => [],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
     }
 
     /**
