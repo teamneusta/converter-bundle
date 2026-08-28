@@ -28,14 +28,14 @@ final class ConverterWithDefaultContext implements Converter
 
     public function convert(object $source, ?object $ctx = null): object
     {
-        $context = $this->contextFactory->create();
+        // @phpstan-ignore booleanAnd.alwaysFalse, instanceof.alwaysTrue
+        if ($ctx && !$ctx instanceof Context) {
+            throw new \InvalidArgumentException(\sprintf('The context must be an instance of "%s".', Context::class));
+        }
+
+        $context = $this->contextFactory->create($ctx);
 
         if ($ctx) {
-            // @phpstan-ignore-next-line instanceof.alwaysTrue
-            if (!$ctx instanceof Context) {
-                throw new \InvalidArgumentException(\sprintf('The context must be an instance of "%s".', Context::class));
-            }
-
             $context = $context->with($ctx);
         }
 
