@@ -5,6 +5,9 @@
 # PHP-CS-Fixer
 /.php-cs-fixer.cache
 
+# Deptrac
+/.deptrac.cache
+
 # PHPUnit
 /.phpunit.result.cache
 /.phpunit.cache/

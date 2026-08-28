@@ -3,13 +3,12 @@
 namespace Neusta\ConverterBundle\Tests\Target;
 
 use Neusta\ConverterBundle\Target\GenericTargetFactory;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class GenericTargetFactoryTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function create_regular_case(): void
     {
         $factory = new GenericTargetFactory(TestTarget::class);
@@ -17,9 +16,7 @@ class GenericTargetFactoryTest extends TestCase
         self::assertInstanceOf(TestTarget::class, $factory->create());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function create_with_non_instantiable_case(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -31,9 +28,7 @@ class GenericTargetFactoryTest extends TestCase
         new GenericTargetFactory(TestNonInstantiableTarget::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function create_with_constructor_params_case(): void
     {
         $this->expectException(\InvalidArgumentException::class);
