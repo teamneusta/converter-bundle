@@ -62,7 +62,7 @@ final class ContextMappingPopulator implements Populator
                 return;
             }
 
-            $readValue = fn () => $ctx->getValue($this->contextProperty);
+            $contextObject = null;
         } elseif ($ctx instanceof Context) {
             if (!isset($this->contextClass)) {
                 throw new \LogicException('The relevant context class is not set.');
@@ -75,14 +75,16 @@ final class ContextMappingPopulator implements Populator
 
                 return;
             }
-
-            $readValue = fn () => $this->accessor->getValue($contextObject, $this->contextProperty);
         } else {
             throw new \InvalidArgumentException(\sprintf('Invalid context type "%s".', $ctx::class));
         }
 
         try {
-            $this->accessor->setValue($target, $this->targetProperty, ($this->mapper)($readValue(), $ctx));
+            $value = null !== $contextObject
+                ? $this->accessor->getValue($contextObject, $this->contextProperty)
+                : $ctx->getValue($this->contextProperty);
+
+            $this->accessor->setValue($target, $this->targetProperty, ($this->mapper)($value, $ctx));
         } catch (\Throwable $exception) {
             throw new PopulationException($this->contextProperty, $this->targetProperty, $exception);
         }

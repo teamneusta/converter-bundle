@@ -19,6 +19,9 @@ use Neusta\ConverterBundle\TargetFactory;
  */
 final class GenericConverter implements Converter
 {
+    /** @var array<class-string, true> classes already warned about, so repeated calls with the same offending type don't re-pay for it */
+    private array $deprecatedCtxClassesWarned = [];
+
     /**
      * @param TargetFactory<TTarget, TContext>             $factory
      * @param array<Populator<TSource, TTarget, TContext>> $populators
@@ -31,7 +34,11 @@ final class GenericConverter implements Converter
 
     public function convert(object $source, ?object $ctx = null): object
     {
-        if (null !== $ctx && !$ctx instanceof Context && !$ctx instanceof GenericContext) {
+        if (null !== $ctx && !$ctx instanceof Context && !$ctx instanceof GenericContext
+            && !isset($this->deprecatedCtxClassesWarned[$ctx::class])
+        ) {
+            $this->deprecatedCtxClassesWarned[$ctx::class] = true;
+
             trigger_deprecation(
                 'teamneusta/converter-bundle',
                 '1.11',

@@ -37,38 +37,39 @@ and runs in the normal PHPUnit suite/CI.
 
 ## Findings (as of #111, compared against a018c0a)
 
-Four independent `bin/bench-baseline` runs on the same machine (Docker, PHP 8.4, Xdebug disabled
-via `--php-config`), each `revs=100-1000` x `iterations=5`:
-
-| Scenario | Diff vs. pre-#102 across 4 runs | Verdict |
-|---|---|---|
-| `FlatConversionBench` (no context) | -0.3% .. +2.4% | noise |
-| `NestedConversionBench` depth 1/3/5 (no context) | -6.7% .. +6.8% | noise |
-| `ArrayNestedConversionBench` k=1/10/100 (no context) | -1.5% .. +10.6% | noise |
-| `LegacyContextMappingBench` (`GenericContext`) | **+5.4% .. +22.0%, always positive** | real, small |
-| `CustomContextObjectBench` (arbitrary `$ctx`) | **+16.0% .. +26.2%, always positive** | real |
-
 **The original concern - that nested/array structures cause exponentially more context creation
 and merging - does not hold.** `ConvertingPopulator`/`ArrayConvertingPopulator` are byte-identical
 before and after #102 and pass `$ctx` through unchanged; a `Context` is only ever built inside
 `ConverterWithDefaultContext`, which is only wired up for converters that actually configure
-`context_configurators`. The three context-free benchmarks above confirm this empirically: their
-diffs are noise-level and don't grow with nesting depth or array size.
+`context_configurators`. `FlatConversionBench`/`NestedConversionBench`/`ArrayNestedConversionBench`
+(all context-free) confirm this empirically: their diffs are noise-level and don't grow with
+nesting depth or array size. `Current/` benchmarks show the same for the actual `Context` path:
+`DefaultContextNestedBench` scales linearly in both depth and array size (matches the
+`K x (M+1)` clone-count model), never exponentially.
 
-Two real, reproducible regressions were found instead, both on paths unrelated to
-nesting/exponential growth:
+Two small, constant-factor regressions were found on paths unrelated to nesting - both fixed
+in this same change:
 
-1. **`GenericConverter::convert()`** now calls `trigger_deprecation()` on every call where `$ctx`
-   is neither `Context` nor `GenericContext` (`CustomContextObjectBench`, ~+20% consistently).
-   Affects any caller still passing a custom, non-`GenericContext` object as `$ctx`.
-2. **`ContextMappingPopulator::populate()`** now allocates an extra `$readValue` closure per call
-   even on the legacy `GenericContext` path (`LegacyContextMappingBench`, ~+13% on average, always
-   positive but noisier/smaller than (1)).
+1. **`GenericConverter::convert()`** called `trigger_deprecation()` on *every* call where `$ctx`
+   is neither `Context` nor `GenericContext` (`CustomContextObjectBench`, consistently ~+16..+26%
+   across four runs before the fix). Fixed by warning only once per `(converter instance, $ctx
+   class)` pair - the notice still reaches the user, it just doesn't re-pay for itself on every
+   call of a long-lived (e.g. DI-shared) converter. Locked in by
+   `GenericConverterTest::testConvertTriggersDeprecationOnlyOncePerCtxClass` /
+   `::testConvertTriggersDeprecationAgainForADifferentCtxClass`.
+2. **`ContextMappingPopulator::populate()`** allocated an extra `$readValue` closure per call, even
+   on the legacy `GenericContext` path, purely to defer a call that happened unconditionally one
+   line later (`LegacyContextMappingBench`, ~+5..+22% across four runs before the fix). Fixed by
+   computing the value inline instead of wrapping it in a closure; exception-wrapping behavior for
+   read failures is unchanged (see `test_populate_exceptional_case_wraps_read_failures_from_new_context`).
 
-Both are per-call, constant-factor costs on paths that already existed pre-#102 - not something
-that compounds with nesting depth or array cardinality. `Current/` benchmarks show the same:
-`DefaultContextNestedBench` scales linearly in both depth and array size (matches the `K x (M+1)`
-clone-count model), never exponentially.
+Three `bin/bench-baseline` runs after both fixes put both scenarios back inside the same noise
+band as the context-free benchmarks (`LegacyContextMappingBench` +2.7%/+5.3%/+5.4%,
+`CustomContextObjectBench` -0.7%/+3.2%/+3.2%, vs. e.g. `FlatConversionBench` -2.1%/-0.3%/+2.4%) -
+no longer distinguishable from measurement noise. One run in between showed every subject jump
+30-100%, context-free ones included, and was discarded as system-level noise (competing load on
+the machine, not a code effect) - a useful reminder to sanity-check a `bin/bench-baseline`
+diff against its own context-free rows before trusting a single run.
 
 `SeedingBenefitBench` (defensive vs. unconditional configurator under #111's seeding) measured a
 difference within its own noise band (rstdev) in this run - too small to draw a wall-clock
