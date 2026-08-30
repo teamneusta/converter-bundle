@@ -19,12 +19,8 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * Two nested decorated converters; the outer's Context seeds the inner's ContextFactory::create()
- * (#111). A defensive (has()-skipping) configurator can recognise the seeded value and skip
- * rebuilding it, while an unconditional one always clones again - this is what #111 buys in
- * wall-clock terms.
- *
- * Post-#102 only - ConverterWithDefaultContext and the seeding mechanism don't exist before #102.
+ * Nested decorated converters where the outer's Context seeds the inner's ContextFactory::create() (#111) - defensive vs. unconditional configurator. The wall-clock delta tends to sit within
+ * noise; see ContextAllocationCountTest for the deterministic proof of the seeding benefit.
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(1000)]

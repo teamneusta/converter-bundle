@@ -17,8 +17,7 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * ArrayConvertingPopulator over K items, no context. Cost should scale linearly with K, never
- * exponentially - ArrayConvertingPopulator is byte-identical pre/post #102.
+ * ArrayConvertingPopulator over K items, no context - unchanged since #102, so cost stays linear in K, never exponential.
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(100)]

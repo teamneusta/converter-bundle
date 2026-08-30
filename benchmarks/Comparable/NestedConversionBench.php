@@ -16,9 +16,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
- * A chain of ConvertingPopulators, "depth" levels deep, with no context anywhere in the chain.
- * ConvertingPopulator passes $ctx through unchanged and is byte-identical pre/post #102, so this
- * should stay flat regardless of nesting depth.
+ * A chain of ConvertingPopulators, "depth" levels deep, no context - unchanged since #102, so this should stay flat regardless of depth.
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(1000)]

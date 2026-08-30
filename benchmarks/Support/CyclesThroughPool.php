@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Benchmarks\Support;
 
 /**
- * Cycles sequentially through a fixed pool of objects across revolutions. phpbench calls the same
- * subject instance `revs` times in a tight loop before the next #[BeforeMethods] run, so a mutable
- * counter correctly varies the input across revs instead of reusing the same one at every call -
- * needed to measure a cache-miss path realistically (see #35, CachingConverter).
+ * Cycles through a pool of objects across revs instead of reusing one - safe because phpbench runs an iteration's revs against the same instance in a tight loop.
  */
 trait CyclesThroughPool
 {

@@ -16,11 +16,7 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * The new Context + ContextMappingPopulator($contextClass) path - the main regression candidate
- * found while investigating this suite: it replaces a direct array lookup with tryGet() plus a
- * PropertyAccessor read on the context object, on every conversion that maps a context property.
- *
- * Post-#102 only - Context doesn't exist before #102, so there is no baseline to compare against.
+ * The Context + ContextMappingPopulator($contextClass) read path - the Context-native analogue of Comparable/LegacyContextMappingBench, with no pre-#102 baseline to compare against.
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(1000)]

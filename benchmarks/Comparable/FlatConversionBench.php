@@ -13,8 +13,7 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * A flat GenericConverter with no context at all - the noise floor every other scenario in this
- * suite is measured against. Runs unmodified on a checkout from before #102.
+ * A flat GenericConverter with no context at all - the noise floor every other scenario here is measured against.
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(1000)]

@@ -14,11 +14,7 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * The same conversion as FlatConversionBench, but with a fresh, distinct Leaf object each
- * revolution instead of reusing one - validates that this suite's usual pattern (one source built
- * in setUp(), reused across all revs) doesn't itself skew results via object/opcache locality.
- * Also the pool-cycling pattern a future cache-miss benchmark for #35 (CachingConverter) would
- * build on, since a cache keyed by source would otherwise only ever see hits after the first rev.
+ * Same as FlatConversionBench but with a fresh Leaf per revolution (via CyclesThroughPool) - confirms reusing one source across revs elsewhere in this suite doesn't itself skew results.
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(1000)]

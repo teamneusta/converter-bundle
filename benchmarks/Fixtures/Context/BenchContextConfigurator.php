@@ -8,8 +8,7 @@ use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Context\ContextConfigurator;
 
 /**
- * Unconditionally adds a BenchContext, even if one is already present via seeding (#111) -
- * the worst case for measuring how many configurators cost.
+ * Unconditionally adds a BenchContext, even under seeding (#111) - the worst case for measuring configurator cost.
  */
 final class BenchContextConfigurator implements ContextConfigurator
 {

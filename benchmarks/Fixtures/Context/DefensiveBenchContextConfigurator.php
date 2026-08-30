@@ -8,8 +8,7 @@ use Neusta\ConverterBundle\Context;
 use Neusta\ConverterBundle\Context\ContextConfigurator;
 
 /**
- * Skips rebuilding the BenchContext if a seeded/outer Context already has one - the intended
- * use of the seeding introduced in #111, and the case that should benefit from it most.
+ * Skips rebuilding BenchContext if a seeded/outer Context already has one - the intended use of #111's seeding.
  */
 final class DefensiveBenchContextConfigurator implements ContextConfigurator
 {

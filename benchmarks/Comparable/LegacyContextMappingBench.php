@@ -15,9 +15,7 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * The legacy GenericContext + ContextMappingPopulator path, which exists on both sides of #102.
- * Post-#102 ContextMappingPopulator::populate() allocates an extra $readValue closure per call
- * that didn't exist before - isolating whether that shows up in wall-clock terms is the point.
+ * The legacy GenericContext + ContextMappingPopulator path (exists pre- and post-#102) - regression guard for the removed per-call closure allocation in ContextMappingPopulator::populate().
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(1000)]
@@ -40,8 +38,7 @@ final class LegacyContextMappingBench
             ],
         );
         $this->source = new Leaf(1, 'unused');
-        // GenericContext::__construct() triggers a deprecation post-#102 - built once here so
-        // setUp(), not the benched convert() call, pays for it.
+        // GenericContext::__construct() triggers a deprecation - built once here so setUp() pays for it, not benchConvert().
         $this->ctx = (new GenericContext())->setValue('name', 'from-context');
     }
 

@@ -17,11 +17,7 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * ConverterWithDefaultContext with M configurators, flat (no nesting). Shows the per-call cost of
- * building the default Context as a function of the number of configurators. A converter with
- * M=0 configurators has no decorator at all - registered only under "context_configurators".
- *
- * Post-#102 only - ConverterWithDefaultContext doesn't exist before #102.
+ * ConverterWithDefaultContext with M configurators, flat - shows the per-call cost scaling with configurator count (M=0 means no decorator is even wired up).
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(1000)]

@@ -21,12 +21,7 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * Each Node level and the array-nested Leaf converter carry their own ConverterWithDefaultContext
- * (M=1, unconditional configurator - the worst case, see BenchContextConfigurator). Varying
- * "depth" and "k" independently shows that the cost is K x (M+1) clones: linear in nesting depth
- * and linear in array cardinality, never exponential in either.
- *
- * Post-#102 only - ConverterWithDefaultContext doesn't exist before #102.
+ * Each level (Node and array-nested Leaf) carries its own ConverterWithDefaultContext (M=1, unconditional) - varying depth and k independently shows the cost is K x (M+1) clones, linear in both, never exponential.
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(100)]

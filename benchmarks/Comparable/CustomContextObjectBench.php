@@ -14,9 +14,7 @@ use PhpBench\Attributes as Bench;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
- * Passes an arbitrary object (neither Context nor GenericContext) as $ctx. Post-#102,
- * GenericConverter::convert() fires trigger_deprecation() on every such call - isolated here so
- * it can't smear its cost onto the other scenarios in this suite.
+ * Passes an arbitrary (non-Context/GenericContext) $ctx on every call - regression guard for GenericConverter warning once per (instance, ctx class) instead of on every call.
  */
 #[Bench\BeforeMethods('setUp')]
 #[Bench\Revs(1000)]
