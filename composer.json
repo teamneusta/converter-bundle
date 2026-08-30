@@ -33,6 +33,7 @@
     "jangregor/phpstan-prophecy": "^2.1",
     "matthiasnoback/symfony-dependency-injection-test": "^5.1",
     "nyholm/symfony-bundle-test": "^3.0",
+    "phpbench/phpbench": "~1.4.2",
     "phpspec/prophecy-phpunit": "^2.0",
     "phpstan/extension-installer": "^1.4",
     "phpstan/phpstan": "^2.1.6",
@@ -69,6 +70,7 @@
     "sort-packages": true
   },
   "scripts": {
+    "bench": "phpbench run --php-config='{\"xdebug.mode\":\"off\"}' --report=aggregate",
     "cs:check": "@cs:fix --dry-run",
     "cs:check:ci": "@cs:check --format=checkstyle",
     "cs:fix": "php-cs-fixer fix --ansi --verbose --diff",
@@ -82,6 +84,7 @@
     "yaml:lint": "yaml-lint --parse-tags config tests/Fixtures/Config"
   },
   "scripts-descriptions": {
+    "bench": "Runs the phpbench performance benchmarks",
     "cs:check": "Checks code style (but doesn't fix anything)",
     "cs:check:ci": "Checks code style and creates output in GitHub format",
     "cs:fix": "Checks and fixes code style",

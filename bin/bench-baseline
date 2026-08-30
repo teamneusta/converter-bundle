@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Compares the benchmarks/Comparable/ suite between this checkout and an older commit -
+# defaults to a018c0a, the direct parent of #102 ("New concept for the context").
+#
+# Uses a temporary git worktree so the old commit's own src/ is measured, symlinks the current
+# vendor/ into it (composer.lock is gitignored, so a fresh `composer install` there could resolve
+# different versions - note phpbench.json's $schema path depends on this symlink), and remaps the
+# autoloader for that tree via benchmarks/bootstrap.php. Only benchmarks/Comparable/ is run
+# against the old commit: benchmarks/Current/ references Context/ConverterWithDefaultContext,
+# which don't exist before #102.
+
+set -e
+
+REF="${1:-a018c0a}"
+WORKTREE="var/bench-baseline"
+DUMP="/app/${WORKTREE}.xml"
+
+cleanup() {
+    git worktree remove --force "$WORKTREE" 2>/dev/null || true
+    rm -f "${WORKTREE}.xml"
+}
+trap cleanup EXIT INT TERM
+
+if git worktree list --porcelain | grep -qx "worktree $(pwd)/${WORKTREE}"; then
+    git worktree remove --force "$WORKTREE"
+fi
+git worktree add --detach "$WORKTREE" "$REF"
+ln -sf ../../vendor "$WORKTREE/vendor"
+rm -rf "$WORKTREE/benchmarks" "$WORKTREE/phpbench.json"
+cp -R benchmarks "$WORKTREE/benchmarks"
+cp phpbench.json "$WORKTREE/phpbench.json"
+
+echo "Running baseline benchmarks at ${REF} ..."
+docker compose run --rm --user "$(id -u):$(id -g)" --no-deps -w "/app/${WORKTREE}" php \
+    php vendor/bin/phpbench run benchmarks/Comparable --php-config='{"xdebug.mode":"off"}' --dump-file="$DUMP"
+
+echo "Running current benchmarks, comparing against ${REF} ..."
+docker compose run --rm --user "$(id -u):$(id -g)" --no-deps php \
+    php vendor/bin/phpbench run benchmarks/Comparable --php-config='{"xdebug.mode":"off"}' --file="$DUMP" --report=aggregate

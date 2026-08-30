@@ -10,5 +10,9 @@
 /.phpunit.cache/
 /reports/
 
+# phpbench
+/.phpbench/
+/var/
+
 # IDE project files
 /.idea/
