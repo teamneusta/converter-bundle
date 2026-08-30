@@ -33,7 +33,7 @@ cp phpbench.json "$WORKTREE/phpbench.json"
 
 echo "Running baseline benchmarks at ${REF} ..."
 docker compose run --rm --user "$(id -u):$(id -g)" --no-deps -w "/app/${WORKTREE}" php \
-    php vendor/bin/phpbench run benchmarks/Comparable --php-config='{"xdebug.mode":"off"}' --dump-file="$DUMP"
+    php vendor/bin/phpbench run benchmarks/Comparable --php-config='{"xdebug.mode":"off"}' --tag="$REF" --dump-file="$DUMP"
 
 echo "Running current benchmarks, comparing against ${REF} ..."
 docker compose run --rm --user "$(id -u):$(id -g)" --no-deps php \
