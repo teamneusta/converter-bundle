@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\DependencyInjection;
 
 use Neusta\ConverterBundle\Converter\GenericConverter;
+use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PropertyPopulatorFactory;
+use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -13,21 +16,35 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
+    public function __construct(
+        private readonly FactoryRegistry $factories,
+    ) {
+    }
+
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('neusta_converter');
+        $treeBuilder = new TreeBuilder(NeustaConverterBundle::ALIAS);
         $rootNode = $treeBuilder->getRootNode();
 
         $this->addContextConfiguratorsSection($rootNode);
         $this->addConverterSection($rootNode);
+        $this->addDeprecatedConverterSection($rootNode);
         $this->addPopulatorSection($rootNode);
+        $this->addDeprecatedPopulatorSection($rootNode);
 
         return $treeBuilder;
     }
 
-    private function addContextConfiguratorsSection(ArrayNodeDefinition $rootNode): void
+    /**
+     * Shared by the root node (global configurators, applied to every converter) and by each
+     * converter prototype (converter-specific configurators, applied in addition to the global
+     * ones). It is a sibling of the type key rather than nested inside it: the
+     * `ConverterWithDefaultContext` decorator it drives works by service id and is type-agnostic,
+     * so it must be configurable for any converter type - not just "generic".
+     */
+    private function addContextConfiguratorsSection(ArrayNodeDefinition $node): void
     {
-        $rootNode
+        $node
             ->children()
                 ->arrayNode('context_configurators')
                     ->info('Service ids of the "ContextConfigurator"s')
@@ -39,138 +56,125 @@ final class Configuration implements ConfigurationInterface
 
     private function addConverterSection(ArrayNodeDefinition $rootNode): void
     {
-        $converterNode = $rootNode
+        $converterNodeBuilder = $rootNode
+            //->fixXmlConfig('converter') // Todo: only possible once deprecated config got removed
             ->children()
-                ->arrayNode('converter')
+                ->arrayNode('converters')
                     ->info('Converter configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
-                    ->arrayPrototype();
+                    ->requiresAtLeastOneElement()
+                    ->arrayPrototype()
+        ;
 
-        $this->addContextConfiguratorsSection($converterNode);
+        $this->addContextConfiguratorsSection($converterNodeBuilder);
 
-        $converterNode
-            ->fixXmlConfig('populator')
-            ->fixXmlConfig('property', 'properties')
+        foreach ($this->factories->getConverterFactories() as $type => $factory) {
+            $factory->addConfiguration($converterNodeBuilder->children()->arrayNode($type), $this->factories);
+        }
+
+        // "context_configurators" is a prototyped array node, so - unlike the type nodes - it always
+        // finalizes to at least `[]` even when absent. Counting all present keys would therefore
+        // always be off by one; only the registered type keys decide whether a type was set.
+        $converterTypes = array_keys($this->factories->getConverterFactories());
+
+        $converterNodeBuilder
+            ->validate()
+                ->ifTrue(static fn (array $v) => 1 !== \count(array_intersect(array_keys($v), $converterTypes)))
+                ->thenInvalid('Exactly one converter type must be set for a converter.')
+            ->end()
+        ;
+    }
+
+    private function addDeprecatedConverterSection(ArrayNodeDefinition $rootNode): void
+    {
+        $converterNodeBuilder = $rootNode
+            ->children()
+                ->arrayNode('converter')
+                    ->setDeprecated('teamneusta/converter-bundle', '1.11', 'Please use "neusta_converter.converters" instead.')
+                    ->info('Converter configuration')
+                    ->normalizeKeys(false)
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+        ;
+
+        $this->addContextConfiguratorsSection($converterNodeBuilder);
+
+        // The deprecated section reuses the generic factory's tree, flattened one level up,
+        // so it automatically inherits every feature the "generic" converter type gains -
+        // including "context" and "context_configurators".
+        $this->factories->getConverterFactory(GenericConverterFactory::TYPE)?->addConfiguration($converterNodeBuilder, $this->factories);
+
+        $converterNodeBuilder
             ->children()
                 ->scalarNode('converter')
-                    ->info('Class name of the "Converter" implementation')
+                    ->info('Class name of the Converter implementation')
                     ->defaultValue(GenericConverter::class)
                 ->end()
-                ->arrayNode('target')
-                    ->info('Target configuration')
-                    ->beforeNormalization()
-                        ->ifString()
-                        ->then(fn($v) => ['class' => $v])
-                    ->end()
-                    ->children()
-                        ->scalarNode('class')
-                            ->info('Class name of the target')
-                            ->validate()
-                                ->ifTrue(fn ($v) => !class_exists($v))
-                                ->thenInvalid('The target type %s does not exist.')
-                            ->end()
-                        ->end()
-                        ->arrayNode('properties')
-                            ->info('Properties of the target')
-                            ->normalizeKeys(false)
-                            ->useAttributeAsKey('name')
-                            ->scalarPrototype()->end()
-                        ->end()
-                    ->end()
-                ->end()
-                ->scalarNode('target_factory')
-                    ->info('Service id of the "TargetFactory"')
-                ->end()
-                ->arrayNode('populators')
-                    ->info('Service ids of the "Populator"s')
-                    ->prototype('scalar')->end()
-                ->end()
-                ->arrayNode('properties')
-                    ->info('Mapping of source properties (value) to target properties (key)')
-                    ->normalizeKeys(false)
-                    ->useAttributeAsKey('target')
-                    ->arrayPrototype()
-                        ->beforeNormalization()
-                            ->ifNull()
-                            ->then(fn () => ['source' => null, 'default' => null, 'skip_null' => false])
-                        ->end()
-                        ->beforeNormalization()
-                            ->ifString()
-                            ->then(fn (string $v) => ['source' => $v, 'default' => null, 'skip_null' => false])
-                        ->end()
-                        ->children()
-                            ->scalarNode('source')
-                                ->defaultValue(null)
-                            ->end()
-                            ->scalarNode('default')
-                                ->defaultValue(null)
-                            ->end()
-                            ->booleanNode('skip_null')
-                                ->defaultFalse()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-                ->arrayNode('context')
-                    ->info('Mapping of context objects/properties (value) to target properties (key)')
-                    ->normalizeKeys(false)
-                    ->useAttributeAsKey('target')
-                    ->arrayPrototype()
-                        ->beforeNormalization()
-                            ->ifNull()
-                            ->then(fn () => ['property' => null])
-                        ->end()
-                        ->beforeNormalization()
-                            ->ifString()
-                            // A namespace separator is required to opt into the "class" shortcut, so that a plain
-                            // property name (e.g. "locale") is never misread as an unrelated, unnamespaced class
-                            // that happens to be loaded (e.g. ext-intl's global `Locale` class - PHP class name
-                            // lookups are case-insensitive). A class-string shortcut that doesn't resolve to an
-                            // existing class still fails loudly via the "class" node's validation below.
-                            ->then(fn (string $v) => str_contains($v, '\\') ? ['class' => $v] : ['property' => $v])
-                        ->end()
-                        ->children()
-                            ->scalarNode('class')
-                                ->info('Class of the context object to read "property" from')
-                                ->validate()
-                                    ->ifTrue(fn ($v) => null !== $v && !class_exists($v))
-                                    ->thenInvalid('The context object class %s does not exist.')
-                                ->end()
-                            ->end()
-                            ->scalarNode('property')->end()
-                            ->booleanNode('required')
-                                ->info('Whether to fail instead of silently skipping the mapping if the context value/object is missing')
-                                ->defaultFalse()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-            ->validate()
-                ->ifTrue(fn (array $c) => !isset($c['target']) && !isset($c['target_factory']))
-                ->thenInvalid('Either "target" or "target_factory" must be defined.')
-            ->end()
-            ->validate()
-                ->ifTrue(fn (array $c) => isset($c['target'], $c['target_factory']))
-                ->thenInvalid('Either "target" or "target_factory" must be defined, but not both.')
-            ->end()
-            ->validate()
-                ->ifTrue(fn (array $c) => empty($c['populators']) && empty($c['properties']) && empty($c['context']))
-                ->thenInvalid('At least one "populator", "property" or "context" must be defined.')
             ->end()
         ;
     }
 
     private function addPopulatorSection(ArrayNodeDefinition $rootNode): void
     {
-        $rootNode
+        $populatorNodeBuilder = $rootNode
+            //->fixXmlConfig('populator') // Todo: only possible once deprecated config got removed
+            ->children()
+                ->arrayNode('populators')
+                    ->info('Populator configuration')
+                    ->normalizeKeys(false)
+                    ->useAttributeAsKey('name')
+                    ->requiresAtLeastOneElement()
+                    ->arrayPrototype()
+        ;
+
+        foreach ($this->factories->getPopulatorFactories() as $type => $factory) {
+            $typeNode = $populatorNodeBuilder->children()->arrayNode($type);
+
+            $typeNode
+                ->children()
+                    ->scalarNode('target')
+                        ->info('Name of the target property')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                ->end()
+            ;
+
+            // Conditional population decorates whatever the type produced, so it is available for
+            // every populator type rather than being contributed by a single factory.
+            $this->addConditionConfiguration($typeNode);
+
+            $factory->addConfiguration($typeNode);
+
+            if ($factory instanceof PropertyPopulatorFactory) {
+                $factory->addPropertyConfiguration($typeNode);
+            }
+        }
+
+        $populatorNodeBuilder
+            ->validate()
+                ->ifTrue(static fn (array $v) => 1 !== \count($v))
+                ->thenInvalid('Exactly one populator type must be set for a populator.')
+            ->end()
+        ;
+    }
+
+    private function addDeprecatedPopulatorSection(ArrayNodeDefinition $rootNode): void
+    {
+        $populatorNode = $rootNode
             ->children()
                 ->arrayNode('populator')
+                    ->setDeprecated('teamneusta/converter-bundle', '1.11', 'Please use "neusta_converter.populators" instead.')
                     ->info('Populator configuration')
                     ->normalizeKeys(false)
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
+        ;
+
+        $this->addConditionConfiguration($populatorNode);
+
+        $populatorNode
                         ->children()
                             ->enumNode('populator')
                                 ->info('class of the "Populator" implementation')
@@ -186,6 +190,9 @@ final class Configuration implements ConfigurationInterface
                                 ->info('Mapping of source property to target property')
                                 ->normalizeKeys(false)
                                 ->useAttributeAsKey('target')
+                                // required: createDeprecatedPopulator() needs at least one mapping
+                                ->isRequired()
+                                ->requiresAtLeastOneElement()
                                 ->arrayPrototype()
                                     ->beforeNormalization()
                                         ->ifNull()
@@ -208,37 +215,46 @@ final class Configuration implements ConfigurationInterface
                                     ->end()
                                 ->end()
                             ->end()
-                            ->arrayNode('condition')
-                                ->info('Condition for the ConditionalPopulator decorator')
-                                ->children()
-                                    ->scalarNode('property')
-                                        ->info('Property of source or target object that should be checked')
-                                        ->defaultNull()
-                                    ->end()
-                                    ->enumNode('property_base')
-                                        ->info('Base object of the property: "source" or "target"')
-                                        ->values(['source', 'target'])
-                                        ->defaultValue('source')
-                                    ->end()
-                                    ->scalarNode('expected_value')
-                                        ->info('Expected value for the property check')
-                                        ->defaultNull()
-                                    ->end()
-                                    ->scalarNode('expression')
-                                        ->info('Symfony Expression Language condition')
-                                        ->defaultNull()
-                                    ->end()
-                                ->end()
-                                ->validate()
-                                    ->ifTrue(fn ($c) => isset($c['property'], $c['expression']))
-                                    ->thenInvalid('You can only define either "property" or "expression", not both.')
-                                ->end()
-                            ->end()
                         ->end()
                         ->validate()
-                            ->ifTrue(fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
+                            ->ifTrue(static fn (array $c) => ArrayConvertingPopulator::class !== $c['populator'] && !empty($c['property'][array_key_first($c['property'])]['source_array_item']))
                             ->thenInvalid('The "property.<target>.source_array_item" option is only supported for array converting populators.')
                         ->end()
+        ;
+    }
+
+    /**
+     * The `condition` node is shared by the new and the deprecated populator section: it decorates
+     * whatever populator was built with a `ConditionalPopulator`.
+     */
+    private function addConditionConfiguration(ArrayNodeDefinition $node): void
+    {
+        $node
+            ->children()
+                ->arrayNode('condition')
+                    ->info('Condition for the ConditionalPopulator decorator')
+                    ->children()
+                        ->scalarNode('property')
+                            ->info('Property of source or target object that should be checked')
+                            ->defaultNull()
+                        ->end()
+                        ->enumNode('property_base')
+                            ->info('Base object of the property: "source" or "target"')
+                            ->values(['source', 'target'])
+                            ->defaultValue('source')
+                        ->end()
+                        ->scalarNode('expected_value')
+                            ->info('Expected value for the property check')
+                            ->defaultNull()
+                        ->end()
+                        ->scalarNode('expression')
+                            ->info('Symfony Expression Language condition')
+                            ->defaultNull()
+                        ->end()
+                    ->end()
+                    ->validate()
+                        ->ifTrue(static fn ($c) => isset($c['property'], $c['expression']))
+                        ->thenInvalid('You can only define either "property" or "expression", not both.')
                     ->end()
                 ->end()
             ->end()

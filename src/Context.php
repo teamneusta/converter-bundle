@@ -84,7 +84,7 @@ final class Context
      */
     public function tryGet(string $class): ?object
     {
-        // @phpstan-ignore return.type
+        // @phpstan-ignore-next-line return.type
         return $this->context[$class] ?? null;
     }
 }

@@ -9,14 +9,16 @@ use Neusta\ConverterBundle\Context\ContextFactory;
 use Neusta\ConverterBundle\Converter;
 use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
 use Neusta\ConverterBundle\Debug\Model\DebugInfo;
+use Neusta\ConverterBundle\DependencyInjection\Converter\ConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ContextMappingPopulatorFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\PopulatorFactory;
+use Neusta\ConverterBundle\NeustaConverterBundle;
 use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
 use Neusta\ConverterBundle\Populator\Condition\ExpressionCondition;
 use Neusta\ConverterBundle\Populator\Condition\PropertyCondition;
 use Neusta\ConverterBundle\Populator\ConditionalPopulator;
-use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
 use Neusta\ConverterBundle\Populator\ConvertingPopulator;
-use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application;
@@ -29,6 +31,57 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
 final class NeustaConverterExtension extends ConfigurableExtension
 {
+    public function __construct(
+        private readonly FactoryRegistry $factories,
+    ) {
+    }
+
+    public function getAlias(): string
+    {
+        return NeustaConverterBundle::ALIAS;
+    }
+
+    /**
+     * Registers an additional converter type. Call this from another bundle's `build()` method:
+     *
+     *     public function build(ContainerBuilder $container): void
+     *     {
+     *         $extension = $container->getExtension(NeustaConverterBundle::ALIAS);
+     *         \assert($extension instanceof NeustaConverterExtension);
+     *
+     *         $extension->addConverterFactory(new MyConverterFactory());
+     *     }
+     *
+     * The kernel registers all extensions before it calls any `build()`, so this works regardless
+     * of the order in which the bundles are registered.
+     *
+     * @experimental Not covered by the backward compatibility promise yet, see `ConverterFactory`.
+     */
+    public function addConverterFactory(ConverterFactory $factory): void
+    {
+        $this->factories->addConverterFactory($factory);
+    }
+
+    /**
+     * Registers an additional populator type.
+     *
+     * @see self::addConverterFactory() for where to call this
+     *
+     * @experimental Not covered by the backward compatibility promise yet, see `PopulatorFactory`.
+     */
+    public function addPopulatorFactory(PopulatorFactory $factory): void
+    {
+        $this->factories->addPopulatorFactory($factory);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function getConfiguration(array $config, ContainerBuilder $container): Configuration
+    {
+        return new Configuration($this->factories);
+    }
+
     /**
      * @param array<string, mixed> $mergedConfig
      */
@@ -39,12 +92,20 @@ final class NeustaConverterExtension extends ConfigurableExtension
 
         $globalContextConfigurators = $mergedConfig['context_configurators'];
 
-        foreach ($mergedConfig['converter'] as $converterId => $converter) {
-            $this->registerConverterConfiguration($converterId, $converter, $globalContextConfigurators, $container);
+        foreach ($mergedConfig['converters'] as $id => $converter) {
+            $this->createConverter($container, $id, $converter, $globalContextConfigurators);
         }
 
-        foreach ($mergedConfig['populator'] as $populatorId => $populator) {
-            $this->registerPopulatorConfiguration($populatorId, $populator, $container);
+        foreach ($mergedConfig['converter'] as $id => $converter) {
+            $this->createDeprecatedConverter($container, $id, $converter, $globalContextConfigurators);
+        }
+
+        foreach ($mergedConfig['populators'] as $id => $populator) {
+            $this->createPopulator($container, $id, $populator, $globalContextConfigurators);
+        }
+
+        foreach ($mergedConfig['populator'] as $id => $populator) {
+            $this->createDeprecatedPopulator($container, $id, $populator);
         }
 
         if (!$container::willBeAvailable('symfony/console', Application::class, ['teamneusta/converter-bundle'])) {
@@ -57,98 +118,127 @@ final class NeustaConverterExtension extends ConfigurableExtension
      * @param array<string, mixed> $config
      * @param array<string>        $globalContextConfigurators
      */
-    private function registerConverterConfiguration(
-        string $id,
-        array $config,
-        array $globalContextConfigurators,
-        ContainerBuilder $container,
-    ): void {
-        $targetFactoryId = $config['target_factory'] ?? "{$id}.target_factory";
-        if (!isset($config['target_factory'])) {
-            $targetClass = $config['target']['class'];
-            $targetProperties = $config['target']['properties'] ?? [];
-            $container->register($targetFactoryId, GenericTargetWithPropertiesFactory::class)
-                ->setArguments([
-                    '$type' => $targetClass,
-                    '$properties' => $targetProperties,
-                ]);
-        }
-
-        foreach ($config['properties'] ?? [] as $targetProperty => $sourceConfig) {
-            $skipNull = false;
-            if (str_ends_with($targetProperty, '?')) {
-                $skipNull = true;
-                $targetProperty = substr($targetProperty, 0, -1);
-            }
-            $config['populators'][] = $propertyPopulatorId = "{$id}.populator.{$targetProperty}";
-            $container->register($propertyPopulatorId, PropertyMappingPopulator::class)
-                ->setArguments([
-                    '$targetProperty' => $targetProperty,
-                    '$sourceProperty' => $sourceConfig['source'] ?? $targetProperty,
-                    '$defaultValue' => $sourceConfig['default'] ?? null,
-                    '$mapper' => null,
-                    '$accessor' => new Reference('property_accessor'),
-                    '$skipNull' => $sourceConfig['skip_null'] || $skipNull,
-                ]);
-        }
+    private function createConverter(ContainerBuilder $container, string $id, array $config, array $globalContextConfigurators): void
+    {
+        $types = array_keys(array_intersect_key($config, $this->factories->getConverterFactories()));
+        $type = $types[0] ?? 'unknown';
+        $factory = $this->factories->getConverterFactory($type) ?? throw new InvalidConfigurationException(\sprintf(
+            'Unable to create a definition for the converter "%s" because the type "%s" does not exist.',
+            $id,
+            $type,
+        ));
 
         $contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? []);
+        $this->assertContextMappingsHaveClass($id, $config[$type]['context'] ?? [], $contextConfigurators);
 
-        foreach ($config['context'] ?? [] as $targetProperty => $contextConfig) {
-            if ($contextConfigurators && !isset($contextConfig['class'])) {
-                throw new InvalidConfigurationException(\sprintf('The "context.%s.class" option is required for converter "%s" because "context_configurators" are configured for it.', $targetProperty, $id));
-            }
+        $factory->create($container, $id, $config[$type], $this->factories);
 
-            $contextClass = $contextConfig['class'] ?? null;
-            $contextProperty = $contextConfig['property']
-                ?? (null !== $contextClass ? self::inferContextProperty($contextClass) : null)
-                ?? $targetProperty;
+        $this->registerContextConfigurators($container, $id, $contextConfigurators);
+    }
 
-            $config['populators'][] = $contextPopulatorId = "{$id}.populator.context.{$targetProperty}";
-            $container->register($contextPopulatorId, ContextMappingPopulator::class)
-                ->setArguments([
-                    '$targetProperty' => $targetProperty,
-                    '$contextClass' => $contextClass,
-                    '$contextProperty' => $contextProperty,
-                    '$mapper' => null,
-                    '$accessor' => new Reference('property_accessor'),
-                    '$required' => $contextConfig['required'] ?? false,
-                ]);
+    /**
+     * @param array<string, mixed> $config
+     * @param array<string>        $globalContextConfigurators
+     */
+    private function createDeprecatedConverter(ContainerBuilder $container, string $id, array $config, array $globalContextConfigurators): void
+    {
+        $genericConverterFactory = $this->factories->getConverterFactory('generic');
+        \assert($genericConverterFactory instanceof GenericConverterFactory);
+
+        // The deprecated section flattens the generic converter's tree one level up (no type key),
+        // so "context_configurators" and "context" sit next to each other directly on $config here -
+        // unlike the new "converters" section, where "context" is nested under the type key.
+        $contextConfigurators = array_merge($globalContextConfigurators, $config['context_configurators'] ?? []);
+        $this->assertContextMappingsHaveClass($id, $config['context'] ?? [], $contextConfigurators);
+
+        $genericConverterFactory->create($container, $id, $config, $this->factories);
+        $container->getDefinition($id)->setClass($config['converter']);
+
+        $this->registerContextConfigurators($container, $id, $contextConfigurators);
+    }
+
+    /**
+     * @param array<string, array{class?: ?string}> $contextMappings
+     * @param array<string>                         $contextConfigurators
+     */
+    private function assertContextMappingsHaveClass(string $id, array $contextMappings, array $contextConfigurators): void
+    {
+        if (!$contextConfigurators) {
+            return;
         }
 
-        $container->registerAliasForArgument($id, Converter::class, $this->appendSuffix($id, 'Converter'));
-        $container->register($id, $config['converter'])
-            ->setPublic(true)
+        foreach ($contextMappings as $targetProperty => $contextConfig) {
+            if (!isset($contextConfig['class'])) {
+                throw new InvalidConfigurationException(\sprintf('The "context.%s.class" option is required for converter "%s" because "context_configurators" are configured for it.', $targetProperty, $id));
+            }
+        }
+    }
+
+    /**
+     * Wraps the converter at `$id` with `ConverterWithDefaultContext` when it has any
+     * `context_configurators` (global or converter-specific) - this is a type-agnostic decoration,
+     * applied purely by service id, so it works for any converter type, not just "generic".
+     *
+     * @param array<string> $contextConfigurators
+     */
+    private function registerContextConfigurators(ContainerBuilder $container, string $id, array $contextConfigurators): void
+    {
+        if (!$contextConfigurators) {
+            return;
+        }
+
+        $contextFactoryId = "{$id}.context.factory";
+        $container->register($contextFactoryId, ContextFactory::class)
+            ->setArgument('$configurators', array_map(
+                static fn (string $configurator) => new Reference($configurator),
+                $contextConfigurators,
+            ));
+
+        $contextDecoratorId = "{$id}.decorator.context";
+        $container->register($contextDecoratorId, ConverterWithDefaultContext::class)
+            ->setDecoratedService($id)
             ->setArguments([
-                '$factory' => new Reference($targetFactoryId),
-                '$populators' => array_map(
-                    static fn (string $populator) => new Reference($populator),
-                    $config['populators'],
-                ),
+                '$inner' => new Reference($contextDecoratorId . '.inner'),
+                '$contextFactory' => new Reference($contextFactoryId),
             ]);
+    }
 
-        if ($contextConfigurators) {
-            $contextFactoryId = "{$id}.context.factory";
-            $container->register($contextFactoryId, ContextFactory::class)
-                ->setArgument('$configurators', array_map(
-                    static fn (string $configurator) => new Reference($configurator),
-                    $contextConfigurators,
-                ));
+    /**
+     * @param array<string, mixed> $config
+     * @param array<string>        $globalContextConfigurators
+     */
+    private function createPopulator(ContainerBuilder $container, string $id, array $config, array $globalContextConfigurators): void
+    {
+        $type = array_key_first($config) ?? 'unknown';
+        $factory = $this->factories->getPopulatorFactory($type) ?? throw new InvalidConfigurationException(\sprintf(
+            'Unable to create a definition for the populator "%s" because the type "%s" does not exist.',
+            $id,
+            $type,
+        ));
 
-            $contextDecoratorId = "{$id}.decorator.context";
-            $container->register($contextDecoratorId, ConverterWithDefaultContext::class)
-                ->setDecoratedService($id)
-                ->setArguments([
-                    '$inner' => new Reference($contextDecoratorId . '.inner'),
-                    '$contextFactory' => new Reference($contextFactoryId),
-                ]);
+        // Global configurators decorate every converter, so any converter could end up using this.
+        if ($globalContextConfigurators && ContextMappingPopulatorFactory::TYPE === $type && !isset($config[$type]['class'])) {
+            throw new InvalidConfigurationException(\sprintf(
+                'The "context_mapping.class" option is required for populator "%s" because global "context_configurators" are configured.',
+                $id,
+            ));
+        }
+
+        $factory->create($container, $id, $config[$type]);
+
+        // A populator declared on its own is meant to be referenced and fetched, unlike the ones a
+        // converter creates for its own `properties`/`context`, which stay private.
+        $container->getDefinition($id)->setPublic(true);
+
+        if (isset($config[$type]['condition'])) {
+            $this->registerConditionalPopulatorConfiguration($id, $config[$type]['condition'], $container);
         }
     }
 
     /**
      * @param array<string, mixed> $config
      */
-    private function registerPopulatorConfiguration(string $id, array $config, ContainerBuilder $container): void
+    private function createDeprecatedPopulator(ContainerBuilder $container, string $id, array $config): void
     {
         $targetProperty = array_key_first($config['property']);
         $sourceProperty = $config['property'][$targetProperty];
@@ -209,23 +299,5 @@ final class NeustaConverterExtension extends ConfigurableExtension
                     ->setFactory([\Closure::class, 'fromCallable'])
                     ->addArgument([$condition, '__invoke']),
             ]);
-    }
-
-    private function appendSuffix(string $value, string $suffix): string
-    {
-        return str_ends_with($value, $suffix) ? $value : $value . $suffix;
-    }
-
-    /**
-     * @param class-string $class
-     */
-    private static function inferContextProperty(string $class): ?string
-    {
-        $properties = array_values(array_filter(
-            (new \ReflectionClass($class))->getProperties(),
-            static fn (\ReflectionProperty $property) => !$property->isStatic(),
-        ));
-
-        return 1 === \count($properties) ? $properties[0]->getName() : null;
     }
 }
