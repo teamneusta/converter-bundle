@@ -99,6 +99,34 @@ class GenericConverterTest extends TestCase
         self::assertStringContainsString(GenericContext::class, $deprecations[0]);
     }
 
+    public function testConvertTriggersDeprecationOnlyOncePerCtxClass(): void
+    {
+        $converter = new GenericConverter(new PersonFactory(), []);
+        $source = new User();
+
+        $deprecations = $this->captureDeprecations(static function () use ($converter, $source): void {
+            $converter->convert($source, new \stdClass());
+            $converter->convert($source, new \stdClass());
+        });
+
+        // repeated calls with the same offending ctx class shouldn't re-pay for the warning -
+        // but a different offending class must still be warned about (not shown here, see below)
+        self::assertCount(1, $deprecations);
+    }
+
+    public function testConvertTriggersDeprecationAgainForADifferentCtxClass(): void
+    {
+        $converter = new GenericConverter(new PersonFactory(), []);
+        $source = new User();
+
+        $deprecations = $this->captureDeprecations(static function () use ($converter, $source): void {
+            $converter->convert($source, new \stdClass());
+            $converter->convert($source, new class {});
+        });
+
+        self::assertCount(2, $deprecations);
+    }
+
     public function testConvertDoesNotTriggerDeprecationForContext(): void
     {
         $converter = new GenericConverter(new PersonFactory(), []);
