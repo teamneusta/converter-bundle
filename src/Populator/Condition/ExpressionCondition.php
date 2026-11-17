@@ -8,7 +8,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null = null
+ * @template TContext of object|null = object|null
  */
 final class ExpressionCondition
 {

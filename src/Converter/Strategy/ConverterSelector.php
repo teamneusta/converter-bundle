@@ -8,7 +8,7 @@ use Neusta\ConverterBundle\Context;
 
 /**
  * @template TSource of object
- * @template TContext of object|null = null
+ * @template TContext of object|null = object|null
  */
 interface ConverterSelector
 {

@@ -15,7 +15,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null = null
+ * @template TContext of object|null = object|null
  *
  * @implements Populator<TSource, TTarget, TContext>
  */

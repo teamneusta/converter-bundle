@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- The default of the `TContext` template parameter is now `object|null` instead of `null`. Since 1.11.0, usages
+  without an explicit context type (e.g. a plain `Converter` or `Converter<TSource, TTarget>`) resolved to
+  `Context|null`, so static analysis rejected every custom context object that was passed to them. The default
+  now matches the behavior before 1.11.0 and is no longer a breaking change for existing code.
+
 ## [1.11.0] - 2026-11-17
 
 ### Added
