@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.11.0] - 2026-11-17
 
 ### Added
 
@@ -41,6 +41,14 @@
   value/object it needs isn't present, or when no context was passed at all. Setting `required: true` makes it
   throw a `PopulationException` in those cases instead.
 
+### Changed
+
+- The `TContext` template parameter of `Converter`, `Populator`, `TargetFactory` and the bundled
+  implementations now defaults to `null` (`@template TContext of object|null = null`), so static analysis no
+  longer requires spelling it out for converters that don't use a context.
+- `symfony/translation` is no longer a runtime dependency of the bundle. `neusta:converter:debug` only needs
+  `Symfony\Contracts\Translation\TranslatorInterface` and still works without a translator.
+
 ### Fixed
 
 - `neusta:converter:debug` (and the generated HTML chart) no longer show two confusing entries for any
@@ -72,3 +80,8 @@
   a converter today.
 
 See [UPGRADE.md](UPGRADE.md) for migration instructions and what's planned for the next major version.
+
+Changes in versions before 1.11.0 are documented in the
+[GitHub releases](https://github.com/teamneusta/converter-bundle/releases).
+
+[1.11.0]: https://github.com/teamneusta/converter-bundle/compare/v1.10.1...v1.11.0
