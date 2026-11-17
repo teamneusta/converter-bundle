@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.11.1] - 2026-11-17
 
 ### Fixed
 
@@ -93,4 +93,5 @@ See [UPGRADE.md](UPGRADE.md) for migration instructions and what's planned for t
 Changes in versions before 1.11.0 are documented in the
 [GitHub releases](https://github.com/teamneusta/converter-bundle/releases).
 
+[1.11.1]: https://github.com/teamneusta/converter-bundle/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/teamneusta/converter-bundle/compare/v1.10.1...v1.11.0
