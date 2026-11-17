@@ -7,7 +7,7 @@ namespace Neusta\ConverterBundle;
 /**
  * @template TSource of object
  * @template TTarget of object
- * @template TContext of object|null = null
+ * @template TContext of object|null = object|null
  */
 interface Populator
 {
