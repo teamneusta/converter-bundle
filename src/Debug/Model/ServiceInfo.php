@@ -25,22 +25,31 @@ final class ServiceInfo
      */
     public function getReferences(): array
     {
+        return array_unique($this->collectReferences($this->arguments));
+    }
+
+    /**
+     * References can be nested arbitrarily deep: a converting populator holds its converter inside
+     * an inlined mapper definition, which in turn may hold another mapper definition.
+     *
+     * @param array<ServiceArgumentInfo> $arguments
+     *
+     * @return array<string>
+     */
+    private function collectReferences(array $arguments): array
+    {
         $refs = [];
 
-        foreach ($this->arguments as $arg) {
+        foreach ($arguments as $arg) {
             if ('reference' === $arg->type && \is_string($arg->value)) {
                 $refs[] = ltrim($arg->value, '@');
                 continue;
             }
             if ('array' === $arg->type && \is_array($arg->value)) {
-                foreach ($arg->value as $argArrayValue) {
-                    if ('reference' === $argArrayValue->type && \is_string($argArrayValue->value)) {
-                        $refs[] = ltrim($argArrayValue->value, '@');
-                    }
-                }
+                $refs = [...$refs, ...$this->collectReferences($arg->value)];
             }
         }
 
-        return array_unique($refs);
+        return $refs;
     }
 }

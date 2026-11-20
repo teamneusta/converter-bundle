@@ -12,8 +12,11 @@ use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
 
 class ArrayConvertingPopulatorIntegrationTest extends ConfigurableKernelTestCase
 {
+    /**
+     * @dataProvider populatorProvider
+     */
     #[ConfigureContainer(__DIR__ . '/../Fixtures/Config/contact_numbers.yaml')]
-    public function testPopulate(): void
+    public function testPopulate(string $populatorId): void
     {
         $phone1 = '0171 2456543';
         $phone2 = '0172 2456543';
@@ -25,11 +28,17 @@ class ArrayConvertingPopulatorIntegrationTest extends ConfigurableKernelTestCase
         ]);
         $person = new Person();
 
-        self::getContainer()->get('test.person.contactnumbers.populator')->populate($person, $user);
+        self::getContainer()->get($populatorId)->populate($person, $user);
 
         self::assertSame(
             [$phone1, $phone2, $phone3],
             array_map(static fn ($item) => $item->getPhoneNumber(), $person->getContactNumbers()),
         );
+    }
+
+    public function populatorProvider(): iterable
+    {
+        yield 'legacy ArrayConvertingPopulator service' => ['test.person.contactnumbers.populator'];
+        yield 'array_converting populator config' => ['test.person.contactnumbers.populator.generated'];
     }
 }

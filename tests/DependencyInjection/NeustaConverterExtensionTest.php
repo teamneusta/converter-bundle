@@ -4,282 +4,289 @@ declare(strict_types=1);
 
 namespace Neusta\ConverterBundle\Tests\DependencyInjection;
 
-use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
-use Neusta\ConverterBundle\Converter;
-use Neusta\ConverterBundle\Converter\GenericConverter;
-use Neusta\ConverterBundle\DependencyInjection\NeustaConverterExtension;
-use Neusta\ConverterBundle\Populator\ArrayConvertingPopulator;
-use Neusta\ConverterBundle\Populator\ContextMappingPopulator;
-use Neusta\ConverterBundle\Populator\ConvertingPopulator;
-use Neusta\ConverterBundle\Populator\PropertyMappingPopulator;
-use Neusta\ConverterBundle\Target\GenericTargetWithPropertiesFactory;
+use Neusta\ConverterBundle\Context\ContextFactory;
+use Neusta\ConverterBundle\Converter\ConverterWithDefaultContext;
+use Neusta\ConverterBundle\DependencyInjection\Converter\GenericConverterFactory;
+use Neusta\ConverterBundle\DependencyInjection\Populator\ArrayPropertyMappingPopulatorFactory;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Context\AgeContextConfigurator;
-use Neusta\ConverterBundle\Tests\Fixtures\Context\LanguageContext;
-use Neusta\ConverterBundle\Tests\Fixtures\Context\MultiValueContext;
 use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Factory\PersonFactory;
-use Neusta\ConverterBundle\Tests\Fixtures\Model\Target\Person;
 use Neusta\ConverterBundle\Tests\Fixtures\Populator\PersonNamePopulator;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\DependencyInjection\TypedReference;
 
-class NeustaConverterExtensionTest extends AbstractExtensionTestCase
+/**
+ * Extension-level behaviour that is independent of a concrete converter/populator factory.
+ */
+class NeustaConverterExtensionTest extends NeustaConverterExtensionTestCase
 {
-    protected function getContainerExtensions(): array
+    protected function getConverterFactories(): array
     {
         return [
-            new NeustaConverterExtension(),
+            new GenericConverterFactory(),
         ];
     }
 
-    public function test_with_generic_converter(): void
+    protected function getPopulatorFactories(): array
+    {
+        return [
+            new ArrayPropertyMappingPopulatorFactory(),
+        ];
+    }
+
+    /**
+     * `loadInternal()` iterates all four sections unconditionally, so an app that configures none
+     * of them must still boot.
+     */
+    public function test_without_any_configuration(): void
+    {
+        $this->load([]);
+
+        $this->assertContainerBuilderHasService('neusta_converter.generic_converter');
+    }
+
+    /**
+     * An app that only uses the deprecated section must not trip over `requiresAtLeastOneElement()`
+     * on the new `converters` key.
+     */
+    public function test_with_deprecated_converter_section_only(): void
     {
         $this->load([
             'converter' => [
                 'foobar' => [
                     'target_factory' => PersonFactory::class,
-                    'populators' => [
-                        PersonNamePopulator::class,
-                    ],
+                    'populators' => [PersonNamePopulator::class],
                 ],
             ],
         ]);
 
-        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
-        $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [new Reference(PersonNamePopulator::class)]);
+        $this->assertContainerBuilderHasPublicService('foobar');
     }
 
-    public function test_with_generic_target_factory(): void
-    {
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target' => [
-                        'class' => Person::class,
-                    ],
-                    'populators' => [
-                        PersonNamePopulator::class,
-                    ],
-                ],
-            ],
-        ]);
-
-        // converter
-        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
-        $this->assertContainerBuilderHasService('foobar.target_factory', GenericTargetWithPropertiesFactory::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference('foobar.target_factory'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.target_factory', '$type', Person::class);
-    }
-
-    public function test_with_generic_target_factory_for_unknown_type(): void
+    public function test_converter_without_a_type(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('The target type "UnknownClass" does not exist.');
+        $this->expectExceptionMessage('Exactly one converter type must be set for a converter.');
 
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target' => [
-                        'class' => 'UnknownClass',
-                    ],
-                    'populators' => [
-                        PersonNamePopulator::class,
-                    ],
-                ],
-            ],
-        ]);
+        $this->load(['converters' => ['foobar' => []]]);
     }
 
-    public function test_without_target_and_target_factory(): void
+    public function test_populator_without_a_type(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Either "target" or "target_factory" must be defined.');
+        $this->expectExceptionMessage('Exactly one populator type must be set for a populator.');
 
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'populators' => [
-                        PersonNamePopulator::class,
-                    ],
-                ],
-            ],
-        ]);
+        $this->load(['populators' => ['foobar' => []]]);
     }
 
-    public function test_with_target_and_target_factory(): void
+    public function test_populator_with_multiple_types(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $this->expectExceptionMessage('Either "target" or "target_factory" must be defined, but not both.');
+        $this->expectExceptionMessage('Exactly one populator type must be set for a populator.');
 
         $this->load([
-            'converter' => [
+            'populators' => [
                 'foobar' => [
-                    'target' => [
-                        'class' => Person::class,
-                    ],
-                    'target_factory' => PersonFactory::class,
-                    'populators' => [
-                        PersonNamePopulator::class,
-                    ],
+                    'property_mapping' => ['target' => 'name'],
+                    'array_converting' => ['target' => 'name', 'converter' => 'some.converter'],
                 ],
             ],
         ]);
     }
 
-    public function test_with_mapped_properties(): void
+    public function test_property_with_multiple_populator_types(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Exactly one populator type must be set for a property.');
+
         $this->load([
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'properties' => [
-                        'name' => null,
-                        'ageInYears' => 'age',
-                        'email' => [
-                            'source' => 'mail',
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => [
+                                'array_converting' => ['converter' => 'some.converter'],
+                                'array_property_mapping' => ['source_array_item' => 'value'],
+                            ],
                         ],
-                        'fullName?' => null,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_property_configured_with_and_without_skip_null_suffix(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('A target property cannot be configured both with and without the "?" (skip_null) suffix.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => 'a',
+                            'name?' => 'b',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * `array_converting`/`array_property_mapping` discard a scalar "default" silently (their mapper
+     * always returns an array), so - unlike the default `property_mapping` type - they must reject it.
+     */
+    public function test_property_with_array_converting_type_rejects_default(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "default" option is not supported for this populator type.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => [
+                                'array_converting' => [
+                                    'converter' => 'some.converter',
+                                    'default' => 'John Doe',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_property_with_array_property_mapping_type_rejects_default(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('The "default" option is not supported for this populator type.');
+
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'properties' => [
+                            'name' => [
+                                'array_property_mapping' => [
+                                    'source_array_item' => 'value',
+                                    'default' => 'John Doe',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Population order is load-bearing: later populators overwrite what earlier ones wrote.
+     * Explicitly configured populators run first, then property populators, then context populators.
+     */
+    public function test_populator_order(): void
+    {
+        $this->load([
+            'converters' => [
+                'foobar' => [
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'populators' => [PersonNamePopulator::class],
+                        'properties' => [
+                            'name' => null,
+                            'ageInYears' => 'age',
+                        ],
+                        'context' => [
+                            'locale' => null,
+                        ],
                     ],
                 ],
             ],
         ]);
 
-        // converter
-        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
-        $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [
+            new Reference(PersonNamePopulator::class),
             new Reference('foobar.populator.name'),
             new Reference('foobar.populator.ageInYears'),
-            new Reference('foobar.populator.email'),
-            new Reference('foobar.populator.fullName'),
+            new Reference('foobar.populator.context.locale'),
         ]);
-
-        // name property populator
-        $this->assertContainerBuilderHasService('foobar.populator.name', PropertyMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$targetProperty', 'name');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$sourceProperty', 'name');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$skipNull', false);
-
-        // ageInYears property populator
-        $this->assertContainerBuilderHasService('foobar.populator.ageInYears', PropertyMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$targetProperty', 'ageInYears');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$sourceProperty', 'age');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$skipNull', false);
-
-        // email property populator
-        $this->assertContainerBuilderHasService('foobar.populator.email', PropertyMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$targetProperty', 'email');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$sourceProperty', 'mail');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.email', '$skipNull', false);
-
-        // fullName property populator
-        $this->assertContainerBuilderHasService('foobar.populator.fullName', PropertyMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$targetProperty', 'fullName');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$sourceProperty', 'fullName');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.fullName', '$skipNull', true);
     }
 
-    public function test_with_mapped_context(): void
+    /**
+     * "context_configurators" is a prototyped array node and therefore always present (as `[]`) in
+     * a converter's config, unlike the type nodes. A converter that sets only this key must still be
+     * rejected by the "exactly one type" check - and with the right message, not a bogus "the type
+     * context_configurators does not exist".
+     */
+    public function test_converter_with_only_context_configurators_still_requires_a_type(): void
     {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Exactly one converter type must be set for a converter.');
+
         $this->load([
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'name' => null,
-                        'ageInYears' => 'age',
-                    ],
+                    'context_configurators' => [AgeContextConfigurator::class],
                 ],
             ],
         ]);
-
-        // converter
-        $this->assertContainerBuilderHasPublicService('foobar', GenericConverter::class);
-        $this->assertContainerBuilderHasAlias(Converter::class . ' $foobarConverter', 'foobar');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$factory', new Reference(PersonFactory::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$populators', [
-            new Reference('foobar.populator.context.name'),
-            new Reference('foobar.populator.context.ageInYears'),
-        ]);
-
-        // name context populator
-        $this->assertContainerBuilderHasService('foobar.populator.context.name', ContextMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.name', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.name', '$targetProperty', 'name');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.name', '$contextProperty', 'name');
-
-        // ageInYears context populator
-        $this->assertContainerBuilderHasService('foobar.populator.context.ageInYears', ContextMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$targetProperty', 'ageInYears');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$required', false);
     }
 
-    public function test_with_mapped_context_required(): void
+    /**
+     * The converse of the guard above: a type key together with "context_configurators" must both
+     * validate and dispatch to the right factory.
+     */
+    public function test_converter_with_type_and_context_configurators_is_decorated(): void
     {
         $this->load([
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'ageInYears' => [
-                            'class' => AgeContext::class,
-                            'required' => true,
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'context' => [
+                            'ageInYears' => ['class' => AgeContext::class],
                         ],
                     ],
+                    'context_configurators' => [AgeContextConfigurator::class],
                 ],
             ],
         ]);
 
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$required', true);
+        $this->assertContainerBuilderHasPublicService('foobar');
+        $this->assertContainerBuilderHasService('foobar.context.factory', ContextFactory::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.context.factory', '$configurators', [new Reference(AgeContextConfigurator::class)]);
+        $this->assertContainerBuilderHasService('foobar.decorator.context', ConverterWithDefaultContext::class);
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.decorator.context', '$inner', new Reference('foobar.decorator.context.inner'));
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.decorator.context', '$contextFactory', new Reference('foobar.context.factory'));
     }
 
-    public function test_with_mapped_context_and_class(): void
+    /**
+     * A converter without any "context_configurators" (global or local) must not be decorated at
+     * all - no `ContextFactory`, no `ConverterWithDefaultContext` wrapper.
+     */
+    public function test_converter_without_context_configurators_is_not_decorated(): void
     {
         $this->load([
-            'context_configurators' => [
-                AgeContextConfigurator::class,
-            ],
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'ageInYears' => [
-                            'class' => AgeContext::class,
-                            'property' => 'age',
-                        ],
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'populators' => [PersonNamePopulator::class],
                     ],
                 ],
             ],
         ]);
 
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', AgeContext::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
-    }
-
-    public function test_with_mapped_context_without_context_configurators_does_not_require_class(): void
-    {
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'ageInYears' => 'age',
-                    ],
-                ],
-            ],
-        ]);
-
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', null);
+        self::assertFalse($this->container->hasDefinition('foobar.context.factory'));
+        self::assertFalse($this->container->hasDefinition('foobar.decorator.context'));
     }
 
     public function test_with_mapped_context_missing_class_and_global_context_configurators(): void
@@ -288,14 +295,14 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->expectExceptionMessage('The "context.ageInYears.class" option is required for converter "foobar" because "context_configurators" are configured for it.');
 
         $this->load([
-            'context_configurators' => [
-                AgeContextConfigurator::class,
-            ],
-            'converter' => [
+            'context_configurators' => [AgeContextConfigurator::class],
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'ageInYears' => 'age',
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'context' => [
+                            'ageInYears' => 'age',
+                        ],
                     ],
                 ],
             ],
@@ -308,356 +315,17 @@ class NeustaConverterExtensionTest extends AbstractExtensionTestCase
         $this->expectExceptionMessage('The "context.ageInYears.class" option is required for converter "foobar" because "context_configurators" are configured for it.');
 
         $this->load([
-            'converter' => [
+            'converters' => [
                 'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context_configurators' => [
-                        AgeContextConfigurator::class,
-                    ],
-                    'context' => [
-                        'ageInYears' => 'age',
-                    ],
-                ],
-            ],
-        ]);
-    }
-
-    public function test_with_mapped_context_infers_property_from_single_property_class(): void
-    {
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'ageInYears' => [
-                            'class' => AgeContext::class,
+                    'generic' => [
+                        'target_factory' => PersonFactory::class,
+                        'context' => [
+                            'ageInYears' => 'age',
                         ],
                     ],
+                    'context_configurators' => [AgeContextConfigurator::class],
                 ],
             ],
         ]);
-
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', AgeContext::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
-    }
-
-    public function test_with_mapped_context_explicit_property_wins_over_inference(): void
-    {
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'age' => [
-                            'class' => AgeContext::class,
-                            'property' => 'somethingElse',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.age', '$contextProperty', 'somethingElse');
-    }
-
-    public function test_with_mapped_context_falls_back_to_target_property_for_multi_property_class(): void
-    {
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'someTarget' => [
-                            'class' => MultiValueContext::class,
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.someTarget', '$contextProperty', 'someTarget');
-    }
-
-    public function test_with_mapped_context_class_string_shortcut(): void
-    {
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'locale' => LanguageContext::class,
-                    ],
-                ],
-            ],
-        ]);
-
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.locale', '$contextClass', LanguageContext::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.locale', '$contextProperty', 'language');
-    }
-
-    public function test_with_mapped_context_non_class_string_is_still_treated_as_property(): void
-    {
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'ageInYears' => 'age',
-                    ],
-                ],
-            ],
-        ]);
-
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextClass', null);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.context.ageInYears', '$contextProperty', 'age');
-    }
-
-    public function test_with_mapped_context_invalid_class(): void
-    {
-        $this->expectException(InvalidConfigurationException::class);
-
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'context' => [
-                        'locale' => [
-                            'class' => 'App\\Does\\Not\\Exist',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-    }
-
-    public function test_with_converting_populator(): void
-    {
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'targetTest' => 'sourceTest',
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourcePropertyName', 'sourceTest');
-    }
-
-    public function test_with_converting_populator_without_source_property_config(): void
-    {
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => null,
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourcePropertyName', 'test');
-    }
-
-    public function test_with_converting_populator_with_array_converting_populator_config(): void
-    {
-        $this->expectExceptionMessage('The "property.<target>.source_array_item" option is only supported for array converting populators.');
-
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => [
-                            'source_array_item' => 'value',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-    }
-
-    public function test_with_array_converting_populator(): void
-    {
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'targetTest' => 'sourceTest',
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'sourceTest');
-    }
-
-    public function test_with_array_converting_populator_without_source_property_config(): void
-    {
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => null,
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
-    }
-
-    public function test_with_array_converting_populator_with_inner_property(): void
-    {
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'targetTest' => [
-                            'source' => 'sourceTest',
-                            'source_array_item' => 'value',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'targetTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'sourceTest');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
-    }
-
-    public function test_with_array_converting_populator_with_inner_property_and_empty_source(): void
-    {
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => [
-                            'source' => null,
-                            'source_array_item' => 'value',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
-    }
-
-    public function test_with_array_converting_populator_with_inner_property_and_missing_source_property_config(): void
-    {
-        $this->load([
-            'populator' => [
-                'foobar' => [
-                    'populator' => ArrayConvertingPopulator::class,
-                    'converter' => GenericConverter::class,
-                    'property' => [
-                        'test' => [
-                            'source_array_item' => 'value',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // populator
-        $this->assertContainerBuilderHasPublicService('foobar', ArrayConvertingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$converter', new TypedReference(GenericConverter::class, Converter::class));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$targetPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayPropertyName', 'test');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar', '$sourceArrayItemPropertyName', 'value');
-    }
-
-    public function test_with_array_converting_populator_with_default_value(): void
-    {
-        $this->load([
-            'converter' => [
-                'foobar' => [
-                    'target_factory' => PersonFactory::class,
-                    'properties' => [
-                        'name' => [
-                            'source' => null,
-                            'default' => 'John Doe',
-                        ],
-                        'ageInYears' => [
-                            'source' => 'age',
-                            'default' => 42,
-                        ],
-                        'locale' => [
-                            'default' => 'en',
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        // name property populator
-        $this->assertContainerBuilderHasService('foobar.populator.name', PropertyMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$targetProperty', 'name');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$sourceProperty', 'name');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.name', '$defaultValue', 'John Doe');
-
-        // ageInYears property populator
-        $this->assertContainerBuilderHasService('foobar.populator.ageInYears', PropertyMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$targetProperty', 'ageInYears');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$sourceProperty', 'age');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.ageInYears', '$defaultValue', 42);
-
-        // locale property populator
-        $this->assertContainerBuilderHasService('foobar.populator.locale', PropertyMappingPopulator::class);
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$accessor', new Reference('property_accessor'));
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$targetProperty', 'locale');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$sourceProperty', 'locale');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('foobar.populator.locale', '$defaultValue', 'en');
-    }
-
-    /**
-     * Assert that the ContainerBuilder for this test has a public service definition with the given id and class.
-     */
-    protected function assertContainerBuilderHasPublicService(string $serviceId, ?string $expectedClass = null): void
-    {
-        $this->assertContainerBuilderHasService($serviceId, $expectedClass);
-        $this->assertTrue(
-            $this->container->getDefinition('foobar')->isPublic(),
-            \sprintf('service definition "%s" is "public"', $serviceId),
-        );
     }
 }

@@ -4,11 +4,12 @@ declare(strict_types=1);
 namespace Neusta\ConverterBundle\Tests;
 
 use Neusta\ConverterBundle\Tests\Support\Attribute\ConfigureContainer;
+use Neusta\ConverterBundle\Tests\Support\Attribute\RegisterBundle;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 abstract class ConfigurableKernelTestCase extends KernelTestCase
 {
-    /** @var list<ConfigureContainer> */
+    /** @var list<ConfigureContainer|RegisterBundle> */
     private static iterable $kernelConfigurations = [];
 
     protected static function getKernelClass(): string
@@ -41,12 +42,15 @@ abstract class ConfigurableKernelTestCase extends KernelTestCase
         $method = $class->getMethod($this->getName(false));
 
         $attributes = [];
-        foreach ($class->getAttributes(ConfigureContainer::class) as $attribute) {
-            $attributes[] = $attribute->newInstance();
-        }
+        // Bundles first: a config file may rely on a config tree that a bundle contributes.
+        foreach ([RegisterBundle::class, ConfigureContainer::class] as $attributeClass) {
+            foreach ($class->getAttributes($attributeClass) as $attribute) {
+                $attributes[] = $attribute->newInstance();
+            }
 
-        foreach ($method->getAttributes(ConfigureContainer::class) as $attribute) {
-            $attributes[] = $attribute->newInstance();
+            foreach ($method->getAttributes($attributeClass) as $attribute) {
+                $attributes[] = $attribute->newInstance();
+            }
         }
 
         self::$kernelConfigurations = $attributes;
